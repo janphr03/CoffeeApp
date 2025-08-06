@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ScrollBackground from './components/ScrollBackground';
+// import ScrollBackground from './components/ScrollBackground'; // Temporär auskommentiert für statisches Hintergrundbild
 import Navigation from './components/Navigation';
 import AnimatedSection from './components/AnimatedSection';
 import './App.css';
@@ -57,9 +57,20 @@ const App: React.FC = () => {
   ];
 
   return (
-    <div className="font-inter h-full text-gray-200 antialiased overflow-x-hidden bg-coffee-dark">
-      {/* Scroll Background */}
-      <ScrollBackground />
+    <div className="font-inter min-h-screen text-gray-200 antialiased overflow-x-hidden relative">
+      {/* Statisches Hintergrundbild */}
+      <div 
+        className="fixed top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: 'url(/frames2/frame_250.jpg)',
+          filter: 'brightness(0.6)',
+          zIndex: -1,
+          pointerEvents: 'none'
+        }}
+      />
+      
+      {/* ScrollBackground - Temporär auskommentiert für statisches Hintergrundbild */}
+      {/* <ScrollBackground /> */}
       
       {/* Navigation */}
       <Navigation />
