@@ -1,9 +1,16 @@
 "use strict";
+// @ts-ignore
+// git add .\serverNew\   --> (als bsp. dann wird geschaut welche Änderungen es in diesem Ordner gibt)
+// git commit -m "hier reinschreiben was geändert wurde"
+// git push -u origin main
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// @ts-ignore
+// =========== Zum starten des Servers ===========
+// NUR BEIM 1. MAL: npm install
+// NUR WENN ÄNDERUNGEN AM PROJEKT: npm run build
+// npm run start
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = require("mongodb");
 const app = (0, express_1.default)();
@@ -13,10 +20,10 @@ const dbName = "CoffeeAppDB";
 const collectionName = "Spots";
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
-    res.send('☕ CoffeeSpots API ist erreichbar!');
+    res.send('CoffeeSpots API ist erreichbar!');
 });
 app.listen(port, async () => {
-    console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
+    console.log(`CoffeeSpots-App läuft auf http://localhost:${port}`);
     const client = new mongodb_1.MongoClient(uri);
     try {
         // Verbindung aufbauen und Konstanten erstellen
@@ -24,12 +31,13 @@ app.listen(port, async () => {
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
         const userId = "Alex";
-        const location = "Bielefeld ohne Schreibfehler";
+        const location = "neuer Test";
         // 1️⃣ Spot für Jan einfügen
-        const insertResult = await collection.insertOne({
-            userId, location, createdAt: new Date()
-        });
-        console.log("Neuer Spot eingefügt:", insertResult.insertedId);
+        /*    const insertResult = await collection.insertOne({
+               userId,location, createdAt: new Date()
+            });
+            console.log("Neuer Spot eingefügt:", insertResult.insertedId);
+    */
         // 2️⃣ Alle Spots von Jan abfragen
         const spots = await collection.find({ userId }).toArray();
         const locations = spots.map(spot => spot.location);

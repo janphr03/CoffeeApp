@@ -1,10 +1,20 @@
 ﻿// @ts-ignore
+// git add .\serverNew\   --> (als bsp. dann wird geschaut welche Änderungen es in diesem Ordner gibt)
+// git commit -m "hier reinschreiben was geändert wurde"
+// git push -u origin main
+
+// =========== Zum starten des Servers ===========
+// NUR BEIM 1. MAL: npm install
+// NUR WENN ÄNDERUNGEN AM PROJEKT: npm run build
+// npm run start
+
 import express from 'express';
 import { MongoClient } from 'mongodb';
 
 const app = express();
 const port = 3000;
 
+//
 const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
 const dbName = "CoffeeAppDB";
 const collectionName = "Spots";
@@ -12,12 +22,12 @@ const collectionName = "Spots";
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('☕ CoffeeSpots API ist erreichbar!');
+    res.send('CoffeeSpots API ist erreichbar!');
 });
 
 
 app.listen(port, async () => {
-    console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
+    console.log(`CoffeeSpots-App läuft auf http://localhost:${port}`);
 
     const client = new MongoClient(uri);
     try {
@@ -29,12 +39,13 @@ app.listen(port, async () => {
         const location = "neuer Test"
 
 
+
         // 1️⃣ Spot für Jan einfügen
-        const insertResult = await collection.insertOne({
+    /*    const insertResult = await collection.insertOne({
            userId,location, createdAt: new Date()
         });
         console.log("Neuer Spot eingefügt:", insertResult.insertedId);
-
+*/
 
         // 2️⃣ Alle Spots von Jan abfragen
         const spots = await collection.find({userId}).toArray();
