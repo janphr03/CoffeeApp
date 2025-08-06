@@ -1,11 +1,12 @@
 {
   "name": "servernew",
   "version": "0.0.0",
-  "main": "server.mjs",
   "private": true,
-  "type": "module",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node ."
+    "start": "node dist/server.js",
+    "build": "node_modules/.bin/tsc",
+    "dev": "ts-node server.ts"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -16,5 +17,10 @@
     "mongodb": "^6.18.0",
     "mongoose": "^8.17.0",
     "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
