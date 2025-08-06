@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2022",              // mindestens ES2022
-    "module": "nodenext",            // damit `await` auf top-level erlaubt ist
-    "moduleResolution": "nodenext",
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "target": "ES2020",
+    "module": "commonjs",
+    "rootDir": ".",          // Aktuelles Verzeichnis
+    "outDir": "dist",        // Zielverzeichnis
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
+  "include": ["**/*.ts"]
 }

@@ -21,22 +21,23 @@ app.listen(port, async () => {
 
     const client = new MongoClient(uri);
     try {
+        // Verbindung aufbauen und Konstanten erstellen
         await client.connect();
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
-        const userId = "Jan"
-        const location = "München"
-        createdAt: new Date()
+        const userId = "Alex"
+        const location = "neuer Test"
+
 
         // 1️⃣ Spot für Jan einfügen
         const insertResult = await collection.insertOne({
-           userId,location,createdAt: new Date()
+           userId,location, createdAt: new Date()
         });
         console.log("Neuer Spot eingefügt:", insertResult.insertedId);
 
 
         // 2️⃣ Alle Spots von Jan abfragen
-        const spots = await collection.find({ userId: "Jan" }).toArray();
+        const spots = await collection.find({userId}).toArray();
         const locations = spots.map(spot => spot.location);
         console.log(`Orte von ${userId}:`, locations);
     } catch (error) {
