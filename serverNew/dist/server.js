@@ -24,7 +24,7 @@ app.listen(port, async () => {
         const db = client.db(dbName);
         const collection = db.collection(collectionName);
         const userId = "Alex";
-        const location = "Bielefeld ohne Schreibfehler";
+        const location = "neuer Test";
         // 1️⃣ Spot für Jan einfügen
         const insertResult = await collection.insertOne({
             userId, location, createdAt: new Date()
