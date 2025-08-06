@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ScrollBackground from './components/ScrollBackground';
 import Navigation from './components/Navigation';
 import AnimatedSection from './components/AnimatedSection';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 import './App.css';
 
 interface FormData {
@@ -16,12 +20,43 @@ interface Feature {
   description: string;
 }
 
+interface User {
+  id: string;
+  username: string;
+  email?: string;
+}
+
 const App: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [authView, setAuthView] = useState<'login' | 'register' | 'home'>('home');
+  const [loading, setLoading] = useState(true);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/auth/me', {
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      // User not logged in, that's ok
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     setFormData({
@@ -36,6 +71,25 @@ const App: React.FC = () => {
     // Hier würde normalerweise die Form-Verarbeitung stattfinden
     alert('Nachricht gesendet! (Demo)');
     setFormData({ name: '', email: '', message: '' });
+  };
+
+  const handleLogin = (userData: User) => {
+    setUser(userData);
+    setAuthView('home');
+  };
+
+  const handleRegister = (userData: User) => {
+    setUser(userData);
+    setAuthView('home');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setAuthView('home');
+  };
+
+  const showAuthForm = () => {
+    setAuthView('login');
   };
 
   const features: Feature[] = [
@@ -56,6 +110,52 @@ const App: React.FC = () => {
     }
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-coffee-dark flex items-center justify-center">
+        <div className="text-coffee-light text-xl">Lade...</div>
+      </div>
+    );
+  }
+
+  // If user is logged in, show dashboard
+  if (user) {
+    return <Dashboard user={user} onLogout={handleLogout} />;
+  }
+
+  // If auth view is requested, show auth forms
+  if (authView === 'login') {
+    return (
+      <div className="min-h-screen bg-coffee-dark flex items-center justify-center px-6">
+        <ScrollBackground />
+        <Login onLogin={handleLogin} onSwitchToRegister={() => setAuthView('register')} />
+        <button
+          onClick={() => setAuthView('home')}
+          className="absolute top-6 left-6 text-coffee-brown hover:text-coffee-light transition-colors"
+        >
+          ← Zurück zur Startseite
+        </button>
+      </div>
+    );
+  }
+
+  if (authView === 'register') {
+    return (
+      <div className="min-h-screen bg-coffee-dark flex items-center justify-center px-6">
+        <ScrollBackground />
+        <Register onRegister={handleRegister} onSwitchToLogin={() => setAuthView('login')} />
+        <button
+          onClick={() => setAuthView('home')}
+          className="absolute top-6 left-6 text-coffee-brown hover:text-coffee-light transition-colors"
+        >
+          ← Zurück zur Startseite
+        </button>
+      </div>
+    );
+  }
+
+  // Default home view
+
   return (
     <div className="font-inter h-full text-gray-200 antialiased overflow-x-hidden bg-coffee-dark">
       {/* Scroll Background */}
@@ -74,13 +174,19 @@ const App: React.FC = () => {
             Tauche ein in eine Welt voller Coffee Spots – interaktiv & fließend.
           </p>
           <button
+            onClick={showAuthForm}
+            className="inline-block bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 mr-4"
+          >
+            Anmelden / Registrieren
+          </button>
+          <button
             onClick={() => {
               const element = document.getElementById('about');
               if (element) {
                 element.scrollIntoView({ behavior: 'smooth' });
               }
             }}
-            className="inline-block bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+            className="inline-block bg-transparent border-2 border-coffee-brown hover:bg-coffee-brown text-coffee-brown hover:text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
           >
             Mehr erfahren
           </button>
