@@ -1,0 +1,44 @@
+/* Custom App Styles */
+@import "tailwindcss";
+
+.App {
+  text-align: center;
+}
+
+/* Custom animations for React */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Custom transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Smooth hover effects */
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Custom gradient backgrounds */
+.gradient-coffee {
+  background: linear-gradient(135deg, #A67B5B 0%, #6F4E37 100%);
+}
+
+/* Backdrop blur for navigation */
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+}
