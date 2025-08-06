@@ -1,0 +1,20 @@
+{
+  "name": "servernew",
+  "version": "0.0.0",
+  "main": "server.mjs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.21.2",
+    "http-errors": "~1.6.3",
+    "jade": "^1.9.2",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.17.0",
+    "morgan": "^1.10.1"
+  }
+}
