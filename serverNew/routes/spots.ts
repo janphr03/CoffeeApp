@@ -1,12 +1,9 @@
-﻿// @ts-ignore
+﻿// routes/spots.ts
 import express, { Request, Response } from 'express';
-import { MongoClient } from 'mongodb';
+import { SpotsDB } from '../Db/SpotsDB';
 
 const router = express.Router();
-
-const uri: string = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
-const dbName = "CoffeeAppDB";
-const collectionName = "Spots";
+const spotsDB = new SpotsDB();
 
 // Middleware für JSON-Parsing
 router.use(express.json());
@@ -16,20 +13,12 @@ router.get('/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params;
     console.log('userId:', userId);
 
-    const client = new MongoClient(uri);
     try {
-        await client.connect();
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        const spots = await collection.find({ userId }).toArray();
-        const locations = spots.map(spot => spot.location);
+        const locations = await spotsDB.getSpotsByUserId(userId);
         res.status(200).json(locations);
     } catch (error) {
         console.error('❌ Fehler beim Abrufen der Spots:', error);
         res.status(500).json({ message: 'Serverfehler beim Abrufen der Spots' });
-    } finally {
-        await client.close();
     }
 });
 
@@ -42,26 +31,13 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'Fehlender userId oder location' });
     }
 
-    const client = new MongoClient(uri);
     try {
-        await client.connect();
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
-
-        const result = await collection.insertOne({
-            userId,
-            location,
-            createdAt: new Date()
-        });
-
+        const result = await spotsDB.createSpot(userId, location);
         res.status(201).json({ message: '✅ Spot gespeichert', id: result.insertedId });
     } catch (error) {
         console.error('❌ Fehler beim Speichern des Spots:', error);
         res.status(500).json({ message: 'Serverfehler beim Speichern des Spots' });
-    } finally {
-        await client.close();
     }
 });
 
 export default router;
-
