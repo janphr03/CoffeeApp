@@ -22,6 +22,7 @@
     "express-session": "^1.18.2",
     "http-errors": "~1.6.3",
     "jade": "^1.9.2",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.18.0",
     "mongoose": "^8.17.0",
     "morgan": "^1.10.1"
@@ -36,12 +37,15 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
-
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "roots": ["<rootDir>/tests"],
-    "testMatch": ["**/*.test.ts"],
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "testMatch": [
+      "**/*.test.ts"
+    ],
     "collectCoverageFrom": [
       "routes/**/*.ts",
       "models/**/*.ts",

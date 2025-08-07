@@ -1,7 +1,9 @@
 import express from 'express';
 import { User } from '../models/User';
+import {DatabaseOperations} from "../Db/databaseOperations";
 
 const router = express.Router();
+const authentificationDb = new DatabaseOperations(); // Assuming User is a Mongoose model
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -65,6 +67,10 @@ router.post('/register', async (req, res) => {
     });
   }
 });
+
+
+
+
 
 // Login route
 router.post('/login', async (req, res) => {
