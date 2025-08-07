@@ -5,17 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // routes/spots.ts
 const express_1 = __importDefault(require("express"));
-const auth_1 = require("../middleware/auth");
+const middleware_1 = require("../middleware/middleware");
 const databaseOperations_1 = require("../Db/databaseOperations");
+// Routen und DB-Operationen definieren
 const router = express_1.default.Router();
 const spotsDB = new databaseOperations_1.DatabaseOperations();
 // Middleware für JSON-Parsing
 router.use(express_1.default.json());
-router.use(auth_1.requireAuth);
-// GET /api/spots - Alle Spots des authentifizierten Nutzers
+router.use(middleware_1.requireAuth);
+// GET /api/spots - Alle Spots des authentifizierten Nutzers | req ist schon ein geparstes JS Objekt
 router.get('/', async (req, res) => {
     try {
-        const userId = req.session?.username;
+        const userId = req.session?.username; // user ID aus JSON-Body
         // gibt es einen User?
         if (!userId) {
             return res.status(401).json({
@@ -23,7 +24,7 @@ router.get('/', async (req, res) => {
                 message: 'User not authenticated'
             });
         }
-        const spots = await spotsDB.getSpotsByUserId(userId);
+        const spots = await spotsDB.getSpotsByUserId(userId); // Spots laden die mit User-ID verknüpft
         res.status(200).json({
             success: true,
             spots: spots,
@@ -39,10 +40,12 @@ router.get('/', async (req, res) => {
     }
 });
 // POST /api/spots - Neuen Spot hinzufügen
+// req ist der Body der schon in ein JS Objekt umgewandelt wurde
 router.post('/', async (req, res) => {
     try {
-        const { location } = req.body;
-        const userId = req.session?.username;
+        const { location } = req.body; // location wird aus JSON-Body gezogen
+        const userId = req.session?.username; // userId wird aus JSON-Body gezogen
+        // gibt es eine Location die man hinzufügen kann?
         if (!location) {
             return res.status(400).json({
                 success: false,
@@ -56,7 +59,7 @@ router.post('/', async (req, res) => {
                 message: 'User not authenticated'
             });
         }
-        const result = await spotsDB.createSpot(userId, location);
+        const result = await spotsDB.createSpot(userId, location); // Spot wird hinzugefügt und als Objekt gespeichert
         res.status(201).json({
             success: true,
             message: 'Spot added successfully',

@@ -11,6 +11,12 @@ client.connect()
         db = client.db(dbName);
     });
 
+export async function getUserCollection() {
+    await client.connect();
+    const db = client.db(dbName);
+    return db.collection('Users');
+}
+
 export class DatabaseOperations {
     async getSpotsByUserId(userId: string) {
         try {
@@ -19,13 +25,10 @@ export class DatabaseOperations {
             return spots.map(spot => spot.location);
         } catch (error) {
             throw error;
-        } finally {
-            await client.close();
         }
     }
 
     async createSpot(userId: string, location: string) {
-        const client = new MongoClient(uri);
         try {
             const collection = db.collection(collectionName);
 
@@ -36,8 +39,6 @@ export class DatabaseOperations {
             });
         } catch (error) {
             throw error;
-        } finally {
-            await client.close();
         }
     }
 }

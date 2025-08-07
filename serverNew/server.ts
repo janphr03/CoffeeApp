@@ -2,8 +2,10 @@
 import session from 'express-session';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
-import authRoutes from './routes/auth';
+import authRoutes from  './routes/auth';
 import spotsRoutes from './routes/spots';
+
+// npm install --legacy-peer-deps  das ist der Install den man noch ausführen muss
 
 const app = express();
 const port = 3000;
@@ -34,6 +36,7 @@ app.use(express.json());
 // Routes definieren
 app.use('/api/auth', authRoutes);
 app.use('/api/spots', spotsRoutes);
+app.use('/api/auth', authRoutes);
 
 // native Homepage Route
 app.get('/', (req, res) => {

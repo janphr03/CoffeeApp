@@ -7,7 +7,7 @@ const supertest_1 = __importDefault(require("supertest"));
 const express_1 = __importDefault(require("express"));
 const express_session_1 = __importDefault(require("express-session"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const auth_1 = __importDefault(require("../routes/auth"));
+const auth_1 = require("../routes/auth");
 const app = (0, express_1.default)();
 // Setup test app
 app.use(express_1.default.json());
@@ -17,7 +17,7 @@ app.use((0, express_session_1.default)({
     saveUninitialized: false,
     cookie: { secure: false }
 }));
-app.use('/api/auth', auth_1.default);
+app.use('/api/auth', auth_1.router);
 describe('Authentication Routes', () => {
     beforeAll(async () => {
         // Connect to test database

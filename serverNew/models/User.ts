@@ -1,58 +1,36 @@
-import mongoose from 'mongoose';
+import { Collection, Document, ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 
-interface IUser extends mongoose.Document {
+// User Interface
+export interface IUser extends Document {
+  _id?: ObjectId;
   username: string;
   email: string;
   password: string;
-  createdAt: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
+  createdAt?: Date;
 }
 
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 50
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+// Erstellt ein neuen User-Eintrag (Passwort wird gehashed)
+export async function createUser(userCollection: Collection<IUser>, userData: Omit<IUser, 'createdAt'>): Promise<IUser> {
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const saltRounds = 10;
-    this.password = await bcrypt.hash(this.password, saltRounds);
-    next();
-  } catch (error) {
-    next(error as Error);
-  }
-});
+  const user: IUser = {
+    username: userData.username,
+    email: userData.email,
+    password: hashedPassword,
+    createdAt: new Date()
+  };
 
-// Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+  const result = await userCollection.insertOne(user);
+  return { ...user, _id: result.insertedId };
+}
 
-export const User = mongoose.model<IUser>('User', userSchema);
-export type { IUser };
+// Holt User per Username
+export async function findUserByUsername(userCollection: Collection<IUser>, username: string): Promise<IUser | null> {
+  return await userCollection.findOne({ username });
+}
+
+// Passwortvergleich (Login)
+export async function comparePassword(inputPassword: string, hashedPassword: string): Promise<boolean> {
+  return await bcrypt.compare(inputPassword, hashedPassword);
+}
