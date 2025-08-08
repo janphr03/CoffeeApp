@@ -1,31 +1,66 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { loginUser, LoginCredentials } from '../services/api';
 
 interface LoginFormData {
-  email: string;
+  identifier: string; // Username oder Email (wie im Backend erwartet)
   password: string;
 }
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
+    identifier: '',
     password: ''
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Fehler zurücksetzen wenn Benutzer tippt
+    if (error) setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    // Hier würde normalerweise die Login-Verarbeitung stattfinden
-    alert('Login erfolgreich! (Demo)');
-    navigate('/map');
+    setLoading(true);
+    setError('');
+
+    try {
+      console.log('🔑 Login-Versuch mit:', { identifier: formData.identifier });
+      
+      // **SCHRITT 1: Daten an Backend senden**
+      const response = await loginUser(formData as LoginCredentials);
+      
+      console.log('📨 Backend-Antwort:', response);
+
+      // **SCHRITT 2: Response auswerten**
+      if (response.success && response.user) {
+        console.log('✅ Login erfolgreich!');
+        
+        // **SCHRITT 3: User-Daten in Context speichern**
+        login(response.user);
+        
+        // **SCHRITT 4: Zur Map-Seite weiterleiten**
+        navigate('/map');
+      } else {
+        // **SCHRITT 5: Fehler anzeigen**
+        console.log('❌ Login fehlgeschlagen:', response.message);
+        setError(response.message || 'Login fehlgeschlagen');
+      }
+    } catch (error) {
+      console.error('💥 Unerwarteter Fehler beim Login:', error);
+      setError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,21 +87,29 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-600 rounded-lg">
+            <p className="text-red-300 text-sm text-center">{error}</p>
+          </div>
+        )}
+
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-              E-Mail-Adresse
+            <label htmlFor="identifier" className="block text-sm font-medium text-gray-300 mb-2">
+              E-Mail oder Benutzername
             </label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="identifier"
+              name="identifier"
+              value={formData.identifier}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
-              placeholder="ihre@email.com"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all disabled:opacity-50"
+              placeholder="ihre@email.com oder username"
             />
           </div>
 
@@ -81,16 +124,18 @@ const LoginPage: React.FC = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Anmelden
+            {loading ? '🔄 Anmelden...' : 'Anmelden'}
           </button>
         </form>
 

@@ -16,6 +16,11 @@ interface CoffeeSpot {
   priceLevel?: number;
 }
 
+interface MapNavigationProps {
+  isLoggedIn: boolean;
+  onToggleLogin: () => void;
+}
+
 const MapPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin

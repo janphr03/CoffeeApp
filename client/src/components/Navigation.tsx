@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { logoutUser } from '../services/api';
 
 const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -20,6 +23,24 @@ const Navigation: React.FC = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
     setIsOpen(false);
+  };
+
+  const handleLogout = async (): Promise<void> => {
+    try {
+      console.log('🚪 Logout-Prozess gestartet...');
+      
+      // **SCHRITT 1: Backend über Logout benachrichtigen**
+      await logoutUser();
+      
+      // **SCHRITT 2: User aus Context entfernen**
+      logout();
+      
+      console.log('✅ Logout erfolgreich!');
+    } catch (error) {
+      console.error('❌ Logout-Fehler:', error);
+      // Auch bei Fehlern den User lokal ausloggen
+      logout();
+    }
   };
 
   return (
@@ -77,16 +98,37 @@ const Navigation: React.FC = () => {
             </li>
           </ul>
           
-          {/* Login Button */}
-          <Link
-            to="/login"
-            className="hidden md:flex items-center space-x-2 text-gray-200 hover:text-coffee-brown transition-colors"
-          >
-            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-              <span className="text-sm">👤</span>
+          {/* Authentication Buttons */}
+          {user ? (
+            // **User ist eingeloggt: Zeige User-Info und Logout**
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-gray-200">
+                <div className="w-8 h-8 bg-coffee-brown rounded-full flex items-center justify-center">
+                  <span className="text-sm font-bold text-white">
+                    {user.username[0].toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-sm">Hallo, {user.username}!</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-gray-200 hover:text-coffee-brown transition-colors text-sm"
+              >
+                Logout
+              </button>
             </div>
-            <span className="text-sm">Login</span>
-          </Link>
+          ) : (
+            // **User ist nicht eingeloggt: Zeige Login-Button**
+            <Link
+              to="/login"
+              className="hidden md:flex items-center space-x-2 text-gray-200 hover:text-coffee-brown transition-colors"
+            >
+              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                <span className="text-sm">👤</span>
+              </div>
+              <span className="text-sm">Login</span>
+            </Link>
+          )}
         </div>
         
         <button 
@@ -141,15 +183,37 @@ const Navigation: React.FC = () => {
                 Contact
               </button>
             </li>
-            <li>
-              <Link 
-                to="/login"
-                className="block hover:text-coffee-brown w-full text-left pt-2 border-t border-gray-600"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
-            </li>
+            {/* Mobile Authentication */}
+            {user ? (
+              <>
+                <li className="pt-2 border-t border-gray-600">
+                  <div className="text-gray-300 text-sm">
+                    Eingeloggt als: <span className="text-coffee-brown">{user.username}</span>
+                  </div>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="block hover:text-coffee-brown w-full text-left"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <Link 
+                  to="/login"
+                  className="block hover:text-coffee-brown w-full text-left pt-2 border-t border-gray-600"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       )}
