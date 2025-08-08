@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { registerUser, RegisterCredentials } from '../services/api';
 
 interface RegisterFormData {
-  name: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -10,32 +12,115 @@ interface RegisterFormData {
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
+  
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Fehler zurücksetzen wenn Benutzer tippt
+    if (error) setError('');
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({
+        ...fieldErrors,
+        [e.target.name]: ''
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const validateForm = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    // Benutzername validieren
+    if (formData.username.length < 3) {
+      errors.username = 'Benutzername muss mindestens 3 Zeichen lang sein';
+    }
+
+    // Email validieren
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.email = 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+    }
+
+    // Passwort validieren
+    if (formData.password.length < 6) {
+      errors.password = 'Passwort muss mindestens 6 Zeichen lang sein';
+    }
+
+    // Passwort bestätigen
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Passwörter stimmen nicht überein';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwörter stimmen nicht überein!');
+    // **SCHRITT 1: Frontend-Validierung**
+    if (!validateForm()) {
+      console.log('❌ Formular-Validierung fehlgeschlagen');
       return;
     }
     
-    console.log('Registration submitted:', formData);
-    // Hier würde normalerweise die Registrierungs-Verarbeitung stattfinden
-    alert('Registrierung erfolgreich! (Demo)');
-    navigate('/login');
+    setLoading(true);
+    setError('');
+
+    try {
+      console.log('🔐 Registrierung wird gestartet für:', formData.username);
+      
+      // **SCHRITT 2: Registrierungs-Daten an Backend senden**
+      const registerData: RegisterCredentials = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      };
+      
+      const response = await registerUser(registerData);
+      
+      console.log('📨 Backend-Antwort bei Registrierung:', response);
+
+      // **SCHRITT 3: Response auswerten**
+      if (response.success && response.user) {
+        console.log('✅ Registrierung erfolgreich!');
+        
+        // **SCHRITT 4: User-Daten in Context speichern (automatisches Login)**
+        login(response.user);
+        
+        // **SCHRITT 5: Zur Map-Seite weiterleiten**
+        navigate('/map');
+      } else {
+        // **SCHRITT 6: Spezifische Backend-Fehler anzeigen**
+        console.log('❌ Registrierung fehlgeschlagen:', response.message);
+        setError(response.message || 'Registrierung fehlgeschlagen');
+      }
+    } catch (error: any) {
+      console.error('💥 Unerwarteter Fehler bei Registrierung:', error);
+      
+      // Spezifische Fehlerbehandlung
+      if (error.message.includes('E-Mail bereits registriert')) {
+        setFieldErrors({ email: 'Diese E-Mail-Adresse ist bereits registriert' });
+      } else if (error.message.includes('Benutzername bereits vergeben')) {
+        setFieldErrors({ username: 'Dieser Benutzername ist bereits vergeben' });
+      } else {
+        setError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,32 +137,45 @@ const RegisterPage: React.FC = () => {
       />
       
       <div className="bg-black bg-opacity-70 p-8 rounded-xl shadow-2xl w-full max-w-md relative z-10">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-600 rounded-lg">
+            <p className="text-red-300 text-sm text-center">{error}</p>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-coffee-light font-playfair mb-2">
-            Konto erstellen
+            Jetzt registrieren
           </h1>
           <p className="text-gray-300">
-            Registrieren Sie sich für Coffee Spots
+            Entdecken Sie die besten Coffee Spots in Ihrer Nähe
           </p>
         </div>
 
         {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-              Vollständiger Name
+            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+              Benutzername
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
-              placeholder="Max Mustermann"
+              disabled={loading}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
+                fieldErrors.username ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
+              }`}
+              placeholder="IhrBenutzername"
             />
+            {fieldErrors.username && (
+              <p className="text-red-400 text-xs mt-1">{fieldErrors.username}</p>
+            )}
           </div>
 
           <div>
@@ -91,9 +189,15 @@ const RegisterPage: React.FC = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
+              disabled={loading}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
+                fieldErrors.email ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
+              }`}
               placeholder="ihre@email.com"
             />
+            {fieldErrors.email && (
+              <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -107,9 +211,15 @@ const RegisterPage: React.FC = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
+              disabled={loading}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
+                fieldErrors.password ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
+              }`}
               placeholder="••••••••"
             />
+            {fieldErrors.password && (
+              <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+            )}
           </div>
 
           <div>
@@ -123,16 +233,23 @@ const RegisterPage: React.FC = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
+              disabled={loading}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
+                fieldErrors.confirmPassword ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
+              }`}
               placeholder="••••••••"
             />
+            {fieldErrors.confirmPassword && (
+              <p className="text-red-400 text-xs mt-1">{fieldErrors.confirmPassword}</p>
+            )}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Registrieren
+            {loading ? '🔄 Registrierung läuft...' : 'Account erstellen'}
           </button>
         </form>
 
