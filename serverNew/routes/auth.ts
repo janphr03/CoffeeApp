@@ -15,7 +15,7 @@ const router = express.Router();
 // Middleware für JSON-Parsing
 router.use(express.json());
 
-// /register
+// Registrierung ============================================================================================================
 router.post('/register', async (req, res) => {
   try {
     const {username, email, password} = req.body;
@@ -27,12 +27,21 @@ router.post('/register', async (req, res) => {
         message: 'Please enter all fields'
       });
     }
-    // ==== Existenz prüfen ====
+
     const users = await getUserCollection();
+
+    //==== auf doppelten Username prüfen ====
     const existingUser = await users.findOne({username}); // gibt es den username in der Collection users?
 
     if (existingUser) {
       return res.status(400).json({success: false, message: 'Benutzer existiert bereits.'});
+    }
+
+    //==== auf doppelte Mail prüfen ====
+    const existingEmail = await users.findOne({email}); // gibt es die email in der Collection users?
+
+    if (existingEmail) {
+        return res.status(400).json({success: false, message: 'Email existiert bereits.'});
     }
 
     //==== Passwort hashen ====
@@ -56,8 +65,73 @@ router.post('/register', async (req, res) => {
 
 })
 
-// /login
 
-// /logout
+
+// Login ============================================================================================================
+router.post("/login", async (req, res) => {
+  try{
+    const {identifier, password} = req.body // identifier ist username oder email
+
+    // ==== Eingabe prüfen ====
+    if(!identifier || !password){
+      return res.status(400).json({success: false, message: 'Bitte alle Felder ausfüllen.'});
+    }
+
+    // ==== Username / mail matchen  ====
+    const users = await getUserCollection(); // Zugriff auf die User-Collection
+    const user = await users.findOne({$or: [{username: identifier}, {email: identifier}]});// Suche nach username oder email
+
+    if(!user){
+      return res.status(400).json({success: false, message: 'Benutzer nicht gefunden.'});
+    }
+
+    // ==== Passwort prüfen ====
+    const isPasswordValid = await bcrypt.compare(password, user.password); // Passwort wird mit dem in der DB gespeicherten Passwort verglichen
+    if(!isPasswordValid){
+      return res.status(400).json({success: false, message: 'Falsches Passwort.'});
+    }
+
+    // ==== Session aktivieren (darin wird automatisch der Cookie erzeugt) ====
+    req.session.userId = user._id.toString(); // user._id ist ein Object
+    req.session.username = user.username;
+
+    return res.status(200).json({success: true, message: 'Erfolgreich eingeloggt.',  user: {id: user._id, username: user.username, email: user.email, createdAt: user.createdAt, updatedAt: user.updatedAt}});
+  }
+
+  catch(err){
+    console.error("Fehler beim Login: ", err);
+    return res.status(500).json({success: false, message: 'Fehler beim Login.'});
+  }
+})
+
+// Logout ============================================================================================================
+router.post('/logout', (req, res) => {
+  try {
+
+    // Prüfen, ob eine Session existiert
+    if (!req.session.userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Keine aktive Sitzung – Benutzer ist nicht eingeloggt.'
+      });
+    }
+
+    // Session löschen
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Fehler beim Beenden der Sitzung:', err);
+        return res.status(500).json({success: false, message: 'Fehler beim Beenden der Sitzung.'});
+      }
+        res.clearCookie('connect.sid'); // Cookie löschen
+        res.status(200).json({success: true, message: 'Erfolgreich ausgeloggt.'});
+    });
+
+  }
+  catch (error) {
+    console.error('Fehler beim Logout:', error);
+    res.status(500).json({success: false, message: 'Fehler beim Logout'});
+  }
+});
+
 
 export default router;

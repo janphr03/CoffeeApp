@@ -36,25 +36,16 @@ app.use(express.json());
 // Routes definieren
 app.use('/api/auth', authRoutes);
 app.use('/api/spots', spotsRoutes);
-app.use('/api/auth', authRoutes);
 
 // native Homepage Route
 app.get('/', (req, res) => {
     res.send('☕ CoffeeSpots API ist erreichbar!');
 });
 
-//========== Startet den server der Einstiegspunkt für die App ===========
-app.listen(port, async () => {
-    console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
 
-    // Test DB connection wird geöfnnet und direkt wieder geschlossen kann also entfertn werden
-    const client = new MongoClient(uri);
-    try {
-        await client.connect();
-        console.log('✅ Connected to MongoDB');
-    } catch (error) {
-        console.error('❌ Error connecting to MongoDB:', error);
-    } finally {
-        await client.close();
-    }
+
+
+//========== Startet den server der Einstiegspunkt für die App ===========
+app.listen(port, () => {
+    console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
 });
