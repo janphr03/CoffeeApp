@@ -24,15 +24,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     fetchSpots();
   }, []);
 
+  interface FetchSpotsResponse {
+    success: boolean;
+    spots: Spot[];
+    message?: string;
+  }
+
   const fetchSpots = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/spots', {
+      const response = await axios.get<FetchSpotsResponse>('http://localhost:3001/api/spots', {
         withCredentials: true
       });
       
-      if (response.data.success) {
-        setSpots(response.data.spots);
+      const data = response.data as FetchSpotsResponse;
+      if (data.success) {
+        setSpots(data.spots);
       }
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error fetching spots');
@@ -47,7 +54,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
     setAddingSpot(true);
     try {
-      const response = await axios.post('http://localhost:3001/api/spots', {
+      const response = await axios.post<{ success: boolean; spot: Spot }>('http://localhost:3001/api/spots', {
         location: newLocation
       }, {
         withCredentials: true

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -28,52 +29,65 @@ const Navigation: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <button className="text-2xl font-bold text-coffee-cream">
+        <Link to="/" className="text-2xl font-bold text-coffee-cream">
           ☕ CoffeeSpots
-        </button>
+        </Link>
         
-        <ul className="hidden md:flex space-x-8 text-gray-200">
-          <li>
-            <button 
-              onClick={() => scrollToSection('hero')} 
-              className="hover:text-coffee-brown transition-colors"
-            >
-              Home
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => scrollToSection('about')} 
-              className="hover:text-coffee-brown transition-colors"
-            >
-              About
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => scrollToSection('features')} 
-              className="hover:text-coffee-brown transition-colors"
-            >
-              Features
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => scrollToSection('testi')} 
-              className="hover:text-coffee-brown transition-colors"
-            >
-              Testimonials
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => scrollToSection('contact')} 
-              className="hover:text-coffee-brown transition-colors"
-            >
-              Contact
-            </button>
-          </li>
-        </ul>
+        <div className="flex items-center space-x-6">
+          <ul className="hidden md:flex space-x-8 text-gray-200">
+            <li>
+              <button 
+                onClick={() => scrollToSection('hero')} 
+                className="hover:text-coffee-brown transition-colors"
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollToSection('about')} 
+                className="hover:text-coffee-brown transition-colors"
+              >
+                About
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollToSection('features')} 
+                className="hover:text-coffee-brown transition-colors"
+              >
+                Features
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollToSection('testi')} 
+                className="hover:text-coffee-brown transition-colors"
+              >
+                Testimonials
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollToSection('contact')} 
+                className="hover:text-coffee-brown transition-colors"
+              >
+                Contact
+              </button>
+            </li>
+          </ul>
+          
+          {/* Login Button */}
+          <Link
+            to="/login"
+            className="hidden md:flex items-center space-x-2 text-gray-200 hover:text-coffee-brown transition-colors"
+          >
+            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+              <span className="text-sm">👤</span>
+            </div>
+            <span className="text-sm">Login</span>
+          </Link>
+        </div>
         
         <button 
           className="md:hidden text-2xl text-gray-200"
@@ -126,6 +140,15 @@ const Navigation: React.FC = () => {
               >
                 Contact
               </button>
+            </li>
+            <li>
+              <Link 
+                to="/login"
+                className="block hover:text-coffee-brown w-full text-left pt-2 border-t border-gray-600"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
             </li>
           </ul>
         </div>

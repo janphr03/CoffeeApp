@@ -21,13 +21,19 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
     });
   };
 
+  interface LoginResponse {
+    success: boolean;
+    user: any;
+    message?: string;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', formData, {
+      const response = await axios.post<LoginResponse>('http://localhost:3001/api/auth/login', formData, {
         withCredentials: true
       });
 
