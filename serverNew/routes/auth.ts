@@ -1,15 +1,8 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { getUserCollection } from '../Db/databaseOperations';
-import {MongoClient} from "mongodb";
 
 const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
-
-const client = new MongoClient(uri);
-client.connect();
-
-export const db = client.db("CoffeeAppDB");
-
 const router = express.Router();
 
 // Middleware für JSON-Parsing
@@ -103,6 +96,8 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({success: false, message: 'Fehler beim Login.'});
   }
 })
+
+
 
 // Logout ============================================================================================================
 router.post('/logout', (req, res) => {
