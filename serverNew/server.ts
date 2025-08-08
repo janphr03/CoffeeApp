@@ -6,6 +6,7 @@ import authRoutes from  './routes/auth';
 import spotsRoutes from './routes/spots';
 
 // npm install --legacy-peer-deps  das ist der Install den man noch ausführen muss
+// npm run dev  damit wird npm build & npm start ausgeführt
 
 const app = express();
 const port = 3000;
