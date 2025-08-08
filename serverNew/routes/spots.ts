@@ -1,67 +1,87 @@
-﻿// @ts-ignore
+﻿// routes/spots.ts
 import express, { Request, Response } from 'express';
-import { MongoClient } from 'mongodb';
+import { requireAuth} from "../middleware/middleware";
+import { DatabaseOperations } from '../Db/databaseOperations';
 
+// Routen und DB-Operationen definieren
 const router = express.Router();
-
-const uri: string = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
-const dbName = "CoffeeAppDB";
-const collectionName = "Spots";
+const spotsDB = new DatabaseOperations();
 
 // Middleware für JSON-Parsing
 router.use(express.json());
+router.use(requireAuth);
 
-// GET /spots/:userId → Gibt alle Orte des Nutzers zurück
-router.get('/:userId', async (req: Request, res: Response) => {
-    const { userId } = req.params;
-    console.log('userId:', userId);
+// GET /api/spots - Alle Spots des authentifizierten Nutzers | req ist schon ein geparstes JS Objekt
+router.get('/', async (req: Request, res: Response) => {
 
-    const client = new MongoClient(uri);
     try {
-        await client.connect();
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
+        const userId = req.session?.username; // user ID aus JSON-Body
 
-        const spots = await collection.find({ userId }).toArray();
-        const locations = spots.map(spot => spot.location);
-        res.status(200).json(locations);
+        // gibt es einen User?
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
+        const spots = await spotsDB.getSpotsByUserId(userId); // Spots laden die mit User-ID verknüpft
+
+        res.status(200).json({
+            success: true,
+            spots: spots,
+            user: userId
+        });
+
     } catch (error) {
         console.error('❌ Fehler beim Abrufen der Spots:', error);
-        res.status(500).json({ message: 'Serverfehler beim Abrufen der Spots' });
-    } finally {
-        await client.close();
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching spots'
+        });
     }
 });
 
-// POST /spots → Fügt Spot für Nutzer ein (userId & location übergeben als Query-Parameter)
+
+
+// POST /api/spots - Neuen Spot hinzufügen
+// req ist der Body der schon in ein JS Objekt umgewandelt wurde
 router.post('/', async (req: Request, res: Response) => {
-    const userId = req.query.userId as string;
-    const location = req.query.location as string;
-
-    if (!userId || !location) {
-        return res.status(400).json({ message: 'Fehlender userId oder location' });
-    }
-
-    const client = new MongoClient(uri);
     try {
-        await client.connect();
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
+        const { location } = req.body; // location wird aus JSON-Body gezogen
+        const userId = req.session?.username; // userId wird aus JSON-Body gezogen
 
-        const result = await collection.insertOne({
-            userId,
-            location,
-            createdAt: new Date()
+        // gibt es eine Location die man hinzufügen kann?
+        if (!location) {
+            return res.status(400).json({
+                success: false,
+                message: 'Location is required'
+            });
+        }
+
+        // gibt es einen User?
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
+        const result = await spotsDB.createSpot(userId!, location); // Spot wird hinzugefügt und als Objekt gespeichert
+
+        res.status(201).json({
+            success: true,
+            message: 'Spot added successfully',
+            spot: { _id: result.insertedId, userId, location }
         });
 
-        res.status(201).json({ message: '✅ Spot gespeichert', id: result.insertedId });
     } catch (error) {
         console.error('❌ Fehler beim Speichern des Spots:', error);
-        res.status(500).json({ message: 'Serverfehler beim Speichern des Spots' });
-    } finally {
-        await client.close();
+        res.status(500).json({
+            success: false,
+            message: 'Error adding spot'
+        });
     }
 });
 
 export default router;
-
