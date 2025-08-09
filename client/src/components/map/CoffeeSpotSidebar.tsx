@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface CoffeeSpot {
   id: number;
@@ -97,10 +98,15 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
 
   return (
     <div className="w-80 bg-white border-r border-gray-200 h-full flex flex-col">
-      {/* Header */}
+      {/* Header mit Logo (da obere Navigation entfernt wurde) */}
       <div className="p-4 border-b border-gray-200">
+        <Link to="/" className="flex items-center mb-3">
+          <div className="text-xl font-bold text-coffee-brown font-playfair">
+            ☕ CoffeeSpots
+          </div>
+        </Link>
         <h2 className="text-lg font-semibold text-gray-800">
-          Coffee Spots
+          Ihre Spots
         </h2>
         {isLoggedIn && (
           <p className="text-sm text-gray-600 mt-1">

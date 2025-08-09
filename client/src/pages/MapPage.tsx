@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
-import MapNavigation from '../components/map/MapNavigation';
+import RightSidebar from '../components/map/RightSidebar';
 import { MapContainer } from 'react-leaflet';
 
 interface CoffeeSpot {
@@ -16,13 +18,10 @@ interface CoffeeSpot {
   priceLevel?: number;
 }
 
-interface MapNavigationProps {
-  isLoggedIn: boolean;
-  onToggleLogin: () => void;
-}
-
 const MapPage: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isLoggedIn = !!user; // Verwende AuthContext
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const mapRef = useRef<any>(null);
 
@@ -85,8 +84,8 @@ const MapPage: React.FC = () => {
     }
   ] : [];
 
-  const handleToggleLogin = () => {
-    setIsLoggedIn(!isLoggedIn);
+  const handleLocationChange = (newLocation: [number, number]) => {
+    setMapCenter(newLocation);
   };
 
   const handleSpotClick = (spot: CoffeeSpot) => {
@@ -100,44 +99,38 @@ const MapPage: React.FC = () => {
   };
 
   const handleCloseMap = () => {
-    // Hier könnten Sie zur vorherigen Seite zurückkehren
-    window.history.back();
+    // Zur Startseite navigieren
+    navigate('/');
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* Navigation */}
-      <MapNavigation 
-        isLoggedIn={isLoggedIn} 
-        onToggleLogin={handleToggleLogin} 
+    <div className="h-screen flex bg-gray-50">
+      {/* Linke Sidebar: Coffee Spots */}
+      <CoffeeSpotSidebar
+        isLoggedIn={isLoggedIn}
+        coffeeSpots={coffeeSpots}
+        onSpotClick={handleSpotClick}
       />
 
-      {/* Main Content */}
-      <div className="flex-1 flex relative">
-        {/* Sidebar */}
-        <CoffeeSpotSidebar
-          isLoggedIn={isLoggedIn}
+      {/* Mittlere Sektion: Map */}
+      <div className="flex-1 relative">
+        <InteractiveMap
           coffeeSpots={coffeeSpots}
-          onSpotClick={handleSpotClick}
+          center={mapCenter}
+          zoom={13}
         />
-
-        {/* Map Container */}
-        <div className="flex-1 relative">
-          <InteractiveMap
-            coffeeSpots={coffeeSpots}
-            center={mapCenter}
-            zoom={13}
-          />
-          
-          {/* Close Map Button */}
-          <button
-            onClick={handleCloseMap}
-            className="absolute bottom-6 left-6 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border border-gray-200"
-          >
-            Close Map
-          </button>
-        </div>
+        
+        {/* Close Map Button */}
+        <button
+          onClick={handleCloseMap}
+          className="absolute bottom-6 left-6 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border border-gray-200"
+        >
+          Close Map
+        </button>
       </div>
+
+      {/* Rechte Sidebar: Authentication & Standort */}
+      <RightSidebar onLocationChange={handleLocationChange} />
     </div>
   );
 };
