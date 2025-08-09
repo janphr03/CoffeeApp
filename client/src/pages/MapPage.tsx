@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
-import { MapContainer } from 'react-leaflet';
-import { OverpassApiService, NearbyCafe } from '../services/overpassApi';
+import { OverpassApiService } from '../services/overpassApi';
 
 interface CoffeeSpot {
   id: number;
@@ -22,7 +21,6 @@ interface CoffeeSpot {
 const MapPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isLoggedIn = !!user; // Verwende AuthContext
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -19,6 +19,8 @@ interface CoffeeSpot {
   lat: number;
   lng: number;
   isOpen: boolean;
+  distance?: string;
+  priceLevel?: number;
 }
 
 interface InteractiveMapProps {
@@ -46,8 +48,15 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   zoom = 13,
   userLocation = null
 }) => {
-  // Standard Leaflet Marker für Cafés (rote Marker wie bei Google Maps)
-  // Wir verwenden die Standard-Leaflet-Icons, die automatisch rot sind
+  // Standard rote Marker für Cafés (wie Google Maps)
+  const redMarkerIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
 
   // Custom User Location Icon erstellen (blauer Punkt)
   const userLocationIcon = new L.Icon({
@@ -87,8 +96,19 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <Marker 
             key={spot.id} 
             position={[spot.lat, spot.lng]}
-            // Verwende Standard-Leaflet-Marker (rot)
+            icon={redMarkerIcon}
           >
+            {/* Hover-Tooltip */}
+            <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
+              <div className="text-center">
+                <div className="font-semibold text-sm">{spot.name}</div>
+                <div className="text-xs text-gray-600">
+                  ★ {spot.rating} {spot.distance && `• ${spot.distance}`}
+                </div>
+              </div>
+            </Tooltip>
+            
+            {/* Klick-Popup (bleibt geöffnet bis geschlossen) */}
             <Popup>
               <div className="p-2 min-w-[200px]">
                 <h3 className="font-bold text-coffee-brown text-lg mb-1">
