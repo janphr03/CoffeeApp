@@ -46,17 +46,8 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   zoom = 13,
   userLocation = null
 }) => {
-  // Custom Coffee Icon erstellen
-  const coffeeIcon = new L.Icon({
-    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#A67B5B" width="24" height="24">
-        <path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zM20 3h-4v8.9c0 .57-.34 1.1-.86 1.3L15 13.3c-.72.3-1.3.97-1.5 1.77-1.13-.07-2.07-.92-2.39-2H9.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1.61c.32-1.08 1.26-1.93 2.39-2 .2-.8.78-1.47 1.5-1.77l.14-.06c.52-.2.86-.73.86-1.3V3z"/>
-      </svg>
-    `),
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
-  });
+  // Standard Leaflet Marker für Cafés (rote Marker wie bei Google Maps)
+  // Wir verwenden die Standard-Leaflet-Icons, die automatisch rot sind
 
   // Custom User Location Icon erstellen (blauer Punkt)
   const userLocationIcon = new L.Icon({
@@ -96,7 +87,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <Marker 
             key={spot.id} 
             position={[spot.lat, spot.lng]}
-            icon={coffeeIcon}
+            // Verwende Standard-Leaflet-Marker (rot)
           >
             <Popup>
               <div className="p-2 min-w-[200px]">
