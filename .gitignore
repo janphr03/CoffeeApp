@@ -57,6 +57,7 @@ Thumbs.db
 
 # Test files
 cookies.txt
+temp/
 
 # Compiled JavaScript from TypeScript
 *.js.map
