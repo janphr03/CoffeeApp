@@ -45,11 +45,16 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   });
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative">
       <MapContainer 
         center={center} 
         zoom={zoom} 
-        className="h-full w-full rounded-lg"
+        style={{ 
+          height: '100%', 
+          width: '100%',
+          position: 'relative',
+          zIndex: 0
+        }}
         zoomControl={true}
       >
         <TileLayer
