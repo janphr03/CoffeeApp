@@ -5,6 +5,7 @@ import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
 import { MapContainer } from 'react-leaflet';
+import { OverpassApiService, NearbyCafe } from '../services/overpassApi';
 
 interface CoffeeSpot {
   id: number;
@@ -24,75 +25,96 @@ const MapPage: React.FC = () => {
   const isLoggedIn = !!user; // Verwende AuthContext
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);
+  const [isLoadingCafes, setIsLoadingCafes] = useState(false);
   const mapRef = useRef<any>(null);
 
-  // Demo Coffee Spots (nur sichtbar wenn eingeloggt)
-  const coffeeSpots: CoffeeSpot[] = isLoggedIn ? [
-    {
-      id: 1,
-      name: "Café Central",
-      address: "Unter den Linden 5, 10117 Berlin",
-      rating: 4.5,
-      lat: 52.5170,
-      lng: 13.3888,
-      isOpen: true,
-      distance: "0.3 km",
-      priceLevel: 2
-    },
-    {
-      id: 2,
-      name: "Coffee Fellows",
-      address: "Friedrichstraße 101, 10117 Berlin",
-      rating: 4.2,
-      lat: 52.5195,
-      lng: 13.3885,
-      isOpen: true,
-      distance: "0.5 km",
-      priceLevel: 2
-    },
-    {
-      id: 3,
-      name: "Starbucks",
-      address: "Potsdamer Platz 3, 10785 Berlin",
-      rating: 3.8,
-      lat: 52.5096,
-      lng: 13.3760,
-      isOpen: false,
-      distance: "1.2 km",
-      priceLevel: 3
-    },
-    {
-      id: 4,
-      name: "Röststätte Berlin",
-      address: "Hackescher Markt 2, 10178 Berlin",
-      rating: 4.7,
-      lat: 52.5225,
-      lng: 13.4025,
-      isOpen: true,
-      distance: "0.8 km",
-      priceLevel: 2
-    },
-    {
-      id: 5,
-      name: "The Barn",
-      address: "Auguststraße 58, 10119 Berlin",
-      rating: 4.6,
-      lat: 52.5265,
-      lng: 13.3965,
-      isOpen: true,
-      distance: "1.0 km",
-      priceLevel: 3
-    }
-  ] : [];
+  // Konfigurierbare Parameter für Café-Suche
+  const SEARCH_RADIUS_KM = 10;
+  const MAX_CAFES = 10;
+
+  // Coffee Spots: Nur echte Café-Daten von der Overpass API
+  const coffeeSpots: CoffeeSpot[] = nearbyCafes;
 
   const handleLocationChange = (newLocation: [number, number]) => {
     console.log('🗺️ Map wird auf neue Position zentriert:', newLocation);
     setMapCenter(newLocation);
   };
 
-  const handleUserLocationUpdate = (location: [number, number] | null) => {
+  const handleUserLocationUpdate = async (location: [number, number] | null) => {
     console.log('📍 User-Standort aktualisiert:', location);
     setUserLocation(location);
+    
+    // Automatisch Cafés in der Nähe laden, wenn Standort aktiviert wird
+    if (location) {
+      await loadNearbyCafes(location[0], location[1]);
+    } else {
+      // Wenn Standort deaktiviert wird, zurück zu Demo-Daten
+      setNearbyCafes([]);
+    }
+  };
+
+  /**
+   * Lädt Cafés in der Nähe des angegebenen Standorts
+   */
+  const loadNearbyCafes = async (lat: number, lng: number) => {
+    setIsLoadingCafes(true);
+    try {
+      console.log(`🔍 Lade Cafés in ${SEARCH_RADIUS_KM}km Radius um [${lat}, ${lng}]...`);
+      
+      const nearbyData = await OverpassApiService.loadNearbyCafes(
+        lat, 
+        lng, 
+        SEARCH_RADIUS_KM, 
+        MAX_CAFES
+      );
+      
+      // Konvertiere NearbyCafe zu CoffeeSpot Format
+      const convertedCafes: CoffeeSpot[] = nearbyData.map((cafe) => ({
+        id: cafe.id,
+        name: cafe.name,
+        address: cafe.address || 'Adresse nicht verfügbar',
+        rating: 4.0, // Default rating, könnte später aus anderen APIs geholt werden
+        lat: cafe.lat,
+        lng: cafe.lng,
+        isOpen: true, // Default: geöffnet (könnte später aus Öffnungszeiten ermittelt werden)
+        distance: calculateDistance(lat, lng, cafe.lat, cafe.lng),
+        priceLevel: 2 // Default Preisniveau
+      }));
+      
+      setNearbyCafes(convertedCafes);
+      console.log(`✅ ${convertedCafes.length} Cafés erfolgreich geladen`);
+      
+    } catch (error) {
+      console.error('❌ Fehler beim Laden der Cafés:', error);
+      setNearbyCafes([]);
+      // Hier könnte eine Benutzer-Benachrichtigung hinzugefügt werden
+    } finally {
+      setIsLoadingCafes(false);
+    }
+  };
+
+  /**
+   * Berechnet die Entfernung zwischen zwei Punkten und formatiert sie
+   */
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): string => {
+    const R = 6371; // Erdradius in km
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+    
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    
+    return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`;
+  };
+
+  const toRadians = (degrees: number): number => {
+    return degrees * (Math.PI / 180);
   };
 
   const handleSpotClick = (spot: CoffeeSpot) => {
@@ -114,9 +136,11 @@ const MapPage: React.FC = () => {
     <div className="h-screen flex bg-gray-50">
       {/* Linke Sidebar: Coffee Spots */}
       <CoffeeSpotSidebar
-        isLoggedIn={isLoggedIn}
         coffeeSpots={coffeeSpots}
         onSpotClick={handleSpotClick}
+        isLoadingCafes={isLoadingCafes}
+        searchRadius={SEARCH_RADIUS_KM}
+        hasUserLocation={userLocation !== null}
       />
 
       {/* Mittlere Sektion: Map */}
