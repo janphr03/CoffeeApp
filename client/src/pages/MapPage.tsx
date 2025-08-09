@@ -23,6 +23,7 @@ const MapPage: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = !!user; // Verwende AuthContext
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const mapRef = useRef<any>(null);
 
   // Demo Coffee Spots (nur sichtbar wenn eingeloggt)
@@ -85,7 +86,13 @@ const MapPage: React.FC = () => {
   ] : [];
 
   const handleLocationChange = (newLocation: [number, number]) => {
+    console.log('🗺️ Map wird auf neue Position zentriert:', newLocation);
     setMapCenter(newLocation);
+  };
+
+  const handleUserLocationUpdate = (location: [number, number] | null) => {
+    console.log('📍 User-Standort aktualisiert:', location);
+    setUserLocation(location);
   };
 
   const handleSpotClick = (spot: CoffeeSpot) => {
@@ -118,6 +125,7 @@ const MapPage: React.FC = () => {
           coffeeSpots={coffeeSpots}
           center={mapCenter}
           zoom={13}
+          userLocation={userLocation}
         />
         
         {/* Close Map Button */}
@@ -130,7 +138,10 @@ const MapPage: React.FC = () => {
       </div>
 
       {/* Rechte Sidebar: Authentication & Standort */}
-      <RightSidebar onLocationChange={handleLocationChange} />
+                  <RightSidebar 
+              onLocationChange={handleLocationChange} 
+              onUserLocationUpdate={handleUserLocationUpdate}
+            />
     </div>
   );
 };

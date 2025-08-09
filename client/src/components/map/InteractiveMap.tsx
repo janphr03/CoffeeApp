@@ -1,5 +1,5 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -25,12 +25,26 @@ interface InteractiveMapProps {
   coffeeSpots: CoffeeSpot[];
   center: [number, number];
   zoom: number;
+  userLocation?: [number, number] | null;
 }
+
+// MapController Komponente für programmatische Kartenkontrolle
+const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    console.log('🗺️ Map wird auf neue Position zentriert:', center);
+    map.setView(center, zoom);
+  }, [map, center, zoom]);
+  
+  return null;
+};
 
 const InteractiveMap: React.FC<InteractiveMapProps> = ({ 
   coffeeSpots, 
   center = [52.5200, 13.4050], // Berlin als Standard
-  zoom = 13 
+  zoom = 13,
+  userLocation = null
 }) => {
   // Custom Coffee Icon erstellen
   const coffeeIcon = new L.Icon({
@@ -42,6 +56,19 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32]
+  });
+
+  // Custom User Location Icon erstellen (blauer Punkt)
+  const userLocationIcon = new L.Icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3B82F6" width="24" height="24">
+        <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#ffffff" stroke-width="3"/>
+        <circle cx="12" cy="12" r="3" fill="#ffffff"/>
+      </svg>
+    `),
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
   });
 
   return (
@@ -61,6 +88,9 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
+        {/* MapController für programmatische Kartenkontrolle */}
+        <MapController center={center} zoom={zoom} />
         
         {coffeeSpots.map((spot) => (
           <Marker 
@@ -93,6 +123,25 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
             </Popup>
           </Marker>
         ))}
+
+        {/* User Location Marker */}
+        {userLocation && (
+          <Marker 
+            position={userLocation}
+            icon={userLocationIcon}
+          >
+            <Popup>
+              <div className="p-2 min-w-[150px] text-center">
+                <h3 className="font-bold text-blue-600 text-lg mb-1">
+                  📍 Ihr Standort
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Sie befinden sich hier
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );
