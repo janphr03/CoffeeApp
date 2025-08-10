@@ -16,6 +16,7 @@ interface CoffeeSpot {
   isOpen: boolean;
   distance?: string;
   priceLevel?: number;
+  openingHours?: string;
 }
 
 const MapPage: React.FC = () => {
@@ -75,9 +76,10 @@ const MapPage: React.FC = () => {
         rating: 4.0, // Default rating, könnte später aus anderen APIs geholt werden
         lat: cafe.lat,
         lng: cafe.lng,
-        isOpen: true, // Default: geöffnet (könnte später aus Öffnungszeiten ermittelt werden)
+        isOpen: true, // Wird durch OpeningHoursService überschrieben
         distance: calculateDistance(lat, lng, cafe.lat, cafe.lng),
-        priceLevel: 2 // Default Preisniveau
+        priceLevel: 2, // Default Preisniveau
+        openingHours: cafe.tags?.opening_hours // Öffnungszeiten aus Overpass API
       }));
       
       setNearbyCafes(convertedCafes);

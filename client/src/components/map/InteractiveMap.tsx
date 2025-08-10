@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-l
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../../contexts/AuthContext';
+import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
 
 // Fix für Leaflet Icons in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -22,6 +23,7 @@ interface CoffeeSpot {
   isOpen: boolean;
   distance?: string;
   priceLevel?: number;
+  openingHours?: string;
 }
 
 interface InteractiveMapProps {
@@ -107,7 +109,11 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
         {/* MapController für programmatische Kartenkontrolle */}
         <MapController center={center} zoom={zoom} />
         
-        {coffeeSpots.map((spot) => (
+        {coffeeSpots.map((spot) => {
+          // Öffnungszeiten-Status berechnen
+          const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
+          
+          return (
           <Marker 
             key={spot.id} 
             position={[spot.lat, spot.lng]}
@@ -152,17 +158,20 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     <span className="ml-1 text-sm font-semibold">{spot.rating}</span>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded ${
-                    spot.isOpen 
+                    openingStatus.status === 'open'
                       ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
+                      : openingStatus.status === 'closed'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {spot.isOpen ? 'Geöffnet' : 'Geschlossen'}
+                    {openingStatus.statusText}
                   </span>
                 </div>
               </div>
             </Popup>
           </Marker>
-        ))}
+          );
+        })}
 
         {/* User Location Marker */}
         {userLocation && (

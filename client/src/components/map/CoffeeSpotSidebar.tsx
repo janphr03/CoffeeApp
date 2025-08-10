@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
 
 interface CoffeeSpot {
   id: number;
@@ -12,6 +13,7 @@ interface CoffeeSpot {
   isOpen: boolean;
   distance?: string;
   priceLevel?: number;
+  openingHours?: string;
 }
 
 interface CoffeeSpotSidebarProps {
@@ -89,7 +91,11 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
       )}
 
       <div className="p-4 space-y-3">
-        {coffeeSpots.map((spot) => (
+        {coffeeSpots.map((spot) => {
+          // Öffnungszeiten-Status berechnen
+          const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
+          
+          return (
           <div
             key={spot.id}
             className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative"
@@ -139,15 +145,18 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
                 )}
               </div>
               <span className={`text-xs px-2 py-1 rounded ${
-                spot.isOpen 
+                openingStatus.status === 'open'
                   ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                  : openingStatus.status === 'closed'
+                  ? 'bg-red-100 text-red-800'
+                  : 'bg-gray-100 text-gray-800'
               }`}>
-                {spot.isOpen ? 'Geöffnet' : 'Geschlossen'}
+                {openingStatus.statusText}
               </span>
             </div>
           </div>
-        ))}
+          );
+        })}
         
         {/* Keine Cafés gefunden */}
         {!isLoadingCafes && coffeeSpots.length === 0 && hasUserLocation && (
