@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logoutUser } from '../../services/api';
+import { useAuthRedirect } from '../../hooks/useAuthRedirect';
 
 interface RightSidebarProps {
   onLocationChange?: (location: [number, number]) => void;
@@ -10,6 +11,7 @@ interface RightSidebarProps {
 
 const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLocationUpdate }) => {
   const { user, logout } = useAuth();
+  const { loginUrl, registerUrl } = useAuthRedirect();
   const [locationEnabled, setLocationEnabled] = useState<boolean>(false);
   const [locationStatus, setLocationStatus] = useState<string>('Standorterkennung ist deaktiviert');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -157,13 +159,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLoc
               </p>
             </div>
             <Link
-              to="/login"
+              to={loginUrl}
               className="block w-full text-center bg-coffee-brown hover:bg-coffee-darkBrown text-white rounded-lg py-2 px-3 transition-colors text-sm"
             >
               Anmelden
             </Link>
             <Link
-              to="/register"
+              to={registerUrl}
               className="block w-full text-center text-coffee-brown hover:text-coffee-darkBrown border border-coffee-brown hover:border-coffee-darkBrown rounded-lg py-2 px-3 transition-colors text-sm"
             >
               Registrieren

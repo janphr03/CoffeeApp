@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { logoutUser } from '../services/api';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const { user, logout } = useAuth();
+  const { loginUrl } = useAuthRedirect();
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -120,7 +122,7 @@ const Navigation: React.FC = () => {
           ) : (
             // **User ist nicht eingeloggt: Zeige Login-Button**
             <Link
-              to="/login"
+              to={loginUrl}
               className="hidden md:flex items-center space-x-2 text-gray-200 hover:text-coffee-brown transition-colors"
             >
               <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
@@ -206,7 +208,7 @@ const Navigation: React.FC = () => {
             ) : (
               <li>
                 <Link 
-                  to="/login"
+                  to={loginUrl}
                   className="block hover:text-coffee-brown w-full text-left pt-2 border-t border-gray-600"
                   onClick={() => setIsOpen(false)}
                 >
