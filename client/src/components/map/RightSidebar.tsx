@@ -117,7 +117,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLoc
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col">
+    <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col overflow-hidden">
       {/* Oberer Bereich: Authentication */}
       <div className="p-4 border-b border-gray-200">
         {user ? (

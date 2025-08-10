@@ -129,18 +129,20 @@ const MapPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
-      {/* Linke Sidebar: Coffee Spots */}
-      <CoffeeSpotSidebar
-        coffeeSpots={coffeeSpots}
-        onSpotClick={handleSpotClick}
-        isLoadingCafes={isLoadingCafes}
-        searchRadius={SEARCH_RADIUS_KM}
-        hasUserLocation={userLocation !== null}
-      />
+    <div className="h-screen flex bg-gray-50 overflow-hidden">
+      {/* Linke Sidebar: Coffee Spots mit eigenem Scroll */}
+      <div className="flex-shrink-0 overflow-y-auto overflow-x-hidden">
+        <CoffeeSpotSidebar
+          coffeeSpots={coffeeSpots}
+          onSpotClick={handleSpotClick}
+          isLoadingCafes={isLoadingCafes}
+          searchRadius={SEARCH_RADIUS_KM}
+          hasUserLocation={userLocation !== null}
+        />
+      </div>
 
-      {/* Mittlere Sektion: Map */}
-      <div className="flex-1 relative">
+      {/* Mittlere Sektion: Map mit Zoom-Verhalten */}
+      <div className="flex-1 relative overflow-hidden">
         <InteractiveMap
           coffeeSpots={coffeeSpots}
           center={mapCenter}
@@ -157,11 +159,13 @@ const MapPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Rechte Sidebar: Authentication & Standort */}
-                  <RightSidebar 
-              onLocationChange={handleLocationChange} 
-              onUserLocationUpdate={handleUserLocationUpdate}
-            />
+      {/* Rechte Sidebar: Authentication & Standort ohne Scroll */}
+      <div className="flex-shrink-0 overflow-hidden">
+        <RightSidebar 
+          onLocationChange={handleLocationChange} 
+          onUserLocationUpdate={handleUserLocationUpdate}
+        />
+      </div>
     </div>
   );
 };
