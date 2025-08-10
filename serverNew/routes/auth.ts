@@ -1,9 +1,11 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { getUserCollection } from '../Db/databaseOperations';
+import { DatabaseOperations } from '../Db/databaseOperations';
 
 const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
 const router = express.Router();
+
+const db =  new DatabaseOperations();
 
 // Middleware für JSON-Parsing
 router.use(express.json());
@@ -21,7 +23,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    const users = await getUserCollection();
+    const users = await db.getUserCollection();
 
     //==== auf doppelten Username prüfen ====
     const existingUser = await users.findOne({username}); // gibt es den username in der Collection users?
@@ -71,7 +73,7 @@ router.post("/login", async (req, res) => {
     }
 
     // ==== Username / mail matchen  ====
-    const users = await getUserCollection(); // Zugriff auf die User-Collection
+    const users = await db.getUserCollection(); // Zugriff auf die User-Collection
     const user = await users.findOne({$or: [{username: identifier}, {email: identifier}]});// Suche nach username oder email
 
     if(!user){
