@@ -98,12 +98,13 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
             {/* Favoriten-Button */}
             <button
               onClick={(e) => handleFavoriteClick(spot, e)}
-              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-white text-lg font-bold transition-colors ${
+              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-colors ${
                 user 
                   ? 'bg-green-500 hover:bg-green-600' 
                   : 'bg-red-500 hover:bg-red-600'
               }`}
               title={user ? 'Zu Favoriten hinzufügen' : 'Anmelden erforderlich'}
+              style={{ fontSize: '18px', lineHeight: '1', paddingBottom: '5px' }}
             >
               +
             </button>
