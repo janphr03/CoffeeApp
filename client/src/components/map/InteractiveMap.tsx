@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Fix für Leaflet Icons in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -48,6 +49,20 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   zoom = 13,
   userLocation = null
 }) => {
+  const { user } = useAuth();
+
+  const handleFavoriteClick = (spot: CoffeeSpot, event: React.MouseEvent) => {
+    event.stopPropagation(); // Verhindert das Schließen des Popups
+    
+    if (!user) {
+      // User ist nicht eingeloggt - Hinweis anzeigen
+      alert('Sie müssen sich anmelden oder registrieren, um dieses Café zu Ihren Favoriten hinzuzufügen.');
+    } else {
+      // User ist eingeloggt - Platzhalter-Funktionalität
+      console.log('Favorit hinzufügen für:', spot.name);
+      alert('Favoriten-Feature wird bald verfügbar sein!');
+    }
+  };
   // Standard rote Marker für Cafés (wie Google Maps)
   const redMarkerIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -110,8 +125,22 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
             
             {/* Klick-Popup (bleibt geöffnet bis geschlossen) */}
             <Popup>
-              <div className="p-2 min-w-[200px]">
-                <h3 className="font-bold text-coffee-brown text-lg mb-1">
+              <div className="p-2 min-w-[200px] relative">
+                {/* Favoriten-Button */}
+                <button
+                  onClick={(e) => handleFavoriteClick(spot, e)}
+                  className={`absolute top-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-white font-bold transition-colors ${
+                    user 
+                      ? 'bg-green-500 hover:bg-green-600' 
+                      : 'bg-red-500 hover:bg-red-600'
+                  }`}
+                  title={user ? 'Zu Favoriten hinzufügen' : 'Anmelden erforderlich'}
+                  style={{ fontSize: '16px', lineHeight: '1', paddingTop: '2px' }}
+                >
+                  +
+                </button>
+
+                <h3 className="font-bold text-coffee-brown text-lg mb-1 pr-8">
                   {spot.name}
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">
