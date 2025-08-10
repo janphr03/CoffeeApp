@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
-import { OverpassApiService } from '../services/overpassApi';
+import { loadNearbyCafes, NearbyCafe } from '../services/overpassApi';
 
 interface CoffeeSpot {
   id: number;
@@ -19,7 +18,6 @@ interface CoffeeSpot {
 }
 
 const MapPage: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -45,7 +43,7 @@ const MapPage: React.FC = () => {
     
     // Automatisch Cafés in der Nähe laden, wenn Standort aktiviert wird
     if (location) {
-      await loadNearbyCafes(location[0], location[1]);
+      await loadNearbyCafesLocal(location[0], location[1]);
     } else {
       // Wenn Standort deaktiviert wird, zurück zu Demo-Daten
       setNearbyCafes([]);
@@ -55,12 +53,12 @@ const MapPage: React.FC = () => {
   /**
    * Lädt Cafés in der Nähe des angegebenen Standorts
    */
-  const loadNearbyCafes = async (lat: number, lng: number) => {
+  const loadNearbyCafesLocal = async (lat: number, lng: number) => {
     setIsLoadingCafes(true);
     try {
       console.log(`🔍 Lade Cafés in ${SEARCH_RADIUS_KM}km Radius um [${lat}, ${lng}]...`);
       
-      const nearbyData = await OverpassApiService.loadNearbyCafes(
+      const nearbyData = await loadNearbyCafes(
         lat, 
         lng, 
         SEARCH_RADIUS_KM, 
@@ -68,7 +66,7 @@ const MapPage: React.FC = () => {
       );
       
       // Konvertiere NearbyCafe zu CoffeeSpot Format
-      const convertedCafes: CoffeeSpot[] = nearbyData.map((cafe) => ({
+      const convertedCafes: CoffeeSpot[] = nearbyData.map((cafe: NearbyCafe) => ({
         id: cafe.id,
         name: cafe.name,
         address: cafe.address || 'Adresse nicht verfügbar',
