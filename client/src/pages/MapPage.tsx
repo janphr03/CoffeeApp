@@ -4,6 +4,7 @@ import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
 import { loadNearbyCafes, NearbyCafe } from '../services/overpassApi';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CoffeeSpot {
   id: number;
@@ -19,6 +20,7 @@ interface CoffeeSpot {
 
 const MapPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);
@@ -128,6 +130,17 @@ const MapPage: React.FC = () => {
     navigate('/');
   };
 
+  const handleFavoritesClick = () => {
+    if (!user) {
+      // User ist nicht eingeloggt - Hinweis anzeigen
+      alert('Sie müssen sich anmelden oder registrieren, um Ihre Favoriten anzuzeigen.');
+    } else {
+      // User ist eingeloggt - Platzhalter-Funktionalität
+      console.log('Favoriten anzeigen für User:', user.username);
+      alert('Favoriten-Feature wird bald verfügbar sein!');
+    }
+  };
+
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
       {/* Linke Sidebar: Coffee Spots mit eigenem Scroll */}
@@ -156,6 +169,19 @@ const MapPage: React.FC = () => {
           className="absolute bottom-6 left-6 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border border-gray-200"
         >
           Close Map
+        </button>
+
+        {/* Favoriten Button - rechte untere Ecke */}
+        <button
+          onClick={handleFavoritesClick}
+          className={`absolute bottom-6 right-6 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border text-white font-medium ${
+            user 
+              ? 'bg-green-500 hover:bg-green-600 border-green-600' 
+              : 'bg-red-500 hover:bg-red-600 border-red-600'
+          }`}
+          title={user ? 'Favoriten anzeigen' : 'Anmelden erforderlich'}
+        >
+          ⭐ Favoriten anzeigen
         </button>
       </div>
 

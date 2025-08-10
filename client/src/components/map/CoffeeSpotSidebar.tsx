@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface CoffeeSpot {
   id: number;
@@ -28,10 +29,25 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
   searchRadius = 10,
   hasUserLocation = false
 }) => {
+  const { user } = useAuth();
+
+  const handleFavoriteClick = (spot: CoffeeSpot, event: React.MouseEvent) => {
+    event.stopPropagation(); // Verhindert das Auslösen von onSpotClick
+    
+    if (!user) {
+      // User ist nicht eingeloggt - Hinweis anzeigen
+      alert('Sie müssen sich anmelden oder registrieren, um dieses Café zu Ihren Favoriten hinzuzufügen.');
+    } else {
+      // User ist eingeloggt - Platzhalter-Funktionalität
+      console.log('Favorit hinzufügen für:', spot.name);
+      alert('Favoriten-Feature wird bald verfügbar sein!');
+    }
+  };
+
   const NoLocationPrompt = () => (
     <div className="flex flex-col items-center justify-center h-full p-6 text-center">
       <div className="bg-blue-50 rounded-lg p-8 mb-4 w-full">
-        <div className="text-6xl text-blue-400 mb-4">�</div>
+        <div className="text-6xl text-blue-400 mb-4">📍</div>
         <h3 className="text-lg font-semibold text-gray-700 mb-2">
           Standort erforderlich
         </h3>
@@ -76,10 +92,23 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
         {coffeeSpots.map((spot) => (
           <div
             key={spot.id}
-            className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
+            className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative"
             onClick={() => onSpotClick(spot)}
           >
-            <div className="flex justify-between items-start mb-2">
+            {/* Favoriten-Button */}
+            <button
+              onClick={(e) => handleFavoriteClick(spot, e)}
+              className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-white text-lg font-bold transition-colors ${
+                user 
+                  ? 'bg-green-500 hover:bg-green-600' 
+                  : 'bg-red-500 hover:bg-red-600'
+              }`}
+              title={user ? 'Zu Favoriten hinzufügen' : 'Anmelden erforderlich'}
+            >
+              +
+            </button>
+
+            <div className="flex justify-between items-start mb-2 pr-10">
               <h3 className="font-semibold text-gray-800 text-sm">
                 {spot.name}
               </h3>
@@ -155,7 +184,7 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden">
         {hasUserLocation ? <CoffeeSpotsList /> : <NoLocationPrompt />}
       </div>
     </div>
