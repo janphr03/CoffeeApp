@@ -3,7 +3,7 @@ import { Db, MongoClient} from 'mongodb';
 
 const uri: string = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
 const dbName = "CoffeeAppDB";
-const collectionName = "Spots";
+const collectionName = "SpotsAddedByUsers";
 const client = new MongoClient(uri);
 let db: Db;
 client.connect()
@@ -11,13 +11,17 @@ client.connect()
         db = client.db(dbName);
     });
 
-export async function getUserCollection() {
-    await client.connect();
-    const db = client.db(dbName);
-    return db.collection('Users');
-}
+
 
 export class DatabaseOperations {
+
+    async getUserCollection() {
+        await client.connect();
+        const db = client.db(dbName);
+        return db.collection('Users');
+    }
+
+
     async getSpotsByUserId(userId: string) {
         try {
             const collection = db.collection(collectionName);
@@ -28,17 +32,42 @@ export class DatabaseOperations {
         }
     }
 
-    async createSpot(userId: string, location: string) {
+
+    async createSpot(
+        userId: string,
+        osmType: 'node'|'way'|'relation',
+        osmId: number,
+        lat: number,
+        lon: number,
+        name: string,
+        amenity: string,
+        address: string,
+        tags: Record<string, string>
+    ) {
         try {
-            const collection = db.collection(collectionName);
+            // locker typisieren, damit _id auch string sein darf
+            const collection = db.collection<any>(collectionName);
+
+            const id = `${osmType}:${osmId}`; // ← korrekt interpoliert
 
             return await collection.insertOne({
                 userId,
-                location,
-                createdAt: new Date()
+                _id: id,
+                lat,
+                lon,
+                geometry: { type: 'Point', coordinates: [lon, lat] }, // [lon, lat]
+                name,
+                amenity,
+                address,
+                tags,
+                source: 'openstreetmap',
+                addedAt: new Date(),
+                updatedAt: new Date()
             });
         } catch (error) {
             throw error;
         }
     }
+
 }
+

@@ -8,6 +8,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const databaseOperations_1 = require("../Db/databaseOperations");
 const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
 const router = express_1.default.Router();
+const db = new databaseOperations_1.DatabaseOperations();
 // Middleware für JSON-Parsing
 router.use(express_1.default.json());
 // Registrierung ============================================================================================================
@@ -21,7 +22,7 @@ router.post('/register', async (req, res) => {
                 message: 'Please enter all fields'
             });
         }
-        const users = await (0, databaseOperations_1.getUserCollection)();
+        const users = await db.getUserCollection();
         //==== auf doppelten Username prüfen ====
         const existingUser = await users.findOne({ username }); // gibt es den username in der Collection users?
         if (existingUser) {
@@ -55,7 +56,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ success: false, message: 'Bitte alle Felder ausfüllen.' });
         }
         // ==== Username / mail matchen  ====
-        const users = await (0, databaseOperations_1.getUserCollection)(); // Zugriff auf die User-Collection
+        const users = await db.getUserCollection(); // Zugriff auf die User-Collection
         const user = await users.findOne({ $or: [{ username: identifier }, { email: identifier }] }); // Suche nach username oder email
         if (!user) {
             return res.status(400).json({ success: false, message: 'Benutzer nicht gefunden.' });

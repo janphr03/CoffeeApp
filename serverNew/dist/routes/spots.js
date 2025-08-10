@@ -39,19 +39,12 @@ router.get('/', async (req, res) => {
         });
     }
 });
-// POST /api/spots - Neuen Spot hinzufügen
+// POST /api/spots - Neuen Spot hinzufügen und mit User verknüpfen
 // req ist der Body der schon in ein JS Objekt umgewandelt wurde
 router.post('/', async (req, res) => {
     try {
-        const { location } = req.body; // location wird aus JSON-Body gezogen
         const userId = req.session?.username; // userId wird aus JSON-Body gezogen
-        // gibt es eine Location die man hinzufügen kann?
-        if (!location) {
-            return res.status(400).json({
-                success: false,
-                message: 'Location is required'
-            });
-        }
+        const { osmType, osmId, elementLat, elementLng, name, amenity, address, tags = {} } = req.body;
         // gibt es einen User?
         if (!userId) {
             return res.status(401).json({
@@ -59,19 +52,26 @@ router.post('/', async (req, res) => {
                 message: 'User not authenticated'
             });
         }
-        const result = await spotsDB.createSpot(userId, location); // Spot wird hinzugefügt und als Objekt gespeichert
-        res.status(201).json({
+        // Pflichtfelder prüfen
+        if (!osmType || !osmId || !elementLat || !elementLng || !name || !amenity) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+        // Spot mit user ID in der DB erstellen
+        const UserSpot = await spotsDB.createSpot(userId, osmType, osmId, elementLat, elementLng, name, amenity, address, tags);
+        return res.status(201).json({
             success: true,
             message: 'Spot added successfully',
-            spot: { _id: result.insertedId, userId, location }
+            insertedId: UserSpot.insertedId,
+            spot: {
+                userId,
+                _id: `$osmType}:${osmId}`,
+                elementLat, elementLng, name, amenity, address, tags
+            }
         });
     }
     catch (error) {
         console.error('❌ Fehler beim Speichern des Spots:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error adding spot'
-        });
+        return res.status(500).json({ success: false, message: 'Error adding spot' });
     }
 });
 exports.default = router;
