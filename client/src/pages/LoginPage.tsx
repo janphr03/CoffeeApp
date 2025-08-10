@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { loginUser, LoginCredentials } from '../services/api';
 
@@ -17,7 +17,11 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // Redirect-URL aus URL-Parameter oder state extrahieren
+  const from = (location.state as any)?.from?.pathname || new URLSearchParams(location.search).get('redirect') || '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({
@@ -48,8 +52,8 @@ const LoginPage: React.FC = () => {
         // **SCHRITT 3: User-Daten in Context speichern**
         login(response.user);
         
-        // **SCHRITT 4: Zur Map-Seite weiterleiten**
-        navigate('/map');
+        // **SCHRITT 4: Zur ursprünglichen Seite oder Startseite weiterleiten**
+        navigate(from, { replace: true }); // replace: true verhindert History-Einträge
       } else {
         // **SCHRITT 5: Fehler anzeigen**
         console.log('❌ Login fehlgeschlagen:', response.message);

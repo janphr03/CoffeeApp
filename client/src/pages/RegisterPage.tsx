@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { registerUser, RegisterCredentials } from '../services/api';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 interface RegisterFormData {
   username: string;
@@ -19,10 +20,16 @@ const RegisterPage: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const { loginUrl } = useAuthRedirect();
+
+  // Redirect-URL aus URL-Parameter oder state extrahieren
+  const from = (location.state as any)?.from?.pathname || new URLSearchParams(location.search).get('redirect') || '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({
@@ -31,6 +38,7 @@ const RegisterPage: React.FC = () => {
     });
     // Fehler zurücksetzen wenn Benutzer tippt
     if (error) setError('');
+    if (success) setSuccess('');
     if (fieldErrors[e.target.name]) {
       setFieldErrors({
         ...fieldErrors,
@@ -78,6 +86,7 @@ const RegisterPage: React.FC = () => {
     
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       console.log('🔐 Registrierung wird gestartet für:', formData.username);
@@ -94,14 +103,19 @@ const RegisterPage: React.FC = () => {
       console.log('📨 Backend-Antwort bei Registrierung:', response);
 
       // **SCHRITT 3: Response auswerten**
-      if (response.success && response.user) {
+      if (response.success) {
         console.log('✅ Registrierung erfolgreich!');
+        console.log('📋 User-Daten empfangen:', response.user);
         
-        // **SCHRITT 4: User-Daten in Context speichern (automatisches Login)**
-        login(response.user);
+        // **SCHRITT 4: Erfolgsmeldung anzeigen**
+        setSuccess('Registrierung erfolgreich! Sie werden zur Anmeldung weitergeleitet...');
+
+        // **SCHRITT 5: User zur Login-Page weiterleiten**      
+        console.log('Weiterleitung zur Login-Seite');
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 1500);
         
-        // **SCHRITT 5: Zur Map-Seite weiterleiten**
-        navigate('/map');
       } else {
         // **SCHRITT 6: Spezifische Backend-Fehler anzeigen**
         console.log('❌ Registrierung fehlgeschlagen:', response.message);
@@ -144,6 +158,13 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
 
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-600 bg-opacity-20 border border-green-600 rounded-lg">
+            <p className="text-green-300 text-sm text-center">{success}</p>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-coffee-light font-playfair mb-2">
@@ -167,7 +188,7 @@ const RegisterPage: React.FC = () => {
               value={formData.username}
               onChange={handleInputChange}
               required
-              disabled={loading}
+              disabled={loading || !!success}
               className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
                 fieldErrors.username ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
               }`}
@@ -189,7 +210,7 @@ const RegisterPage: React.FC = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              disabled={loading}
+              disabled={loading || !!success}
               className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
                 fieldErrors.email ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
               }`}
@@ -211,7 +232,7 @@ const RegisterPage: React.FC = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              disabled={loading}
+              disabled={loading || !!success}
               className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
                 fieldErrors.password ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
               }`}
@@ -233,7 +254,7 @@ const RegisterPage: React.FC = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               required
-              disabled={loading}
+              disabled={loading || !!success}
               className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
                 fieldErrors.confirmPassword ? 'border border-red-500 focus:ring-red-500' : 'focus:ring-coffee-brown'
               }`}
@@ -246,10 +267,15 @@ const RegisterPage: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!success}
             className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {loading ? '🔄 Registrierung läuft...' : 'Account erstellen'}
+            {loading 
+              ? '🔄 Registrierung läuft...' 
+              : success 
+                ? '✅ Erfolgreich!' 
+                : 'Account erstellen'
+            }
           </button>
         </form>
 
@@ -258,7 +284,7 @@ const RegisterPage: React.FC = () => {
           <p className="text-gray-400 text-sm">
             Bereits ein Konto?{' '}
             <Link 
-              to="/login" 
+              to={loginUrl} 
               className="text-coffee-brown hover:text-coffee-light transition-colors"
             >
               Jetzt anmelden

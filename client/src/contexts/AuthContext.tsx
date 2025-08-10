@@ -13,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;               // Aktueller Benutzer (null = nicht eingeloggt)
   isLoggedIn: boolean;            // Boolean für einfache Prüfung
-  login: (userData: User) => void; // Funktion zum Einloggen
+  login: (userData: User, redirectTo?: string) => void; // Funktion zum Einloggen mit optionaler Weiterleitung
   logout: () => void;             // Funktion zum Ausloggen
   loading: boolean;               // Loading-Status für API-Calls
 }
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // **SCHRITT 6: Backend-Anfrage um Session-Status zu prüfen**
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth/status', {
+      const response = await fetch('http://localhost:3000/api/auth/status', {
         method: 'GET',
         credentials: 'include', // Wichtig: Session-Cookies mitsenden
         headers: {
@@ -62,14 +62,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // **SCHRITT 7: Login-Funktion**
-  const login = (userData: User) => {
+  const login = (userData: User, redirectTo?: string) => {
     setUser(userData);
+    
+    // Optional: Weiterleitung nach erfolgreichem Login
+    if (redirectTo) {
+      window.location.href = redirectTo;
+    }
   };
 
   // **SCHRITT 8: Logout-Funktion**
   const logout = async () => {
     try {
-      await fetch('http://localhost:3000/auth/logout', {
+      await fetch('http://localhost:3000/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {
