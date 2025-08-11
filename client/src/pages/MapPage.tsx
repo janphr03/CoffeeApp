@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
 import { loadNearbyCafes, NearbyCafe } from '../services/overpassApi';
 import { useAuth } from '../contexts/AuthContext';
+import { useUserLocation } from '../contexts/LocationContext';
 
 interface CoffeeSpot {
   id: number;
@@ -22,8 +23,8 @@ interface CoffeeSpot {
 const MapPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { userLocation, isLocationEnabled } = useUserLocation();
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);
   const [isLoadingCafes, setIsLoadingCafes] = useState(false);
   const mapRef = useRef<any>(null);
@@ -35,22 +36,35 @@ const MapPage: React.FC = () => {
   // Coffee Spots: Nur echte Café-Daten von der Overpass API
   const coffeeSpots: CoffeeSpot[] = nearbyCafes;
 
+  // **SCHRITT: Location Context synchronisieren - OHNE PARENT CALLBACKS**
+  useEffect(() => {
+    if (isLocationEnabled && userLocation) {
+      console.log('📍 Location Context aktiviert, lade Cafés für:', userLocation);
+      setMapCenter(userLocation);
+      
+      // **WICHTIG: Café-Loading throtteln um 429-Fehler zu vermeiden**
+      const timer = setTimeout(() => {
+        loadNearbyCafesLocal(userLocation[0], userLocation[1]);
+      }, 1000); // 1 Sekunde Verzögerung
+      
+      return () => clearTimeout(timer);
+    } else if (!isLocationEnabled) {
+      console.log('📍 Location Context deaktiviert, zurück zu Default');
+      setMapCenter([52.5200, 13.4050]); // Berlin
+      setNearbyCafes([]);
+    }
+  }, [isLocationEnabled]); // NUR auf isLocationEnabled reagieren!
+
+  // **ENTFERNT: handleLocationChange und handleUserLocationUpdate werden nicht mehr verwendet**
+  // Der LocationContext verwaltet alles zentral
   const handleLocationChange = (newLocation: [number, number]) => {
-    console.log('🗺️ Map wird auf neue Position zentriert:', newLocation);
-    setMapCenter(newLocation);
+    // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt mapCenter setzt
+    console.log('🗺️ Map-Position Callback (wird ignoriert):', newLocation);
   };
 
   const handleUserLocationUpdate = async (location: [number, number] | null) => {
-    console.log('📍 User-Standort aktualisiert:', location);
-    setUserLocation(location);
-    
-    // Automatisch Cafés in der Nähe laden, wenn Standort aktiviert wird
-    if (location) {
-      await loadNearbyCafesLocal(location[0], location[1]);
-    } else {
-      // Wenn Standort deaktiviert wird, zurück zu Demo-Daten
-      setNearbyCafes([]);
-    }
+    // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt verwaltet wird
+    console.log('📍 User-Location Callback (wird ignoriert):', location);
   };
 
   /**
