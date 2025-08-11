@@ -26,7 +26,9 @@ export class DatabaseOperations {
         try {
             const collection = db.collection(collectionName);
             const spots = await collection.find({ userId }).toArray();
-            return spots.map(spot => spot.location);
+            return spots.map(spot => ({...spot}));
+
+
         } catch (error) {
             throw error;
         }
@@ -44,9 +46,10 @@ export class DatabaseOperations {
         address: string,
         tags: Record<string, string>
     ) {
+
         try {
             // locker typisieren, damit _id auch string sein darf
-            const collection = db.collection<any>(collectionName);
+            const collection = db.collection<any>(collectionName); // muss any sein, damit _id auch ein Objekt sein darf
 
             const id = `${osmType}:${osmId}`; // ← korrekt interpoliert
 
