@@ -31,6 +31,11 @@ export class OverpassApiService {
   private static readonly DEFAULT_RADIUS_KM = 10;
   private static readonly DEFAULT_MAX_RESULTS = 10;
   
+  // **RATE LIMITING: Verhindert zu viele API-Calls**
+  private static lastRequestTime: number = 0;
+  private static readonly MIN_REQUEST_INTERVAL = 2000; // 2 Sekunden zwischen Requests
+  private static isRequestInProgress: boolean = false;
+  
   /**
    * Erstellt eine optimierte Overpass Query mit den wichtigsten Suchkriterien
    */
@@ -266,6 +271,24 @@ export class OverpassApiService {
     radiusKm: number = this.DEFAULT_RADIUS_KM,
     maxResults: number = this.DEFAULT_MAX_RESULTS
   ): Promise<NearbyCafe[]> {
+    // **RATE LIMITING: Verhindert zu schnelle aufeinanderfolgende Requests**
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    
+    if (this.isRequestInProgress) {
+      console.log('⏸️ Request bereits in Bearbeitung, warte...');
+      return [];
+    }
+    
+    if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
+      const waitTime = this.MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      console.log(`⏱️ Rate Limit: Warte ${waitTime}ms vor nächstem Request...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    this.isRequestInProgress = true;
+    this.lastRequestTime = Date.now();
+    
     try {
       console.log(`🔍 Suche Cafés in ${radiusKm}km Radius um [${lat}, ${lng}]...`);
       
@@ -318,6 +341,9 @@ export class OverpassApiService {
     } catch (error) {
       console.error('❌ Fehler beim Laden der Cafés:', error);
       throw new Error('Fehler beim Laden der Cafés in der Nähe');
+    } finally {
+      // **WICHTIG: Rate Limiting Flag zurücksetzen**
+      this.isRequestInProgress = false;
     }
   }
   
