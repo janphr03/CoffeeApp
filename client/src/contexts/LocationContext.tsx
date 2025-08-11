@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 // **SCHRITT 1: Interfaces für Location-Daten definieren**
 interface LocationData {
@@ -36,13 +36,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   const LOCATION_ENABLED_KEY = 'coffee_app_location_enabled';
   const LOCATION_DATA_KEY = 'coffee_app_location_data';
 
-  // **SCHRITT 5: Beim App-Start gespeicherten Location-Status laden**
-  useEffect(() => {
-    loadLocationFromSession();
-  }, []);
-
   // **SCHRITT 6: Location-Status aus Session Storage laden**
-  const loadLocationFromSession = () => {
+  const loadLocationFromSession = useCallback(() => {
     try {
       const isEnabled = sessionStorage.getItem(LOCATION_ENABLED_KEY) === 'true';
       const locationDataString = sessionStorage.getItem(LOCATION_DATA_KEY);
@@ -68,7 +63,12 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       console.error('❌ Fehler beim Laden der Location aus Session:', error);
       clearLocationSession();
     }
-  };
+  }, []); // Leere Dependencies, da alle benötigten Funktionen stabil sind
+
+  // **SCHRITT 5: Beim App-Start gespeicherten Location-Status laden**
+  useEffect(() => {
+    loadLocationFromSession();
+  }, [loadLocationFromSession]);
 
   // **SCHRITT 7: Location-Daten in Session Storage speichern**
   const saveLocationToSession = (latitude: number, longitude: number, accuracy?: number) => {
