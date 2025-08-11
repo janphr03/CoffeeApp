@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerUser, RegisterCredentials } from '../services/api';
 import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
@@ -24,12 +23,7 @@ const RegisterPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
   
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
   const { loginUrl } = useAuthRedirect();
-
-  // Redirect-URL aus URL-Parameter oder state extrahieren
-  const from = (location.state as any)?.from?.pathname || new URLSearchParams(location.search).get('redirect') || '/';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({
