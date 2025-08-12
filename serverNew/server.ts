@@ -15,7 +15,7 @@ const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mon
 
 // CORS configuration definiert wo server läuft
 app.use(cors({
-    origin: 'http://localhost:3001', // Frontend URL muss andere Port als Backend sein
+    origin: 'http://localhost:5000', // Frontend URL muss anderer Port als Backend sein
     credentials: true
 }));
 
