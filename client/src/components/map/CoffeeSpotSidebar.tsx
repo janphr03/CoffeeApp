@@ -177,9 +177,9 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
   return (
     <div className="w-80 bg-white border-r border-gray-200 h-full flex flex-col">
       {/* Header mit Logo (da obere Navigation entfernt wurde) */}
-      <div className="p-4 border-b border-gray-200">
-        <Link to="/" className="flex items-center mb-3">
-          <div className="text-xl font-bold text-coffee-brown font-playfair">
+      <div className="p-4 border-b border-gray-200 text-center">
+        <Link to="/" className="inline-block mb-3">
+          <div className="text-2xl font-bold text-coffee-cream">
             ☕ CoffeeSpots
           </div>
         </Link>

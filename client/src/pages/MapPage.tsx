@@ -154,9 +154,9 @@ const MapPage: React.FC = () => {
       // User ist nicht eingeloggt - Hinweis anzeigen
       alert('Sie müssen sich anmelden oder registrieren, um Ihre Favoriten anzuzeigen.');
     } else {
-      // User ist eingeloggt - Platzhalter-Funktionalität
-      console.log('Favoriten anzeigen für User:', user.username);
-      alert('Favoriten-Feature wird bald verfügbar sein!');
+      // User ist eingeloggt - zur Favoriten-Seite weiterleiten
+      console.log('⭐ User eingeloggt, weiterleitung zu Favoriten für User:', user.username);
+      navigate('/favorites');
     }
   };
 
@@ -182,12 +182,12 @@ const MapPage: React.FC = () => {
           userLocation={userLocation}
         />
         
-        {/* Close Map Button */}
+        {/* Map schließen Button */}
         <button
           onClick={handleCloseMap}
-          className="absolute bottom-6 left-6 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border border-gray-200"
+          className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000]"
         >
-          Close Map
+          Map schließen
         </button>
 
         {/* Favoriten Button - rechte untere Ecke */}
