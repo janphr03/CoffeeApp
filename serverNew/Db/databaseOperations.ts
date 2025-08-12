@@ -1,40 +1,42 @@
 ﻿// db/spots.ts
 import { Db, MongoClient} from 'mongodb';
 
+// Verbindung zur MongoDB-Datenbank herstellen
 const uri: string = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
-const dbName = "CoffeeAppDB";
-const collectionName = "SpotsAddedByUsers";
-const client = new MongoClient(uri);
-let db: Db;
+const dbName = "CoffeeAppDB";                       // Name der Datenbank
+const collectionName = "SpotsAddedByUsers";         // Name der Collection für Spots
+const client = new MongoClient(uri);                // MongoDB-Client erstellen
+let db: Db;                                         // Variable zum Speichern der DB-Instanz
+
+// Direkt beim Start verbinden und db setzen
 client.connect()
     .then(() => {
         db = client.db(dbName);
     });
 
-
-
+// Klasse für Datenbankoperationen
 export class DatabaseOperations {
 
+    // Holt die Users-Collection
     async getUserCollection() {
         await client.connect();
         const db = client.db(dbName);
         return db.collection('Users');
     }
 
-
+    // Holt alle Spots eines bestimmten Benutzers anhand der userId
     async getSpotsByUserId(userId: string) {
         try {
             const collection = db.collection(collectionName);
             const spots = await collection.find({ userId }).toArray();
+            // map() kopiert jedes Dokument in ein neues Objekt
             return spots.map(spot => ({...spot}));
-
-
         } catch (error) {
             throw error;
         }
     }
 
-
+    // Erstellt einen neuen Spot in der Datenbank
     async createSpot(
         userId: string,
         osmType: 'node'|'way'|'relation',
@@ -46,19 +48,20 @@ export class DatabaseOperations {
         address: string,
         tags: Record<string, string>
     ) {
-
         try {
-            // locker typisieren, damit _id auch string sein darf
-            const collection = db.collection<any>(collectionName); // muss any sein, damit _id auch ein Objekt sein darf
+            // Locker typisiert, damit _id auch ein String oder ein Objekt sein kann
+            const collection = db.collection<any>(collectionName);
 
-            const id = `${osmType}:${osmId}`; // ← korrekt interpoliert
+            // Erzeugt eine eindeutige ID aus OSM-Typ und OSM-ID
+            const id = `${osmType}:${osmId}`;
 
+            // Fügt das Dokument ein
             return await collection.insertOne({
                 userId,
                 _id: id,
                 lat,
                 lon,
-                geometry: { type: 'Point', coordinates: [lon, lat] }, // [lon, lat]
+                geometry: { type: 'Point', coordinates: [lon, lat] }, // GeoJSON-Format [lon, lat]
                 name,
                 amenity,
                 address,
@@ -73,4 +76,3 @@ export class DatabaseOperations {
     }
 
 }
-
