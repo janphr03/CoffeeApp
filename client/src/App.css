@@ -42,3 +42,25 @@
 .backdrop-blur {
   backdrop-filter: blur(8px);
 }
+
+/* Selected Marker Styling */
+.selected-marker {
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8));
+  animation: pulse-selected 2s infinite;
+}
+
+@keyframes pulse-selected {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 1));
+  }
+}
+
+/* Selected Spot in Sidebar */
+.selected-spot {
+  border: 3px solid #22c55e !important;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+  background-color: #f0fdf4 !important;
+}
