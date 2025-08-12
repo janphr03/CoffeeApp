@@ -151,13 +151,13 @@ export interface AuthStatusResponse {
 }
 
 export const checkAuthStatus = async (): Promise<AuthStatusResponse> => {
-  console.log('🔍 Auth-Status wird geprüft...');
+  console.log(' Auth-Status wird geprüft...');
   
   const result = await apiRequest('/api/auth/status', {
     method: 'GET',
   });
 
-  console.log('📨 Auth-Status-Antwort erhalten:', result);
+  console.log(' Auth-Status-Antwort erhalten:', result);
   return result.data;
 };
 
@@ -174,7 +174,7 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
     method: 'POST',
   });
 
-  console.log('📨 Logout-Antwort erhalten:', result);
+  console.log(' Logout-Antwort erhalten:', result);
   return result.data;
 };
 
@@ -197,14 +197,14 @@ export const testBackendConnection = async (): Promise<boolean> => {
     });
     
     if (result.success) {
-      console.log('✅ Backend-Verbindung erfolgreich!');
+      console.log(' Backend-Verbindung erfolgreich!');
       return true;
     } else {
-      console.log('❌ Backend antwortet mit Fehler:', result.status);
+      console.log(' Backend antwortet mit Fehler:', result.status);
       return false;
     }
   } catch (error) {
-    console.error('💥 Backend-Verbindungstest fehlgeschlagen:', error);
+    console.error(' Backend-Verbindungstest fehlgeschlagen:', error);
     return false;
   }
 };

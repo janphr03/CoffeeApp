@@ -7,6 +7,7 @@ declare module 'express-session' {
   }
 }
 
+
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   if (req.session && req.session.userId) {
     return next();
@@ -19,7 +20,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
-  // This middleware just passes through but can be used to check if user is logged in
-  // without requiring authentication
+// Diese Middleware prüft nicht auf Authentifizierung und leitet einfach weiter.
+// Kann verwendet werden, um optional zu prüfen, ob ein User eingeloggt ist.
   next();
 };
