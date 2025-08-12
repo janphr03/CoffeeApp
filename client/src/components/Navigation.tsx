@@ -67,6 +67,24 @@ const Navigation: React.FC = () => {
               </button>
             </li>
             <li>
+              <Link 
+                to="/map"
+                className="hover:text-coffee-brown transition-colors"
+              >
+                Map
+              </Link>
+            </li>
+            {user && (
+              <li>
+                <Link 
+                  to="/favorites"
+                  className="hover:text-coffee-brown transition-colors"
+                >
+                  Favoriten
+                </Link>
+              </li>
+            )}
+            <li>
               <button 
                 onClick={() => scrollToSection('about')} 
                 className="hover:text-coffee-brown transition-colors"
@@ -153,6 +171,26 @@ const Navigation: React.FC = () => {
                 Home
               </button>
             </li>
+            <li>
+              <Link 
+                to="/map"
+                className="block hover:text-coffee-brown w-full text-left"
+                onClick={() => setIsOpen(false)}
+              >
+                Map
+              </Link>
+            </li>
+            {user && (
+              <li>
+                <Link 
+                  to="/favorites"
+                  className="block hover:text-coffee-brown w-full text-left"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Favoriten
+                </Link>
+              </li>
+            )}
             <li>
               <button 
                 onClick={() => scrollToSection('about')} 
