@@ -2,6 +2,7 @@
 import session from 'express-session';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv/config';
 import authRoutes from  './routes/auth';
 import spotsRoutes from './routes/spots';
 
@@ -11,7 +12,13 @@ import spotsRoutes from './routes/spots';
 const app = express();
 const port = 3000;
 
-const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+    console.error('❌ MONGODB_URI ist nicht in den Umgebungsvariablen definiert!');
+    console.error('Bitte erstellen Sie eine .env Datei basierend auf .env.example');
+    process.exit(1);
+}
 
 // CORS configuration definiert wo server läuft
 app.use(cors({

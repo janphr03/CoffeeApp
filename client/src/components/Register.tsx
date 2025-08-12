@@ -41,7 +41,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
         message?: string;
       }
 
-      const response = await axios.post<RegisterResponse>('http://localhost:3001/api/auth/register', {
+      const response = await axios.post<RegisterResponse>('http://localhost:3000/api/auth/register', {
         username: formData.username,
         email: formData.email,
         password: formData.password

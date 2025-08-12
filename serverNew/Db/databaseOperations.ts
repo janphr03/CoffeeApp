@@ -1,6 +1,6 @@
 ﻿// db/spots.ts
+import 'dotenv/config';
 import { Db, MongoClient} from 'mongodb';
-import dotenv from 'dotenv/config';
 
 // Verbindung zur MongoDB-Datenbank herstellen
 const uri: string = process.env.MONGODB_URI || '';

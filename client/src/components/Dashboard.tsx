@@ -33,7 +33,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const fetchSpots = async () => {
     setLoading(true);
     try {
-      const response = await axios.get<FetchSpotsResponse>('http://localhost:3001/api/spots', {
+      const response = await axios.get<FetchSpotsResponse>('http://localhost:3000/api/spots', {
         withCredentials: true
       });
       
@@ -54,7 +54,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
     setAddingSpot(true);
     try {
-      const response = await axios.post<{ success: boolean; spot: Spot }>('http://localhost:3001/api/spots', {
+      const response = await axios.post<{ success: boolean; spot: Spot }>('http://localhost:3000/api/spots', {
         location: newLocation
       }, {
         withCredentials: true
@@ -73,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:3001/api/auth/logout', {}, {
+      await axios.post('http://localhost:3000/api/auth/logout', {}, {
         withCredentials: true
       });
       onLogout();
