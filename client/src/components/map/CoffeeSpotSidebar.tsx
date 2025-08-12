@@ -22,14 +22,16 @@ interface CoffeeSpotSidebarProps {
   isLoadingCafes?: boolean;
   searchRadius?: number;
   hasUserLocation?: boolean;
+  selectedSpotId?: number | null;
 }
 
 const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({ 
   coffeeSpots, 
   onSpotClick,
   isLoadingCafes = false,
-  searchRadius = 10,
-  hasUserLocation = false
+  searchRadius = 2,
+  hasUserLocation = false,
+  selectedSpotId
 }) => {
   const { user } = useAuth();
 
@@ -98,7 +100,9 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
           return (
           <div
             key={spot.id}
-            className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative"
+            className={`bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative ${
+              selectedSpotId === spot.id ? 'selected-spot' : ''
+            }`}
             onClick={() => onSpotClick(spot)}
           >
             {/* Favoriten-Button */}

@@ -27,6 +27,7 @@ const MapPage: React.FC = () => {
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);
   const [isLoadingCafes, setIsLoadingCafes] = useState(false);
+  const [selectedSpotId, setSelectedSpotId] = useState<number | null>(null);
   const mapRef = useRef<any>(null);
 
   // Konfigurierbare Parameter für Café-Suche
@@ -166,10 +167,14 @@ const MapPage: React.FC = () => {
       <div className="flex-shrink-0 overflow-y-auto overflow-x-hidden">
         <CoffeeSpotSidebar
           coffeeSpots={coffeeSpots}
-          onSpotClick={handleSpotClick}
+          onSpotClick={(spot) => {
+            setSelectedSpotId(spot.id);
+            handleSpotClick(spot);
+          }}
           isLoadingCafes={isLoadingCafes}
           searchRadius={SEARCH_RADIUS_KM}
           hasUserLocation={userLocation !== null}
+          selectedSpotId={selectedSpotId}
         />
       </div>
 
@@ -180,6 +185,10 @@ const MapPage: React.FC = () => {
           center={mapCenter}
           zoom={13}
           userLocation={userLocation}
+          selectedSpotId={selectedSpotId}
+          onSpotClick={(spot) => {
+            setSelectedSpotId(spot.id);
+          }}
         />
         
         {/* Map schließen Button */}

@@ -13,6 +13,32 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+// Erstelle spezielle Icons für normale und ausgewählte Spots
+const createNormalIcon = () => {
+  return new L.Icon({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+};
+
+const createSelectedIcon = () => {
+  return new L.Icon({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+    iconSize: [35, 55], // Größer als normal
+    iconAnchor: [17, 55],
+    popupAnchor: [1, -44],
+    shadowSize: [55, 55],
+    className: 'selected-marker' // CSS-Klasse für Styling
+  });
+};
+
 interface CoffeeSpot {
   id: number;
   name: string;
@@ -31,6 +57,8 @@ interface InteractiveMapProps {
   center: [number, number];
   zoom: number;
   userLocation?: [number, number] | null;
+  selectedSpotId?: number | null;
+  onSpotClick?: (spot: CoffeeSpot) => void;
 }
 
 // MapController Komponente für programmatische Kartenkontrolle
@@ -49,7 +77,9 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   coffeeSpots, 
   center = [52.5200, 13.4050], // Berlin als Standard
   zoom = 13,
-  userLocation = null
+  userLocation = null,
+  selectedSpotId = null,
+  onSpotClick
 }) => {
   const { user } = useAuth();
 
@@ -112,12 +142,21 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
         {coffeeSpots.map((spot) => {
           // Öffnungszeiten-Status berechnen
           const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
+          const isSelected = selectedSpotId === spot.id;
           
           return (
           <Marker 
             key={spot.id} 
             position={[spot.lat, spot.lng]}
-            icon={redMarkerIcon}
+            icon={isSelected ? createSelectedIcon() : createNormalIcon()}
+            zIndexOffset={isSelected ? 1000 : 0}
+            eventHandlers={{
+              click: () => {
+                if (onSpotClick) {
+                  onSpotClick(spot);
+                }
+              }
+            }}
           >
             {/* Hover-Tooltip */}
             <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
