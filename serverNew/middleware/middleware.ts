@@ -22,7 +22,6 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-// Middleware: Optionale Authentifizierung
 export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
 // Diese Middleware prüft nicht auf Authentifizierung und leitet einfach weiter.
 // Kann verwendet werden, um optional zu prüfen, ob ein User eingeloggt ist.

@@ -1,8 +1,9 @@
 ﻿// db/spots.ts
 import { Db, MongoClient} from 'mongodb';
+import dotenv from 'dotenv/config';
 
 // Verbindung zur MongoDB-Datenbank herstellen
-const uri: string = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
+const uri: string = process.env.MONGODB_URI || '';
 const dbName = "CoffeeAppDB";                       // Name der Datenbank
 const collectionName = "SpotsAddedByUsers";         // Name der Collection für Spots
 const client = new MongoClient(uri);                // MongoDB-Client erstellen
