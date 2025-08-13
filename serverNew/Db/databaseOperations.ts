@@ -54,7 +54,7 @@ export class DatabaseOperations {
             const collection = db.collection<any>(collectionName);
 
             // Erzeugt eine eindeutige ID aus OSM-Typ und OSM-ID
-            const id = `${osmType}:${osmId}`;
+            const id = `${userId}:${osmType}:${osmId}`;
 
             // Fügt das Dokument ein
             return await collection.insertOne({
@@ -80,9 +80,12 @@ export class DatabaseOperations {
     async deleteSpot(userId: string, spotId: string) {
         try {
             const collection = db.collection<any>(collectionName);
+            // Die komplette _id ist jetzt userId:spotId
+            const fullId = `${userId}:${spotId}`;
+            console.log(`🗑️ Lösche Spot mit ID: "${fullId}"`);
+            
             return await collection.deleteOne({ 
-                userId: userId, 
-                _id: spotId 
+                _id: fullId 
             });
         } catch (error) {
             throw error;
@@ -93,13 +96,57 @@ export class DatabaseOperations {
     async isSpotFavorited(userId: string, spotId: string) {
         try {
             const collection = db.collection<any>(collectionName);
+            // Die komplette _id ist jetzt userId:spotId
+            const fullId = `${userId}:${spotId}`;
+            console.log(`🔍 Prüfe Favoriten-Status für ID: "${fullId}"`);
+            
             const spot = await collection.findOne({ 
-                userId: userId, 
-                _id: spotId 
+                _id: fullId 
             });
-            return spot !== null;
+            const isFavorited = spot !== null;
+            console.log(`✅ Favoriten-Status für "${fullId}": ${isFavorited}`);
+            
+            return isFavorited;
         } catch (error) {
             throw error;
+        }
+    }
+
+    // Zählt, wie oft ein Spot als Favorit hinzugefügt wurde (für Bewertungsanzeige)
+    async getFavoritesCountForSpot(spotId: string): Promise<number> {
+        try {
+            console.log(`🔍 Zähle Favoriten für Spot-ID: "${spotId}"`);
+            const collection = db.collection<any>(collectionName);
+            
+            // Debug: Zeige ALLE Dokumente in der Collection
+            const allDocuments = await collection.find({}).toArray();
+            console.log(`🔍 ALLE Dokumente in der Collection:`, allDocuments.map(doc => ({
+                _id: doc._id,
+                userId: doc.userId,
+                name: doc.name
+            })));
+            
+            // Da die _id jetzt das Format "userId:osmType:osmId" hat, 
+            // müssen wir alle Dokumente finden, die mit ":spotId" enden
+            const pattern = new RegExp(`:${spotId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+            
+            const count = await collection.countDocuments({ 
+                _id: { $regex: pattern }
+            });
+            console.log(`📊 Favoriten-Anzahl für "${spotId}": ${count}`);
+            
+            // Debug: Zeige alle Dokumente die dem Pattern entsprechen
+            const documents = await collection.find({ _id: { $regex: pattern } }).toArray();
+            console.log(`🔍 Gefundene Dokumente für Pattern "${pattern}":`, documents.map(doc => ({
+                _id: doc._id,
+                userId: doc.userId,
+                name: doc.name
+            })));
+            
+            return count;
+        } catch (error) {
+            console.error('❌ Fehler beim Zählen der Favoriten für Spot:', spotId, error);
+            return 0; // Fallback: 0 Favoriten bei Fehler
         }
     }
 

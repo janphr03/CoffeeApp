@@ -6,6 +6,11 @@ export interface OpeningHoursStatus {
 }
 
 export class OpeningHoursService {
+  // **MEMOIZATION: Cache für geparste Öffnungszeiten**
+  private static openingHoursCache = new Map<string, { [day: number]: { start: number, end: number }[] }>();
+  private static cacheExpiration = new Map<string, number>();
+  private static readonly CACHE_DURATION_MS = 10 * 60 * 1000; // 10 Minuten Cache
+
   /**
    * Hauptfunktion: Bestimmt den aktuellen Öffnungsstatus
    */
@@ -34,8 +39,8 @@ export class OpeningHoursService {
         };
       }
 
-      // Parse die Öffnungszeiten
-      const dayHours = this.parseOpeningHours(openingHours);
+      // **MEMOIZATION: Parse die Öffnungszeiten mit Cache**
+      const dayHours = this.parseOpeningHoursWithCache(openingHours);
       //console.log('📅 Geparste Tage:', dayHours); // Debug-Ausgabe
       const todaysHours = dayHours[currentDay];
       //console.log(`📍 Heute (Tag ${currentDay}):`, todaysHours, 'Aktuelle Zeit:', currentTime); // Debug-Ausgabe
@@ -75,6 +80,54 @@ export class OpeningHoursService {
     return normalized.includes('24/7') || 
            normalized.includes('24h') ||
            normalized === 'mo-su00:00-24:00';
+  }
+
+  /**
+   * **MEMOIZATION: Parse Öffnungszeiten mit Cache**
+   */
+  private static parseOpeningHoursWithCache(openingHours: string): { [day: number]: { start: number, end: number }[] } {
+    const now = Date.now();
+    
+    // Cache bereinigen: Entferne abgelaufene Einträge
+    this.cacheExpiration.forEach((expiration, key) => {
+      if (now > expiration) {
+        this.openingHoursCache.delete(key);
+        this.cacheExpiration.delete(key);
+      }
+    });
+    
+    // Prüfe ob bereits im Cache
+    if (this.openingHoursCache.has(openingHours)) {
+      const expiration = this.cacheExpiration.get(openingHours);
+      if (expiration && now < expiration) {
+        console.log('📊 Öffnungszeiten aus Cache geladen für:', openingHours.substring(0, 30) + '...');
+        return this.openingHoursCache.get(openingHours)!;
+      }
+    }
+    
+    // **PERFORMANCE LOGGING: Parsing-Zeit messen**
+    const parseStartTime = performance.now();
+    
+    // Nicht im Cache oder abgelaufen: Neu parsen
+    const result = this.parseOpeningHours(openingHours);
+    
+    // **PERFORMANCE LOGGING: Parsing-Zeit**
+    const parseEndTime = performance.now();
+    const parseTime = parseEndTime - parseStartTime;
+    console.log(`📊 Öffnungszeiten Parsing Zeit: ${parseTime.toFixed(2)}ms für "${openingHours.substring(0, 30)}..."`);
+    
+    // **PERFORMANCE LOGGING: Warnung bei langsamen Parsing**
+    if (parseTime > 10) {
+      console.warn(`⚠️ LANGSAMES ÖFFNUNGSZEITEN-PARSING: ${parseTime.toFixed(2)}ms (über 10ms!)`);
+    }
+    
+    // In Cache speichern
+    this.openingHoursCache.set(openingHours, result);
+    this.cacheExpiration.set(openingHours, now + this.CACHE_DURATION_MS);
+    
+    console.log(`📊 Öffnungszeiten in Cache gespeichert. Cache-Größe: ${this.openingHoursCache.size}`);
+    
+    return result;
   }
 
   /**
@@ -338,5 +391,29 @@ export class OpeningHoursService {
       }
     }
     return false;
+  }
+
+  /**
+   * **MEMOIZATION: Cache zurücksetzen (für Debugging)**
+   */
+  public static clearOpeningHoursCache(): void {
+    this.openingHoursCache.clear();
+    this.cacheExpiration.clear();
+    console.log('📊 Öffnungszeiten-Cache wurde geleert');
+  }
+
+  /**
+   * **MEMOIZATION: Cache-Statistiken anzeigen**
+   */
+  public static getCacheStats(): { size: number, entries: string[] } {
+    const entries: string[] = [];
+    this.openingHoursCache.forEach((_, key) => {
+      entries.push(key.substring(0, 50) + (key.length > 50 ? '...' : ''));
+    });
+    
+    return {
+      size: this.openingHoursCache.size,
+      entries
+    };
   }
 }

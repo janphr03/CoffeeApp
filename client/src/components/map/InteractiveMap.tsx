@@ -5,6 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
+import { FavoritesCountDisplay } from '../common/FavoritesCountDisplay';
+import { generateSpotId, generateAddSpotData } from '../../utils/spotIdUtils';
 
 // Fix für Leaflet Icons in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -89,7 +91,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
 
     // Erstelle eindeutige Spot-ID für OSM-Daten
-    const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+    const spotId = generateSpotId(spot);
     
     try {
       if (isFavorited(spotId)) {
@@ -100,16 +102,8 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
         }
       } else {
         // Spot zu Favoriten hinzufügen
-        const success = await addToFavorites({
-          osmType: spot.osmType || 'node',
-          osmId: spot.osmId || spot.id,
-          elementLat: spot.lat,
-          elementLng: spot.lng,
-          name: spot.name,
-          amenity: spot.amenity || 'cafe',
-          address: spot.address,
-          tags: spot.tags || {}
-        });
+        const spotData = generateAddSpotData(spot);
+        const success = await addToFavorites(spotData);
         
         if (!success) {
           alert('Fehler beim Hinzufügen zu Favoriten.');
@@ -181,7 +175,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           const isSelected = selectedSpotId === spot.id;
           
           // Prüfe, ob Spot favorisiert ist
-          const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+          const spotId = generateSpotId(spot);
           const isSpotFavorited = isFavorited(spotId);
           
           // Bestimme das passende Icon
@@ -213,7 +207,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="text-center">
                 <div className="font-semibold text-sm">{spot.name}</div>
                 <div className="text-xs text-gray-600">
-                  ★ {spot.rating} {spot.distance && `• ${spot.distance}`}
+                  ★ Favoriten-Anzahl {spot.distance && `• ${spot.distance}`}
                 </div>
               </div>
             </Tooltip>
@@ -250,10 +244,9 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   {spot.address}
                 </p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="text-yellow-500">★</span>
-                    <span className="ml-1 text-sm font-semibold">{spot.rating}</span>
-                  </div>
+                  <FavoritesCountDisplay 
+                    spotId={generateSpotId(spot)}
+                  />
                   <span className={`text-xs px-2 py-1 rounded ${
                     openingStatus.status === 'open'
                       ? 'bg-green-100 text-green-800' 

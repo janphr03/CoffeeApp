@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import { getFavoriteSpots, addSpotToFavorites, removeSpotFromFavorites } from '../services/api';
 
+// Event für Favoriten-Anzahl-Updates
+export const favoritesCountUpdatedEvent = new EventTarget();
+
 // Spot-Interface (kompatibel mit CoffeeSpot)
 interface FavoriteSpot {
   _id: string;
@@ -96,6 +99,13 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         console.log('✅ Spot zu Favoriten hinzugefügt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
+        
+        // Event für Favoriten-Anzahl-Update auslösen
+        const spotId = `${spotData.osmType}:${spotData.osmId}`;
+        favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
+          detail: { spotId, action: 'added' }
+        }));
+        
         return true;
       } else {
         console.error('❌ Fehler beim Hinzufügen:', response);
@@ -124,6 +134,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         console.log('✅ Spot aus Favoriten entfernt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
+        
+        // Event für Favoriten-Anzahl-Update auslösen
+        favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
+          detail: { spotId, action: 'removed' }
+        }));
+        
         return true;
       } else {
         console.error('❌ Fehler beim Entfernen:', response);
@@ -139,7 +155,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
   // Prüft, ob ein Spot favorisiert ist
   const isFavorited = (spotId: string): boolean => {
-    return favoriteSpots.some(spot => spot._id === spotId);
+    if (!user) return false;
+    
+    // Die Database-IDs haben jetzt das Format "userId:osmType:osmId"
+    // Wir suchen nach Favoriten, die mit "userId:spotId" enden
+    const userSpotId = `${user.id}:${spotId}`;
+    return favoriteSpots.some(spot => spot._id === userSpotId);
   };
 
   // Öffentliche Refresh-Funktion

@@ -58,9 +58,12 @@ const FavoritesPage: React.FC = () => {
    * Konvertiert FavoriteSpot zu CoffeeSpot Format
    */
   const convertFavoriteToSpot = useCallback((favorite: FavoriteSpot, userLat?: number, userLng?: number): CoffeeSpot => {
-    // Extrahiere ID aus der _id (Format: "type:id")
+    // Extrahiere ID aus der _id (Format: "userId:osmType:osmId")
     const idParts = favorite._id.split(':');
-    const spotId = parseInt(idParts[1]) || 0;
+    // Skip userId, nimm osmType und osmId
+    const osmType = idParts[1] as 'node' | 'way' | 'relation';
+    const osmId = parseInt(idParts[2]) || 0;
+    const spotId = osmId; // Für Kompatibilität
     
     // Berechne Entfernung wenn User-Location verfügbar
     let distance: string | undefined;
@@ -72,7 +75,7 @@ const FavoritesPage: React.FC = () => {
       id: spotId,
       name: favorite.name,
       address: favorite.address,
-      rating: 4.0, // Standard-Bewertung da nicht in DB gespeichert
+      rating: 0, // Wird durch FavoritesCountDisplay ersetzt
       lat: favorite.lat,
       lng: favorite.lon,
       isOpen: true, // Standard-Wert
@@ -146,15 +149,25 @@ const FavoritesPage: React.FC = () => {
   const handleRemoveFromFavorites = async (spotId: number) => {
     console.log('🗑️ Entferne Spot aus Favoriten:', spotId);
     
-    // Finde den Spot um die richtige _id zu bekommen
-    const spotToRemove = favoriteSpots.find(spot => spot.id === spotId);
-    if (!spotToRemove) {
-      console.error('Spot nicht gefunden:', spotId);
+    // Finde den Original-Favoriten-Eintrag um die richtige DB _id zu bekommen
+    const favoriteEntry = dbFavorites.find(favorite => {
+      const idParts = favorite._id.split(':');
+      const osmId = parseInt(idParts[2]) || 0;
+      return osmId === spotId;
+    });
+    
+    if (!favoriteEntry) {
+      console.error('Favoriten-Eintrag nicht gefunden für Spot-ID:', spotId);
       return;
     }
-
-    // Erstelle die Spot-ID im DB-Format
-    const dbSpotId = `node:${spotId}`;
+    
+    // Extrahiere osmType:osmId aus der DB _id (entferne userId prefix)
+    const idParts = favoriteEntry._id.split(':');
+    const osmType = idParts[1];
+    const osmId = idParts[2];
+    const dbSpotId = `${osmType}:${osmId}`;
+    
+    console.log(`🔄 Entferne Favorit mit Spot-ID: "${dbSpotId}" (Original DB-ID: "${favoriteEntry._id}")`);
     
     const success = await removeFromFavorites(dbSpotId);
     if (!success) {

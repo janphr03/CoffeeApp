@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
+import { useFavoritesCount } from '../../hooks/useFavoritesCount';
+import { FavoritesCountDisplay } from '../common/FavoritesCountDisplay';
+import { generateSpotId, generateAddSpotData } from '../../utils/spotIdUtils';
 
 interface CoffeeSpot {
   id: number;
@@ -52,7 +55,7 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
     }
 
     // Erstelle eindeutige Spot-ID für OSM-Daten
-    const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+    const spotId = generateSpotId(spot);
     
     try {
       if (isFavorited(spotId)) {
@@ -63,16 +66,8 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
         }
       } else {
         // Spot zu Favoriten hinzufügen
-        const success = await addToFavorites({
-          osmType: spot.osmType || 'node',
-          osmId: spot.osmId || spot.id,
-          elementLat: spot.lat,
-          elementLng: spot.lng,
-          name: spot.name,
-          amenity: spot.amenity || 'cafe',
-          address: spot.address,
-          tags: spot.tags || {}
-        });
+        const spotData = generateAddSpotData(spot);
+        const success = await addToFavorites(spotData);
         
         if (!success) {
           alert('Fehler beim Hinzufügen zu Favoriten.');
@@ -134,7 +129,7 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
           const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
           
           // Spot-ID für Favoriten erstellen
-          const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+          const spotId = generateSpotId(spot);
           const isSpotFavorited = isFavorited(spotId);
           
           return (
@@ -171,12 +166,9 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
               <h3 className="font-semibold text-gray-800 text-sm">
                 {spot.name}
               </h3>
-              <div className="flex items-center">
-                <span className="text-yellow-500 text-sm">★</span>
-                <span className="ml-1 text-sm font-semibold text-gray-700">
-                  {spot.rating}
-                </span>
-              </div>
+              <FavoritesCountDisplay 
+                spotId={generateSpotId(spot)}
+              />
             </div>
             
             <p className="text-xs text-gray-600 mb-2">
