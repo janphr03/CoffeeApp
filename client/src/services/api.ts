@@ -178,13 +178,79 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
   return result.data;
 };
 
-// **SCHRITT 6: Coffee Spots laden (später implementiert)**
-export const getCoffeeSpots = async () => {
+// **SCHRITT 6: Coffee Spots/Favoriten laden**
+export const getFavoriteSpots = async () => {
   const result = await apiRequest('/api/spots', {
     method: 'GET',
   });
   
   return result.data;
+};
+
+// **SCHRITT 7: Spot zu Favoriten hinzufügen**
+export const addSpotToFavorites = async (spotData: {
+  osmType: 'node' | 'way' | 'relation';
+  osmId: number;
+  elementLat: number;
+  elementLng: number;
+  name: string;
+  amenity: string;
+  address: string;
+  tags?: Record<string, string>;
+}) => {
+  const result = await apiRequest('/api/spots', {
+    method: 'POST',
+    body: JSON.stringify(spotData),
+  });
+  
+  return result;
+};
+
+// **SCHRITT 8: Spot aus Favoriten entfernen**
+export const removeSpotFromFavorites = async (spotId: string) => {
+  const result = await apiRequest(`/api/spots/${encodeURIComponent(spotId)}`, {
+    method: 'DELETE',
+  });
+  
+  return result;
+};
+
+// Backward compatibility
+export const getCoffeeSpots = getFavoriteSpots;
+// **SCHRITT 7: Favoriten-Anzahl abrufen**
+export const getFavoritesCount = async (spotId: string): Promise<{ success: boolean; count: number; error?: string }> => {
+  try {
+    console.log(`🔍 Frontend: Lade Favoriten-Anzahl für Spot: "${spotId}"`);
+    
+    const result = await apiRequest(`/api/spots/favorites-count/${encodeURIComponent(spotId)}`, {
+      method: 'GET',
+    });
+    
+    console.log(`📨 Frontend: API-Response für "${spotId}":`, result);
+    
+    if (result.success && result.data?.success) {
+      const count = result.data.favoritesCount || 0;
+      console.log(`✅ Frontend: Favoriten-Anzahl geladen: ${count} für Spot ${spotId}`);
+      return {
+        success: true,
+        count: count
+      };
+    } else {
+      console.warn(`⚠️ Frontend: Favoriten-Anzahl konnte nicht geladen werden für "${spotId}":`, result.data?.message);
+      return {
+        success: false,
+        count: 0,
+        error: result.data?.message || 'Unbekannter Fehler'
+      };
+    }
+  } catch (error: any) {
+    console.error(`❌ Frontend: Fehler beim Laden der Favoriten-Anzahl für "${spotId}":`, error);
+    return {
+      success: false,
+      count: 0,
+      error: error.message || 'Netzwerkfehler'
+    };
+  }
 };
 
 // **DEBUGGING: Test-Funktion für Backend-Verbindung**

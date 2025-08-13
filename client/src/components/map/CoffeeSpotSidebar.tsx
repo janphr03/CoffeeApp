@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
+import { useFavoritesCount } from '../../hooks/useFavoritesCount';
+import { FavoritesCountDisplay } from '../common/FavoritesCountDisplay';
+import { generateSpotId, generateAddSpotData } from '../../utils/spotIdUtils';
 
 interface CoffeeSpot {
   id: number;
@@ -14,6 +18,11 @@ interface CoffeeSpot {
   distance?: string;
   priceLevel?: number;
   openingHours?: string;
+  // OSM properties für Favoriten
+  osmType?: 'node' | 'way' | 'relation';
+  osmId?: number;
+  amenity?: string;
+  tags?: Record<string, string>;
 }
 
 interface CoffeeSpotSidebarProps {
@@ -34,17 +43,39 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
   selectedSpotId
 }) => {
   const { user } = useAuth();
+  const { addToFavorites, removeFromFavorites, isFavorited } = useFavorites();
 
-  const handleFavoriteClick = (spot: CoffeeSpot, event: React.MouseEvent) => {
+  const handleFavoriteClick = async (spot: CoffeeSpot, event: React.MouseEvent) => {
     event.stopPropagation(); // Verhindert das Auslösen von onSpotClick
     
     if (!user) {
       // User ist nicht eingeloggt - Hinweis anzeigen
       alert('Sie müssen sich anmelden oder registrieren, um dieses Café zu Ihren Favoriten hinzuzufügen.');
-    } else {
-      // User ist eingeloggt - Platzhalter-Funktionalität
-      console.log('Favorit hinzufügen für:', spot.name);
-      alert('Favoriten-Feature wird bald verfügbar sein!');
+      return;
+    }
+
+    // Erstelle eindeutige Spot-ID für OSM-Daten
+    const spotId = generateSpotId(spot);
+    
+    try {
+      if (isFavorited(spotId)) {
+        // Spot ist bereits favorisiert - entfernen
+        const success = await removeFromFavorites(spotId);
+        if (!success) {
+          alert('Fehler beim Entfernen aus Favoriten.');
+        }
+      } else {
+        // Spot zu Favoriten hinzufügen
+        const spotData = generateAddSpotData(spot);
+        const success = await addToFavorites(spotData);
+        
+        if (!success) {
+          alert('Fehler beim Hinzufügen zu Favoriten.');
+        }
+      }
+    } catch (error) {
+      console.error('Fehler bei Favoriten-Operation:', error);
+      alert('Ein Fehler ist aufgetreten.');
     }
   };
 
@@ -97,38 +128,47 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
           // Öffnungszeiten-Status berechnen
           const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
           
+          // Spot-ID für Favoriten erstellen
+          const spotId = generateSpotId(spot);
+          const isSpotFavorited = isFavorited(spotId);
+          
           return (
           <div
             key={spot.id}
             className={`bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative ${
               selectedSpotId === spot.id ? 'selected-spot' : ''
-            }`}
+            } ${isSpotFavorited ? 'ring-2 ring-yellow-400' : ''}`}
             onClick={() => onSpotClick(spot)}
           >
             {/* Favoriten-Button */}
             <button
               onClick={(e) => handleFavoriteClick(spot, e)}
               className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-colors ${
-                user 
-                  ? 'bg-green-500 hover:bg-green-600' 
-                  : 'bg-red-500 hover:bg-red-600'
+                !user 
+                  ? 'bg-red-500 hover:bg-red-600' 
+                  : isSpotFavorited
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-green-500 hover:bg-green-600'
               }`}
-              title={user ? 'Zu Favoriten hinzufügen' : 'Anmelden erforderlich'}
+              title={
+                !user 
+                  ? 'Anmelden erforderlich' 
+                  : isSpotFavorited 
+                  ? 'Aus Favoriten entfernen' 
+                  : 'Zu Favoriten hinzufügen'
+              }
               style={{ fontSize: '18px', lineHeight: '1', paddingBottom: '5px' }}
             >
-              +
+              {!user ? '+' : isSpotFavorited ? '−' : '+'}
             </button>
 
             <div className="flex justify-between items-start mb-2 pr-10">
               <h3 className="font-semibold text-gray-800 text-sm">
                 {spot.name}
               </h3>
-              <div className="flex items-center">
-                <span className="text-yellow-500 text-sm">★</span>
-                <span className="ml-1 text-sm font-semibold text-gray-700">
-                  {spot.rating}
-                </span>
-              </div>
+              <FavoritesCountDisplay 
+                spotId={generateSpotId(spot)}
+              />
             </div>
             
             <p className="text-xs text-gray-600 mb-2">

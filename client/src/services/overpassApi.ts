@@ -7,6 +7,9 @@ export interface NearbyCafe {
   address?: string;
   amenity: string;
   tags: Record<string, string>;
+  // OSM-Daten für eindeutige Identifikation
+  osmType: 'node' | 'way' | 'relation';
+  osmId: number;
 }
 
 export interface OverpassResponse {
@@ -155,7 +158,10 @@ export class OverpassApiService {
         lng: elementLng,
         address,
         amenity,
-        tags: element.tags || {}
+        tags: element.tags || {},
+        // OSM-Daten hinzufügen mit Type-Cast
+        osmType: element.type as 'node' | 'way' | 'relation',
+        osmId: element.id || Date.now() + index
       };
     });
   }
@@ -188,6 +194,9 @@ export class OverpassApiService {
       const simpleQuery = this.buildSimpleQuery(lat, lng, radiusKm, maxResults);
       console.log('📡 Einfache Backup Query:', simpleQuery.trim());
       
+      // **PERFORMANCE LOGGING: Backup-API-Request-Zeit messen**
+      const backupApiStartTime = performance.now();
+      
       const response = await fetch(this.BASE_URL, {
         method: 'POST',
         headers: {
@@ -196,12 +205,28 @@ export class OverpassApiService {
         body: simpleQuery.trim()
       });
       
+      // **PERFORMANCE LOGGING: Backup API Response Zeit**
+      const backupApiEndTime = performance.now();
+      const backupApiResponseTime = backupApiEndTime - backupApiStartTime;
+      console.log(`📊 Backup API Response Zeit: ${backupApiResponseTime.toFixed(2)}ms`);
+      
       if (!response.ok) {
         console.warn('⚠️ Einfache Suche fehlgeschlagen');
         return [];
       }
       
+      // **PERFORMANCE LOGGING: Backup JSON Parse Zeit**
+      const backupParseStartTime = performance.now();
       const data: OverpassResponse = await response.json();
+      const backupParseEndTime = performance.now();
+      const backupParseTime = backupParseEndTime - backupParseStartTime;
+      console.log(`📊 Backup JSON Parse Zeit: ${backupParseTime.toFixed(2)}ms`);
+      
+      // **PERFORMANCE LOGGING: Warnung bei langsamen Backup-Anfragen**
+      if (backupApiResponseTime > 5000) {
+        console.warn(`⚠️ LANGSAME BACKUP-ANFRAGE: ${backupApiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
+      }
+      
       const simpleCafes = this.convertElements(data.elements, lat, lng);
       const uniqueCafes = this.removeDuplicates(simpleCafes);
       
@@ -228,6 +253,9 @@ export class OverpassApiService {
       const fallbackQuery = this.buildFallbackQuery(lat, lng, radiusKm, maxResults);
       console.log('📡 Fallback Overpass Query:', fallbackQuery.trim());
       
+      // **PERFORMANCE LOGGING: Fallback-API-Request-Zeit messen**
+      const fallbackApiStartTime = performance.now();
+      
       const response = await fetch(this.BASE_URL, {
         method: 'POST',
         headers: {
@@ -236,12 +264,27 @@ export class OverpassApiService {
         body: fallbackQuery.trim()
       });
       
+      // **PERFORMANCE LOGGING: Fallback API Response Zeit**
+      const fallbackApiEndTime = performance.now();
+      const fallbackApiResponseTime = fallbackApiEndTime - fallbackApiStartTime;
+      console.log(`📊 Fallback API Response Zeit: ${fallbackApiResponseTime.toFixed(2)}ms`);
+      
       if (!response.ok) {
         console.warn('⚠️ Fallback-Suche fehlgeschlagen');
         return existingCafes;
       }
       
+      // **PERFORMANCE LOGGING: Fallback JSON Parse Zeit**
+      const fallbackParseStartTime = performance.now();
       const data: OverpassResponse = await response.json();
+      const fallbackParseEndTime = performance.now();
+      const fallbackParseTime = fallbackParseEndTime - fallbackParseStartTime;
+      console.log(`📊 Fallback JSON Parse Zeit: ${fallbackParseTime.toFixed(2)}ms`);
+      
+      // **PERFORMANCE LOGGING: Warnung bei langsamen Fallback-Anfragen**
+      if (fallbackApiResponseTime > 5000) {
+        console.warn(`⚠️ LANGSAME FALLBACK-ANFRAGE: ${fallbackApiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
+      }
       const fallbackCafes = this.convertElements(data.elements, lat, lng);
       
       // Kombiniere beide Ergebnisse und entferne Duplikate
@@ -271,6 +314,9 @@ export class OverpassApiService {
     radiusKm: number = this.DEFAULT_RADIUS_KM,
     maxResults: number = this.DEFAULT_MAX_RESULTS
   ): Promise<NearbyCafe[]> {
+    // **PERFORMANCE LOGGING: Gesamtzeit-Messung starten**
+    const totalStartTime = performance.now();
+    
     // **RATE LIMITING: Verhindert zu schnelle aufeinanderfolgende Requests**
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
@@ -299,6 +345,9 @@ export class OverpassApiService {
         const query = this.buildOptimizedQuery(lat, lng, radiusKm, maxResults);
         console.log('📡 Optimierte Overpass Query:', query.trim());
         
+        // **PERFORMANCE LOGGING: API-Request-Zeit messen**
+        const apiStartTime = performance.now();
+        
         const response = await fetch(this.BASE_URL, {
           method: 'POST',
           headers: {
@@ -307,8 +356,24 @@ export class OverpassApiService {
           body: query.trim()
         });
         
+        // **PERFORMANCE LOGGING: API Response Zeit**
+        const apiEndTime = performance.now();
+        const apiResponseTime = apiEndTime - apiStartTime;
+        console.log(`📊 API Response Zeit: ${apiResponseTime.toFixed(2)}ms`);
+        
         if (response.ok) {
+          // **PERFORMANCE LOGGING: JSON Parse Zeit messen**
+          const parseStartTime = performance.now();
           const data: OverpassResponse = await response.json();
+          const parseEndTime = performance.now();
+          const parseTime = parseEndTime - parseStartTime;
+          console.log(`📊 JSON Parse Zeit: ${parseTime.toFixed(2)}ms`);
+          
+          // **PERFORMANCE LOGGING: Warnung bei langsamen Anfragen**
+          if (apiResponseTime > 5000) {
+            console.warn(`⚠️ LANGSAME API-ANFRAGE: ${apiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
+          }
+          
           console.log('✅ Hauptsuche Response:', data);
           
           if (data.elements && data.elements.length > 0) {
@@ -335,10 +400,25 @@ export class OverpassApiService {
       // Nach Entfernung sortieren und begrenzen
       const sortedCafes = this.sortByDistance(cafes, lat, lng).slice(0, maxResults);
       
+      // **PERFORMANCE LOGGING: Gesamtzeit berechnen und ausgeben**
+      const totalEndTime = performance.now();
+      const totalTime = totalEndTime - totalStartTime;
+      console.log(`📊 Gesamtzeit der Cafe-Suche: ${totalTime.toFixed(2)}ms`);
+      
+      // **PERFORMANCE LOGGING: Warnung bei sehr langsamen Gesamtoperationen**
+      if (totalTime > 10000) {
+        console.warn(`⚠️ SEHR LANGSAME GESAMTOPERATION: ${totalTime.toFixed(2)}ms (über 10 Sekunden!)`);
+      }
+      
       console.log(`✅ ${sortedCafes.length} Cafés gefunden und sortiert`);
       return sortedCafes;
       
     } catch (error) {
+      // **PERFORMANCE LOGGING: Gesamtzeit auch bei Fehler**
+      const totalEndTime = performance.now();
+      const totalTime = totalEndTime - totalStartTime;
+      console.log(`📊 Gesamtzeit (mit Fehler): ${totalTime.toFixed(2)}ms`);
+      
       console.error('❌ Fehler beim Laden der Cafés:', error);
       throw new Error('Fehler beim Laden der Cafés in der Nähe');
     } finally {

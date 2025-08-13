@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
+import { FavoritesCountDisplay } from '../common/FavoritesCountDisplay';
+import { generateSpotId } from '../../utils/spotIdUtils';
 
 interface CoffeeSpot {
   id: number;
@@ -36,21 +38,6 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
   const handleRemoveClick = (spotId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Verhindert das Auslösen von onSpotClick
     onRemoveFromFavorites(spotId);
-  };
-
-  const renderPriceLevel = (level?: number) => {
-    if (!level) return null;
-    
-    const euros = [];
-    for (let i = 0; i < level; i++) {
-      euros.push(<span key={i} className="text-green-600">€</span>);
-    }
-    
-    while (euros.length < 3) {
-      euros.push(<span key={euros.length} className="text-gray-300">€</span>);
-    }
-    
-    return euros;
   };
 
   const getOpeningStatus = (openingHours?: string): OpeningHoursStatus => {
@@ -140,12 +127,9 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
                     <h3 className="font-semibold text-gray-800 text-sm">
                       {spot.name}
                     </h3>
-                    <div className="flex items-center">
-                      <span className="text-yellow-500 text-sm">★</span>
-                      <span className="ml-1 text-sm font-semibold text-gray-700">
-                        {spot.rating}
-                      </span>
-                    </div>
+                    <FavoritesCountDisplay 
+                      spotId={generateSpotId(spot)}
+                    />
                   </div>
                   
                   <p className="text-xs text-gray-600 mb-2">
@@ -160,30 +144,21 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
                         </span>
                       )}
                       {spot.priceLevel && (
-                        <div className="flex items-center">
-                          {renderPriceLevel(spot.priceLevel)}
-                        </div>
+                        <span className="text-xs text-gray-500">
+                          {'€'.repeat(spot.priceLevel)}
+                        </span>
                       )}
                     </div>
-                    
-                    <div className="flex items-center">
-                      <span className={`inline-block w-2 h-2 rounded-full mr-1 ${
-                        openingStatus.isOpen ? 'bg-green-400' : 'bg-red-400'
-                      }`}></span>
-                      <span className={`text-xs ${
-                        openingStatus.isOpen ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {openingStatus.isOpen ? 'Geöffnet' : 'Geschlossen'}
-                      </span>
-                    </div>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      openingStatus.status === 'open'
+                        ? 'bg-green-100 text-green-800' 
+                        : openingStatus.status === 'closed'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {openingStatus.statusText}
+                    </span>
                   </div>
-
-                  {/* Opening Hours */}
-                  {spot.openingHours && (
-                    <div className="mt-2 text-xs text-gray-500">
-                      🕒 {spot.openingHours}
-                    </div>
-                  )}
                 </div>
               );
             })}

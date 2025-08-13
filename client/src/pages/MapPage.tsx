@@ -18,6 +18,11 @@ interface CoffeeSpot {
   distance?: string;
   priceLevel?: number;
   openingHours?: string;
+  // OSM-Daten für eindeutige Identifikation
+  osmType?: 'node' | 'way' | 'relation';
+  osmId?: number;
+  amenity?: string;
+  tags?: Record<string, string>;
 }
 
 const MapPage: React.FC = () => {
@@ -91,13 +96,18 @@ const MapPage: React.FC = () => {
         id: cafe.id,
         name: cafe.name,
         address: cafe.address || 'Adresse nicht verfügbar',
-        rating: 4.0, // Default rating, könnte später aus anderen APIs geholt werden
+        rating: 0, // Wird durch FavoritesCountDisplay ersetzt
         lat: cafe.lat,
         lng: cafe.lng,
         isOpen: true, // Wird durch OpeningHoursService überschrieben
         distance: calculateDistance(lat, lng, cafe.lat, cafe.lng),
         priceLevel: 2, // Default Preisniveau
-        openingHours: cafe.tags?.opening_hours // Öffnungszeiten aus Overpass API
+        openingHours: cafe.tags?.opening_hours, // Öffnungszeiten aus Overpass API
+        // OSM-Daten für eindeutige Identifikation
+        osmType: cafe.osmType,
+        osmId: cafe.osmId,
+        amenity: cafe.amenity,
+        tags: cafe.tags
       }));
 
       setNearbyCafes(convertedCafes);

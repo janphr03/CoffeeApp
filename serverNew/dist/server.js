@@ -12,10 +12,15 @@ const spots_1 = __importDefault(require("./routes/spots"));
 // npm run dev  damit wird npm build & npm start ausgeführt
 const app = (0, express_1.default)();
 const port = 3000;
-const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+    console.error('❌ MONGODB_URI ist nicht in den Umgebungsvariablen definiert!');
+    console.error('Bitte erstellen Sie eine .env Datei basierend auf .env.example');
+    process.exit(1);
+}
 // CORS configuration definiert wo server läuft
 app.use((0, cors_1.default)({
-    origin: 'http://localhost:5000', // Frontend URL muss andere Port als Backend sein
+    origin: 'http://localhost:5000', // Frontend URL muss anderer Port als Backend sein
     credentials: true
 }));
 // Session configuration
