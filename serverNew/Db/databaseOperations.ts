@@ -76,4 +76,31 @@ export class DatabaseOperations {
         }
     }
 
+    // Löscht einen Spot aus den Favoriten eines Benutzers
+    async deleteSpot(userId: string, spotId: string) {
+        try {
+            const collection = db.collection<any>(collectionName);
+            return await collection.deleteOne({ 
+                userId: userId, 
+                _id: spotId 
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Prüft, ob ein Spot bereits in den Favoriten eines Benutzers ist
+    async isSpotFavorited(userId: string, spotId: string) {
+        try {
+            const collection = db.collection<any>(collectionName);
+            const spot = await collection.findOne({ 
+                userId: userId, 
+                _id: spotId 
+            });
+            return spot !== null;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }

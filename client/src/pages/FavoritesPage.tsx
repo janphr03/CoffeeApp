@@ -5,6 +5,7 @@ import FavoritesSidebar from '../components/map/FavoritesSidebar';
 import RightSidebar from '../components/map/RightSidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserLocation } from '../contexts/LocationContext';
+import { useFavorites, FavoriteSpot } from '../contexts/FavoritesContext';
 
 interface CoffeeSpot {
   id: number;
@@ -23,9 +24,9 @@ const FavoritesPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userLocation, isLocationEnabled } = useUserLocation();
+  const { favoriteSpots: dbFavorites, isLoading: isLoadingFavorites, removeFromFavorites } = useFavorites();
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [favoriteSpots, setFavoriteSpots] = useState<CoffeeSpot[]>([]);
-  const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
 
   /**
    * Konvertiert Grad in Radianten
@@ -54,58 +55,68 @@ const FavoritesPage: React.FC = () => {
   }, [toRadians]);
 
   /**
-   * Lädt die Favoriten des eingeloggten Benutzers
+   * Konvertiert FavoriteSpot zu CoffeeSpot Format
    */
-  const loadUserFavorites = useCallback(async () => {
-    if (!user) {
-      console.log('👤 Kein User eingeloggt, keine Favoriten geladen');
+  const convertFavoriteToSpot = useCallback((favorite: FavoriteSpot, userLat?: number, userLng?: number): CoffeeSpot => {
+    // Extrahiere ID aus der _id (Format: "type:id")
+    const idParts = favorite._id.split(':');
+    const spotId = parseInt(idParts[1]) || 0;
+    
+    // Berechne Entfernung wenn User-Location verfügbar
+    let distance: string | undefined;
+    if (userLat && userLng) {
+      distance = calculateDistance(userLat, userLng, favorite.lat, favorite.lon);
+    }
+    
+    return {
+      id: spotId,
+      name: favorite.name,
+      address: favorite.address,
+      rating: 4.0, // Standard-Bewertung da nicht in DB gespeichert
+      lat: favorite.lat,
+      lng: favorite.lon,
+      isOpen: true, // Standard-Wert
+      distance,
+      priceLevel: 2, // Standard-Preis-Level
+      openingHours: favorite.tags.opening_hours || undefined
+    };
+  }, [calculateDistance]);
+
+  /**
+   * Konvertiert DB-Favoriten zu UI-Format und sortiert nach Entfernung
+   */
+  const processDbFavorites = useCallback(() => {
+    if (!dbFavorites.length) {
       setFavoriteSpots([]);
       return;
     }
 
-    setIsLoadingFavorites(true);
-    try {
-      console.log('⭐ Lade Favoriten für User:', user.username);
-      
-      // TODO: API-Call zum Backend um Favoriten zu laden
-      // Placeholder: Mock-Daten für Entwicklung
-      const mockFavorites: CoffeeSpot[] = [
-        {
-          id: 1,
-          name: "Café Central",
-          address: "Unter den Linden 1, Berlin",
-          rating: 4.5,
-          lat: 52.5170,
-          lng: 13.3889,
-          isOpen: true,
-          distance: userLocation ? calculateDistance(userLocation[0], userLocation[1], 52.5170, 13.3889) : "unbekannt",
-          priceLevel: 2,
-          openingHours: "Mo-Fr 07:00-19:00"
-        },
-        {
-          id: 2,
-          name: "Roastery Coffee",
-          address: "Friedrichstr. 45, Berlin", 
-          rating: 4.8,
-          lat: 52.5069,
-          lng: 13.3892,
-          isOpen: true,
-          distance: userLocation ? calculateDistance(userLocation[0], userLocation[1], 52.5069, 13.3892) : "unbekannt",
-          priceLevel: 3,
-          openingHours: "Mo-Sa 08:00-18:00"
-        }
-      ];
+    console.log('🔄 Verarbeite DB-Favoriten:', dbFavorites);
+    
+    // Konvertiere zu CoffeeSpot Format
+    const convertedSpots = dbFavorites.map(favorite => 
+      convertFavoriteToSpot(
+        favorite, 
+        userLocation?.[0], 
+        userLocation?.[1]
+      )
+    );
 
-      setFavoriteSpots(mockFavorites);
-      console.log(`✅ ${mockFavorites.length} Favoriten erfolgreich geladen`);
+    // Sortiere nach Entfernung (wenn User-Location verfügbar)
+    const sortedSpots = convertedSpots.sort((a, b) => {
+      if (!a.distance || !b.distance) return 0;
       
-    } catch (error) {
-      console.error('❌ Fehler beim Laden der Favoriten:', error);
-      setFavoriteSpots([]);
-    } finally {
-      setIsLoadingFavorites(false);
-    }
-  }, [user, userLocation, calculateDistance]);
+      const distanceA = parseFloat(a.distance.replace('km', '').replace('m', '')) * 
+                       (a.distance.includes('km') ? 1 : 0.001);
+      const distanceB = parseFloat(b.distance.replace('km', '').replace('m', '')) * 
+                       (b.distance.includes('km') ? 1 : 0.001);
+      
+      return distanceA - distanceB;
+    });
+
+    setFavoriteSpots(sortedSpots);
+    console.log(`✅ ${sortedSpots.length} Favoriten verarbeitet und sortiert`);
+  }, [dbFavorites, userLocation, convertFavoriteToSpot]);
 
   // **Location Context synchronisieren**
   useEffect(() => {
@@ -118,10 +129,10 @@ const FavoritesPage: React.FC = () => {
     }
   }, [isLocationEnabled, userLocation]);
 
-  // **Favoriten beim Laden der Seite und bei User-Änderungen laden**
+  // **DB-Favoriten verarbeiten wenn sie sich ändern**
   useEffect(() => {
-    loadUserFavorites();
-  }, [loadUserFavorites]);
+    processDbFavorites();
+  }, [processDbFavorites]);
 
   const handleSpotClick = (spot: CoffeeSpot) => {
     // Karte zu dem angeklickten Spot zentrieren
@@ -130,17 +141,25 @@ const FavoritesPage: React.FC = () => {
   };
 
   /**
-   * Entfernt einen Spot aus den Favoriten (Placeholder)
+   * Entfernt einen Spot aus den Favoriten
    */
-  const handleRemoveFromFavorites = (spotId: number) => {
+  const handleRemoveFromFavorites = async (spotId: number) => {
     console.log('🗑️ Entferne Spot aus Favoriten:', spotId);
     
-    // TODO: API-Call zum Backend um Favorit zu entfernen
-    // Placeholder: Lokale Aktualisierung
-    setFavoriteSpots(prev => prev.filter(spot => spot.id !== spotId));
+    // Finde den Spot um die richtige _id zu bekommen
+    const spotToRemove = favoriteSpots.find(spot => spot.id === spotId);
+    if (!spotToRemove) {
+      console.error('Spot nicht gefunden:', spotId);
+      return;
+    }
+
+    // Erstelle die Spot-ID im DB-Format
+    const dbSpotId = `node:${spotId}`;
     
-    // TODO: Success/Error Handling
-    console.log('✅ Spot erfolgreich aus Favoriten entfernt');
+    const success = await removeFromFavorites(dbSpotId);
+    if (!success) {
+      alert('Fehler beim Entfernen des Favoriten');
+    }
   };
 
   /**
@@ -148,10 +167,7 @@ const FavoritesPage: React.FC = () => {
    */
   const handleAddNewFavorite = () => {
     console.log('➕ Öffne Dialog zum Hinzufügen neuer Favoriten');
-    
-    // TODO: Modal/Dialog öffnen mit Spot-Suche
-    // Placeholder: Einfacher Alert
-    alert('Favoriten hinzufügen - Feature kommt in der nächsten Version!');
+    navigate('/map');
   };
 
   /**
@@ -232,7 +248,7 @@ const FavoritesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Rechte Sidebar - Location Toggle */}
+        {/* Rechte Sidebar */}
         <RightSidebar />
       </div>
     </div>

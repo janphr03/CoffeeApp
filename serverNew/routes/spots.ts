@@ -17,7 +17,7 @@ type osmType = 'node' | 'way' | 'relation'; // Union-Type definiert
 router.get('/', async (req: Request, res: Response) => {
 
     try {
-        const userId = req.session?.username; // user ID aus JSON-Body
+        const userId = req.session?.userId; // user ID aus Session
 
         // gibt es einen User?
         if (!userId) {
@@ -50,7 +50,7 @@ router.get('/', async (req: Request, res: Response) => {
 // req ist der Body der schon in ein JS Objekt umgewandelt wurde
 router.post('/', async (req: Request, res: Response) => {
     try {
-        const userId = req.session?.username; // userId wird aus JSON-Body gezogen
+        const userId = req.session?.userId; // userId wird aus Session gezogen
         const { osmType, osmId, elementLat, elementLng, name, amenity, address, tags = {}} = req.body;
 
 
@@ -79,13 +79,80 @@ router.post('/', async (req: Request, res: Response) => {
             insertedId: UserSpot.insertedId,
             spot: {
                 userId,
-                _id: `$osmType}:${osmId}`,
+                _id: `${osmType}:${osmId}`,
                 elementLat, elementLng, name, amenity, address, tags
             }
         });
     } catch (error) {
         console.error('❌ Fehler beim Speichern des Spots:', error);
         return res.status(500).json({ success: false, message: 'Error adding spot' });
+    }
+});
+
+// DELETE /api/spots/:spotId - Spot aus Favoriten entfernen
+router.delete('/:spotId', async (req: Request, res: Response) => {
+    try {
+        const userId = req.session?.userId;
+        const { spotId } = req.params;
+
+        // gibt es einen User?
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
+        // Spot löschen
+        const result = await spotsDB.deleteSpot(userId, spotId);
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Spot not found or not owned by user'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Spot removed from favorites successfully'
+        });
+    } catch (error) {
+        console.error('❌ Fehler beim Löschen des Spots:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Error removing spot from favorites' 
+        });
+    }
+});
+
+// GET /api/spots/check/:spotId - Prüft, ob ein Spot favorisiert ist
+router.get('/check/:spotId', async (req: Request, res: Response) => {
+    try {
+        const userId = req.session?.userId;
+        const { spotId } = req.params;
+
+        // gibt es einen User?
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
+        // Prüfe, ob Spot favorisiert ist
+        const isFavorited = await spotsDB.isSpotFavorited(userId, spotId);
+
+        return res.status(200).json({
+            success: true,
+            isFavorited: isFavorited
+        });
+    } catch (error) {
+        console.error('❌ Fehler beim Prüfen des Favoriten-Status:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Error checking favorite status' 
+        });
     }
 });
 

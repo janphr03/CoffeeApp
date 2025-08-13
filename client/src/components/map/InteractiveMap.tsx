@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-l
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
 
 // Fix für Leaflet Icons in React
@@ -13,19 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// Erstelle spezielle Icons für normale und ausgewählte Spots
-const createNormalIcon = () => {
-  return new L.Icon({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
-};
-
+// Erstelle spezielle Icons für ausgewählte Spots
 const createSelectedIcon = () => {
   return new L.Icon({
     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -50,6 +39,11 @@ interface CoffeeSpot {
   distance?: string;
   priceLevel?: number;
   openingHours?: string;
+  // OSM properties für Favoriten
+  osmType?: 'node' | 'way' | 'relation';
+  osmId?: number;
+  amenity?: string;
+  tags?: Record<string, string>;
 }
 
 interface InteractiveMapProps {
@@ -84,22 +78,61 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   onMapReady
 }) => {
   const { user } = useAuth();
+  const { addToFavorites, removeFromFavorites, isFavorited } = useFavorites();
 
-  const handleFavoriteClick = (spot: CoffeeSpot, event: React.MouseEvent) => {
-    event.stopPropagation(); // Verhindert das Schließen des Popups
+  const handleFavoriteClick = async (spot: CoffeeSpot, event: React.MouseEvent) => {
+    event.stopPropagation();
     
     if (!user) {
-      // User ist nicht eingeloggt - Hinweis anzeigen
       alert('Sie müssen sich anmelden oder registrieren, um dieses Café zu Ihren Favoriten hinzuzufügen.');
-    } else {
-      // User ist eingeloggt - Platzhalter-Funktionalität
-      console.log('Favorit hinzufügen für:', spot.name);
-      alert('Favoriten-Feature wird bald verfügbar sein!');
+      return;
+    }
+
+    // Erstelle eindeutige Spot-ID für OSM-Daten
+    const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+    
+    try {
+      if (isFavorited(spotId)) {
+        // Spot ist bereits favorisiert - entfernen
+        const success = await removeFromFavorites(spotId);
+        if (!success) {
+          alert('Fehler beim Entfernen aus Favoriten.');
+        }
+      } else {
+        // Spot zu Favoriten hinzufügen
+        const success = await addToFavorites({
+          osmType: spot.osmType || 'node',
+          osmId: spot.osmId || spot.id,
+          elementLat: spot.lat,
+          elementLng: spot.lng,
+          name: spot.name,
+          amenity: spot.amenity || 'cafe',
+          address: spot.address,
+          tags: spot.tags || {}
+        });
+        
+        if (!success) {
+          alert('Fehler beim Hinzufügen zu Favoriten.');
+        }
+      }
+    } catch (error) {
+      console.error('Fehler bei Favoriten-Operation:', error);
+      alert('Ein Fehler ist aufgetreten.');
     }
   };
   // Standard rote Marker für Cafés (wie Google Maps)
   const redMarkerIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  // Gelbe Marker für Favoriten
+  const yellowMarkerIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -147,12 +180,26 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           const openingStatus: OpeningHoursStatus = OpeningHoursService.evaluateOpeningHours(spot.openingHours);
           const isSelected = selectedSpotId === spot.id;
           
+          // Prüfe, ob Spot favorisiert ist
+          const spotId = `${spot.osmType || 'node'}:${spot.osmId || spot.id}`;
+          const isSpotFavorited = isFavorited(spotId);
+          
+          // Bestimme das passende Icon
+          let markerIcon;
+          if (isSelected) {
+            markerIcon = createSelectedIcon();
+          } else if (isSpotFavorited) {
+            markerIcon = yellowMarkerIcon; // Gelb für Favoriten
+          } else {
+            markerIcon = redMarkerIcon; // Standard rot
+          }
+          
           return (
           <Marker 
             key={spot.id} 
             position={[spot.lat, spot.lng]}
-            icon={isSelected ? createSelectedIcon() : createNormalIcon()}
-            zIndexOffset={isSelected ? 1000 : 0}
+            icon={markerIcon}
+            zIndexOffset={isSelected ? 1000 : (isSpotFavorited ? 500 : 0)}
             eventHandlers={{
               click: () => {
                 if (onSpotClick) {
@@ -178,14 +225,22 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <button
                   onClick={(e) => handleFavoriteClick(spot, e)}
                   className={`absolute top-1 right-1 w-7 h-7 rounded-full flex items-center justify-center text-white font-bold transition-colors ${
-                    user 
-                      ? 'bg-green-500 hover:bg-green-600' 
-                      : 'bg-red-500 hover:bg-red-600'
+                    !user 
+                      ? 'bg-red-500 hover:bg-red-600' 
+                      : isSpotFavorited
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-green-500 hover:bg-green-600'
                   }`}
-                  title={user ? 'Zu Favoriten hinzufügen' : 'Anmelden erforderlich'}
+                  title={
+                    !user 
+                      ? 'Anmelden erforderlich' 
+                      : isSpotFavorited 
+                      ? 'Aus Favoriten entfernen' 
+                      : 'Zu Favoriten hinzufügen'
+                  }
                   style={{ fontSize: '16px', lineHeight: '1', paddingTop: '2px' }}
                 >
-                  +
+                  {!user ? '+' : isSpotFavorited ? '−' : '+'}
                 </button>
 
                 <h3 className="font-bold text-coffee-brown text-lg mb-1 pr-8">

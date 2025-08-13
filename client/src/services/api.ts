@@ -178,14 +178,45 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
   return result.data;
 };
 
-// **SCHRITT 6: Coffee Spots laden (später implementiert)**
-export const getCoffeeSpots = async () => {
+// **SCHRITT 6: Coffee Spots/Favoriten laden**
+export const getFavoriteSpots = async () => {
   const result = await apiRequest('/api/spots', {
     method: 'GET',
   });
   
   return result.data;
 };
+
+// **SCHRITT 7: Spot zu Favoriten hinzufügen**
+export const addSpotToFavorites = async (spotData: {
+  osmType: 'node' | 'way' | 'relation';
+  osmId: number;
+  elementLat: number;
+  elementLng: number;
+  name: string;
+  amenity: string;
+  address: string;
+  tags?: Record<string, string>;
+}) => {
+  const result = await apiRequest('/api/spots', {
+    method: 'POST',
+    body: JSON.stringify(spotData),
+  });
+  
+  return result;
+};
+
+// **SCHRITT 8: Spot aus Favoriten entfernen**
+export const removeSpotFromFavorites = async (spotId: string) => {
+  const result = await apiRequest(`/api/spots/${encodeURIComponent(spotId)}`, {
+    method: 'DELETE',
+  });
+  
+  return result;
+};
+
+// Backward compatibility
+export const getCoffeeSpots = getFavoriteSpots;
 
 // **DEBUGGING: Test-Funktion für Backend-Verbindung**
 export const testBackendConnection = async (): Promise<boolean> => {
