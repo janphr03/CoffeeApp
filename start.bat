@@ -1,20 +1,24 @@
 ﻿@echo off
-setlocal
+echo ===========================================
+echo Starting CoffeeSpots Application
+echo ===========================================
 
-REM Backend starten
-echo ==== Starte Backend ====
+echo.
+echo Starting Backend Server...
 cd /d "%~dp0serverNew"
-call npm run dev
+start cmd /k "npm run dev"
 
-REM Falls npm run dev blockiert (z.B. Development-Server), musst du hier abbrechen oder in neuem Fenster starten.
-REM Für automatisches Weiterlaufen im Hintergrund:
-REM start cmd /k "cd /d "%~dp0serverNew" && npm run dev"
-
-REM Frontend bauen und starten
-echo ==== Baue und starte Frontend ====
+echo.
+echo Starting Frontend...
 cd /d "%~dp0client"
-call npm run build
-call npm start
+start cmd /k "npm start"
 
-endlocal
-pause
+echo.
+echo ===========================================
+echo Both servers are starting...
+echo Backend: http://localhost:3000
+echo Frontend: http://localhost:5000
+echo ===========================================
+echo.
+echo Press any key to close this window...
+pause >nul
