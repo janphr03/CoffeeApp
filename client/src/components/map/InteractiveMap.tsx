@@ -59,6 +59,7 @@ interface InteractiveMapProps {
   userLocation?: [number, number] | null;
   selectedSpotId?: number | null;
   onSpotClick?: (spot: CoffeeSpot) => void;
+  onMapReady?: () => void;
 }
 
 // MapController Komponente für programmatische Kartenkontrolle
@@ -79,7 +80,8 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   zoom = 13,
   userLocation = null,
   selectedSpotId = null,
-  onSpotClick
+  onSpotClick,
+  onMapReady
 }) => {
   const { user } = useAuth();
 
@@ -130,6 +132,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           zIndex: 0
         }}
         zoomControl={true}
+        whenReady={onMapReady}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
