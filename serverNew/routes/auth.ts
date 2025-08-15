@@ -2,7 +2,6 @@ import express from "express";
 import bcrypt from "bcrypt";
 import { DatabaseOperations } from '../Db/databaseOperations';
 
-const uri = "mongodb+srv://janpppherrmann:XaTo1ON9ac0ZsGHp@coffeeapp.nxw2owg.mongodb.net/?retryWrites=true&w=majority&appName=CoffeeApp";
 const router = express.Router();
 
 const db =  new DatabaseOperations();
