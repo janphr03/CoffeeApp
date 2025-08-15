@@ -22,7 +22,6 @@ interface FavoritesSidebarProps {
   favorites: CoffeeSpot[];
   onSpotClick: (spot: CoffeeSpot) => void;
   onRemoveFromFavorites: (spotId: number) => void;
-  onAddNewFavorite: () => void;
   isLoading?: boolean;
 }
 
@@ -30,7 +29,6 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
   favorites, 
   onSpotClick,
   onRemoveFromFavorites,
-  onAddNewFavorite,
   isLoading = false
 }) => {
   const { user } = useAuth();
@@ -165,19 +163,6 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
           </div>
         )}
       </div>
-
-      {/* Sticky Add Button at Bottom */}
-      {user && (
-        <div className="border-t border-gray-200 p-4 bg-white">
-          <button
-            onClick={onAddNewFavorite}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <span className="text-lg">+</span>
-            <span>Spot hinzufügen</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 };
