@@ -165,7 +165,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
         {/* Info section */}
         <div className="mt-8 p-4 bg-green-500 bg-opacity-20 border border-green-500 rounded text-green-200">
-          <h3 className="font-semibold mb-2">🎉 Authentication erfolgreich!</h3>
+          <h3 className="font-semibold mb-2"> Authentication erfolgreich!</h3>
           <p className="text-sm">
             Du bist angemeldet und kannst geschützte Inhalte sehen. Session Cookies sorgen dafür, 
             dass du angemeldet bleibst, auch wenn du die Seite neu lädst.

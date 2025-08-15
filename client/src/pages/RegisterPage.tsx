@@ -74,7 +74,7 @@ const RegisterPage: React.FC = () => {
     
     // **SCHRITT 1: Frontend-Validierung**
     if (!validateForm()) {
-      console.log('❌ Formular-Validierung fehlgeschlagen');
+      console.log('Formular-Validierung fehlgeschlagen');
       return;
     }
     
@@ -83,7 +83,7 @@ const RegisterPage: React.FC = () => {
     setSuccess('');
 
     try {
-      console.log('🔐 Registrierung wird gestartet für:', formData.username);
+      console.log('Registrierung wird gestartet für:', formData.username);
       
       // **SCHRITT 2: Registrierungs-Daten an Backend senden**
       const registerData: RegisterCredentials = {
@@ -94,12 +94,12 @@ const RegisterPage: React.FC = () => {
       
       const response = await registerUser(registerData);
       
-      console.log('📨 Backend-Antwort bei Registrierung:', response);
+      console.log('Backend-Antwort bei Registrierung:', response);
 
       // **SCHRITT 3: Response auswerten**
       if (response.success) {
-        console.log('✅ Registrierung erfolgreich!');
-        console.log('📋 User-Daten empfangen:', response.user);
+        console.log('Registrierung erfolgreich!');
+        console.log('User-Daten empfangen:', response.user);
         
         // **SCHRITT 4: Erfolgsmeldung anzeigen**
         setSuccess('Registrierung erfolgreich! Sie werden zur Anmeldung weitergeleitet...');
@@ -112,11 +112,11 @@ const RegisterPage: React.FC = () => {
         
       } else {
         // **SCHRITT 6: Spezifische Backend-Fehler anzeigen**
-        console.log('❌ Registrierung fehlgeschlagen:', response.message);
+        console.log('Registrierung fehlgeschlagen:', response.message);
         setError(response.message || 'Registrierung fehlgeschlagen');
       }
     } catch (error: any) {
-      console.error('💥 Unerwarteter Fehler bei Registrierung:', error);
+      console.error(' Unerwarteter Fehler bei Registrierung:', error);
       
       // Spezifische Fehlerbehandlung
       if (error.message.includes('E-Mail bereits registriert')) {
@@ -265,9 +265,9 @@ const RegisterPage: React.FC = () => {
             className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading 
-              ? '🔄 Registrierung läuft...' 
+              ? 'Registrierung läuft...'
               : success 
-                ? '✅ Erfolgreich!' 
+                ? 'Erfolgreich!'
                 : 'Account erstellen'
             }
           </button>

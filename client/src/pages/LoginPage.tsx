@@ -38,16 +38,16 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      console.log('🔑 Login-Versuch mit:', { identifier: formData.identifier });
+      console.log('Login-Versuch mit:', { identifier: formData.identifier });
       
       // **SCHRITT 1: Daten an Backend senden**
       const response = await loginUser(formData as LoginCredentials);
       
-      console.log('📨 Backend-Antwort:', response);
+      console.log('Backend-Antwort:', response);
 
       // **SCHRITT 2: Response auswerten**
       if (response.success && response.user) {
-        console.log('✅ Login erfolgreich!');
+        console.log('Login erfolgreich!');
         
         // **SCHRITT 3: User-Daten in Context speichern**
         login(response.user);
@@ -56,11 +56,11 @@ const LoginPage: React.FC = () => {
         navigate(from, { replace: true }); // replace: true verhindert History-Einträge
       } else {
         // **SCHRITT 5: Fehler anzeigen**
-        console.log('❌ Login fehlgeschlagen:', response.message);
+        console.log('Login fehlgeschlagen:', response.message);
         setError(response.message || 'Login fehlgeschlagen');
       }
     } catch (error) {
-      console.error('💥 Unerwarteter Fehler beim Login:', error);
+      console.error('Unerwarteter Fehler beim Login:', error);
       setError('Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
     } finally {
       setLoading(false);
@@ -139,7 +139,7 @@ const LoginPage: React.FC = () => {
             disabled={loading}
             className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {loading ? '🔄 Anmelden...' : 'Anmelden'}
+            {loading ? 'Anmelden...' : 'Anmelden'}
           </button>
         </form>
 

@@ -50,17 +50,17 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
         const maxAge = 30 * 60 * 1000; // 30 Minuten in Millisekunden
         
         if (now - locationData.timestamp < maxAge) {
-          console.log('📍 Gespeicherte Location aus Session geladen:', locationData);
+          console.log('Gespeicherte Location aus Session geladen:', locationData);
           setIsLocationEnabled(true);
           setUserLocation([locationData.latitude, locationData.longitude]);
           setLocationStatus(`Standort: ${locationData.latitude.toFixed(4)}, ${locationData.longitude.toFixed(4)}`);
         } else {
-          console.log('⏰ Gespeicherte Location ist zu alt, wird gelöscht');
+          console.log('Gespeicherte Location ist zu alt, wird gelöscht');
           clearLocationSession();
         }
       }
     } catch (error) {
-      console.error('❌ Fehler beim Laden der Location aus Session:', error);
+      console.error('Fehler beim Laden der Location aus Session:', error);
       clearLocationSession();
     }
   }, []); // Leere Dependencies, da alle benötigten Funktionen stabil sind
@@ -82,9 +82,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       
       sessionStorage.setItem(LOCATION_ENABLED_KEY, 'true');
       sessionStorage.setItem(LOCATION_DATA_KEY, JSON.stringify(locationData));
-      console.log('💾 Location in Session gespeichert:', locationData);
+      console.log('Location in Session gespeichert:', locationData);
     } catch (error) {
-      console.error('❌ Fehler beim Speichern der Location in Session:', error);
+      console.error('Fehler beim Speichern der Location in Session:', error);
     }
   };
 
@@ -124,7 +124,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       const position = await requestGeolocation();
       const { latitude, longitude, accuracy } = position.coords;
       
-      console.log('✅ Standort erfolgreich ermittelt:', { latitude, longitude, accuracy });
+      console.log('Standort erfolgreich ermittelt:', { latitude, longitude, accuracy });
       
       // State aktualisieren
       setIsLocationEnabled(true);
@@ -135,7 +135,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
       saveLocationToSession(latitude, longitude, accuracy);
       
     } catch (error: any) {
-      console.error('❌ Standorterkennung fehlgeschlagen:', error);
+      console.error('Standorterkennung fehlgeschlagen:', error);
       
       setIsLocationEnabled(false);
       setUserLocation(null);
@@ -160,7 +160,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
 
   // **SCHRITT 11: Location deaktivieren**
   const disableLocation = (): void => {
-    console.log('🚫 Standorterkennung wird deaktiviert');
+    console.log('Standorterkennung wird deaktiviert');
     
     setIsLocationEnabled(false);
     setUserLocation(null);

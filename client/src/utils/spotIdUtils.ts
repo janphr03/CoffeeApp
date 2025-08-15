@@ -12,23 +12,23 @@ export interface SpotIdentifier {
  */
 export const generateSpotId = (spot: SpotIdentifier): string => {
   // Debug-Logging
-  console.log(`🔍 generateSpotId Input:`, spot);
+  console.log(`generateSpotId Input:`, spot);
   
   if (spot.osmType && spot.osmId) {
     const id = `${spot.osmType}:${spot.osmId}`;
-    console.log(`✅ generateSpotId Output: "${id}"`);
+    console.log(`generateSpotId Output: "${id}"`);
     return id;
   }
   
   // Fallback für Spots ohne OSM-Daten
   const fallbackId = `node:${spot.id || 'unknown'}`;
-  console.log(`⚠️ generateSpotId Fallback: "${fallbackId}"`);
+  console.log(`generateSpotId Fallback: "${fallbackId}"`);
   return fallbackId;
 };
 
-/**
- * Generiert Spot-Data für das Hinzufügen zu Favoriten
- */
+
+// Generiert Spot-Data für das Hinzufügen zu Favoriten
+
 export const generateAddSpotData = (spot: any) => {
   const spotData = {
     osmType: spot.osmType || 'node',
@@ -41,6 +41,6 @@ export const generateAddSpotData = (spot: any) => {
     tags: spot.tags || {}
   };
   
-  console.log(`🔍 generateAddSpotData:`, spotData);
+  console.log(`generateAddSpotData:`, spotData);
   return spotData;
 };

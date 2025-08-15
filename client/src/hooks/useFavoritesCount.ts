@@ -26,22 +26,22 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
       setLoading(true);
       setError(null);
       
-      console.log(`🔍 Lade Favoriten-Anzahl für Spot-ID: "${spotId}"`);
+      console.log(`Lade Favoriten-Anzahl für Spot-ID: "${spotId}"`);
       const result = await getFavoritesCount(spotId);
-      console.log(`📊 Favoriten-Anzahl-Ergebnis für "${spotId}":`, result);
+      console.log(`Favoriten-Anzahl-Ergebnis für "${spotId}":`, result);
       
       if (result.success) {
         setFavoritesCount(result.count);
-        console.log(`✅ Favoriten-Anzahl gesetzt: ${result.count} für Spot "${spotId}"`);
+        console.log(`Favoriten-Anzahl gesetzt: ${result.count} für Spot "${spotId}"`);
       } else {
         setError(result.error || 'Fehler beim Laden der Favoriten-Anzahl');
         setFavoritesCount(0);
-        console.warn(`⚠️ Fehler beim Laden der Favoriten-Anzahl für "${spotId}":`, result.error);
+        console.warn(`Fehler beim Laden der Favoriten-Anzahl für "${spotId}":`, result.error);
       }
     } catch (err: any) {
       setError(err.message || 'Unbekannter Fehler');
       setFavoritesCount(0);
-      console.error(`❌ Exception beim Laden der Favoriten-Anzahl für "${spotId}":`, err);
+      console.error(`Exception beim Laden der Favoriten-Anzahl für "${spotId}":`, err);
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
       
       // Wenn dieser Spot aktualisiert wurde, neu laden
       if (updatedSpotId === spotId) {
-        console.log(`🔄 Favoriten-Anzahl für Spot ${spotId} wird neu geladen...`);
+        console.log(`Favoriten-Anzahl für Spot ${spotId} wird neu geladen...`);
         fetchFavoritesCount();
       }
     };

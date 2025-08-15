@@ -24,7 +24,7 @@ export class OpeningHoursService {
     }
 
     try {
-      //console.log('🕒 Parsing Öffnungszeiten:', openingHours); // Debug-Ausgabe
+      //console.log('Parsing Öffnungszeiten:', openingHours); // Debug-Ausgabe
       
       const now = new Date();
       const currentDay = now.getDay(); // 0 = Sonntag, 1 = Montag, etc.
@@ -41,9 +41,9 @@ export class OpeningHoursService {
 
       // **MEMOIZATION: Parse die Öffnungszeiten mit Cache**
       const dayHours = this.parseOpeningHoursWithCache(openingHours);
-      //console.log('📅 Geparste Tage:', dayHours); // Debug-Ausgabe
+      //console.log('Geparste Tage:', dayHours); // Debug-Ausgabe
       const todaysHours = dayHours[currentDay];
-      //console.log(`📍 Heute (Tag ${currentDay}):`, todaysHours, 'Aktuelle Zeit:', currentTime); // Debug-Ausgabe
+      //console.log(`Heute (Tag ${currentDay}):`, todaysHours, 'Aktuelle Zeit:', currentTime); // Debug-Ausgabe
 
       if (!todaysHours) {
         return {
@@ -72,19 +72,17 @@ export class OpeningHoursService {
     }
   }
 
-  /**
-   * Prüft ob es sich um 24/7 handelt
-   */
+
+  // Prüft ob es sich um 24/7 handelt
+
   private static is24_7(openingHours: string): boolean {
     const normalized = openingHours.toLowerCase().replace(/\s/g, '');
     return normalized.includes('24/7') || 
            normalized.includes('24h') ||
            normalized === 'mo-su00:00-24:00';
   }
+  // MEMOIZATION: Parse Öffnungszeiten mit Cache**
 
-  /**
-   * **MEMOIZATION: Parse Öffnungszeiten mit Cache**
-   */
   private static parseOpeningHoursWithCache(openingHours: string): { [day: number]: { start: number, end: number }[] } {
     const now = Date.now();
     
@@ -100,32 +98,32 @@ export class OpeningHoursService {
     if (this.openingHoursCache.has(openingHours)) {
       const expiration = this.cacheExpiration.get(openingHours);
       if (expiration && now < expiration) {
-        console.log('📊 Öffnungszeiten aus Cache geladen für:', openingHours.substring(0, 30) + '...');
+        console.log('Öffnungszeiten aus Cache geladen für:', openingHours.substring(0, 30) + '...');
         return this.openingHoursCache.get(openingHours)!;
       }
     }
     
-    // **PERFORMANCE LOGGING: Parsing-Zeit messen**
+    // PERFORMANCE LOGGING: Parsing-Zeit messen
     const parseStartTime = performance.now();
     
     // Nicht im Cache oder abgelaufen: Neu parsen
     const result = this.parseOpeningHours(openingHours);
     
-    // **PERFORMANCE LOGGING: Parsing-Zeit**
+    // PERFORMANCE LOGGING: Parsing-Zeit
     const parseEndTime = performance.now();
     const parseTime = parseEndTime - parseStartTime;
-    console.log(`📊 Öffnungszeiten Parsing Zeit: ${parseTime.toFixed(2)}ms für "${openingHours.substring(0, 30)}..."`);
+    console.log(`Öffnungszeiten Parsing Zeit: ${parseTime.toFixed(2)}ms für "${openingHours.substring(0, 30)}..."`);
     
-    // **PERFORMANCE LOGGING: Warnung bei langsamen Parsing**
+    // PERFORMANCE LOGGING: Warnung bei langsamen Parsing
     if (parseTime > 10) {
-      console.warn(`⚠️ LANGSAMES ÖFFNUNGSZEITEN-PARSING: ${parseTime.toFixed(2)}ms (über 10ms!)`);
+      console.warn(`LANGSAMES ÖFFNUNGSZEITEN-PARSING: ${parseTime.toFixed(2)}ms (über 10ms!)`);
     }
     
     // In Cache speichern
     this.openingHoursCache.set(openingHours, result);
     this.cacheExpiration.set(openingHours, now + this.CACHE_DURATION_MS);
     
-    console.log(`📊 Öffnungszeiten in Cache gespeichert. Cache-Größe: ${this.openingHoursCache.size}`);
+    console.log(`Öffnungszeiten in Cache gespeichert. Cache-Größe: ${this.openingHoursCache.size}`);
     
     return result;
   }
@@ -165,17 +163,16 @@ export class OpeningHoursService {
     return result;
   }
 
-  /**
-   * Prüft ob die Öffnungszeiten monatsbasiert sind
-   */
+
+  // Prüft ob die Öffnungszeiten monatsbasiert sind
+
   private static hasMonthBasedHours(openingHours: string): boolean {
     const monthPattern = /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i;
     return monthPattern.test(openingHours);
   }
 
-  /**
-   * Extrahiert die Öffnungszeiten für den aktuellen Monat
-   */
+  // Extrahiert die Öffnungszeiten für den aktuellen Monat
+
   private static extractCurrentMonthHours(openingHours: string): string | null {
     const now = new Date();
     const currentMonth = now.getMonth(); // 0-11
@@ -200,9 +197,7 @@ export class OpeningHoursService {
     return null;
   }
 
-  /**
-   * Prüft ob ein Monatsbereich den aktuellen Monat einschließt
-   */
+  // Prüft ob ein Monatsbereich den aktuellen Monat einschließt
   private static monthRangeIncludes(part: string, currentMonth: number): boolean {
     const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
                        'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -283,9 +278,7 @@ export class OpeningHoursService {
     return segments;
   }
 
-  /**
-   * Parst einen einzelnen Zeit-Slot wie "Mo-Fr 08:00-18:00" oder "Su 08:00-11:00,13:30-17:00"
-   */
+  // Parst einen einzelnen Zeit-Slot wie "Mo-Fr 08:00-18:00" oder "Su 08:00-11:00,13:30-17:00"
   private static parseSingleTimeSlot(segment: string, result: { [day: number]: { start: number, end: number }[] }): void {
     // Regex für Tage am Anfang
     const dayMatch = segment.match(/^([A-Za-z,\-\s]+)\s+(.+)$/);
@@ -315,9 +308,7 @@ export class OpeningHoursService {
     }
   }
 
-  /**
-   * Parst Tage-Strings wie "Mo-Fr", "Sa", "Mo,We,Fr"
-   */
+  // Parst Tage-Strings wie "Mo-Fr", "Sa", "Mo,We,Fr"
   private static parseDays(daysString: string): number[] {
     const dayMap: { [key: string]: number } = {
       'mo': 1, 'monday': 1,
@@ -365,17 +356,13 @@ export class OpeningHoursService {
     return days;
   }
 
-  /**
-   * Konvertiert Zeit-String zu Minuten (HHMM Format)
-   */
+  // Konvertiert Zeit-String zu Minuten (HHMM Format)
   private static timeToMinutes(timeString: string): number {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 100 + minutes;
   }
 
-  /**
-   * Prüft ob eine Zeit in einem Zeitbereich liegt
-   */
+  // Prüft ob eine Zeit in einem Zeitbereich liegt
   private static isTimeInRange(currentTime: number, ranges: { start: number, end: number }[]): boolean {
     for (const range of ranges) {
       if (range.end > 2400) {
@@ -393,18 +380,14 @@ export class OpeningHoursService {
     return false;
   }
 
-  /**
-   * **MEMOIZATION: Cache zurücksetzen (für Debugging)**
-   */
+  // MEMOIZATION: Cache zurücksetzen (für Debugging)
   public static clearOpeningHoursCache(): void {
     this.openingHoursCache.clear();
     this.cacheExpiration.clear();
-    console.log('📊 Öffnungszeiten-Cache wurde geleert');
+    console.log('Öffnungszeiten-Cache wurde geleert');
   }
 
-  /**
-   * **MEMOIZATION: Cache-Statistiken anzeigen**
-   */
+   // MEMOIZATION: Cache-Statistiken anzeigen
   public static getCacheStats(): { size: number, entries: string[] } {
     const entries: string[] = [];
     this.openingHoursCache.forEach((_, key) => {

@@ -37,9 +37,9 @@ const Navigation: React.FC = () => {
       // **SCHRITT 2: User aus Context entfernen**
       logout();
       
-      console.log('✅ Logout erfolgreich!');
+      console.log('Logout erfolgreich!');
     } catch (error) {
-      console.error('❌ Logout-Fehler:', error);
+      console.error('Logout-Fehler:', error);
       // Auch bei Fehlern den User lokal ausloggen
       logout();
     }

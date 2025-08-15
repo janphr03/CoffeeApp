@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
     {
       icon: '⭐',
       title: 'Bewertungen',
-      description: 'Lese und schreibe Bewertungen.'
+      description: 'Teile deine Erfahrungen und entdecke neue Lieblingsorte.'
     },
     {
       icon: '💾',

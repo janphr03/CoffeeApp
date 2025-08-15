@@ -64,19 +64,19 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     setError(null);
 
     try {
-      console.log('🔄 Lade Favoriten für User:', user.username);
+      console.log('Lade Favoriten für User:', user.username);
       const response = await getFavoriteSpots();
       
       if (response.success) {
-        console.log('✅ Favoriten geladen:', response.spots);
+        console.log('Favoriten geladen:', response.spots);
         setFavoriteSpots(response.spots || []);
       } else {
-        console.error('❌ Fehler beim Laden der Favoriten:', response);
+        console.error('Fehler beim Laden der Favoriten:', response);
         setError('Fehler beim Laden der Favoriten');
         setFavoriteSpots([]);
       }
     } catch (error) {
-      console.error('❌ Exception beim Laden der Favoriten:', error);
+      console.error('Exception beim Laden der Favoriten:', error);
       setError('Fehler beim Laden der Favoriten');
       setFavoriteSpots([]);
     } finally {
@@ -92,11 +92,11 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }
 
     try {
-      console.log('🔄 Füge Spot zu Favoriten hinzu:', spotData);
+      console.log('Füge Spot zu Favoriten hinzu:', spotData);
       const response = await addSpotToFavorites(spotData);
 
       if (response.success) {
-        console.log('✅ Spot zu Favoriten hinzugefügt');
+        console.log('Spot zu Favoriten hinzugefügt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
         
@@ -108,12 +108,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         
         return true;
       } else {
-        console.error('❌ Fehler beim Hinzufügen:', response);
+        console.error('Fehler beim Hinzufügen:', response);
         setError('Fehler beim Hinzufügen zu Favoriten');
         return false;
       }
     } catch (error) {
-      console.error('❌ Exception beim Hinzufügen:', error);
+      console.error('Exception beim Hinzufügen:', error);
       setError('Fehler beim Hinzufügen zu Favoriten');
       return false;
     }
@@ -127,11 +127,11 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }
 
     try {
-      console.log('🔄 Entferne Spot aus Favoriten:', spotId);
+      console.log('Entferne Spot aus Favoriten:', spotId);
       const response = await removeSpotFromFavorites(spotId);
 
       if (response.success) {
-        console.log('✅ Spot aus Favoriten entfernt');
+        console.log('Spot aus Favoriten entfernt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
         
@@ -142,12 +142,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         
         return true;
       } else {
-        console.error('❌ Fehler beim Entfernen:', response);
+        console.error('Fehler beim Entfernen:', response);
         setError('Fehler beim Entfernen aus Favoriten');
         return false;
       }
     } catch (error) {
-      console.error('❌ Exception beim Entfernen:', error);
+      console.error('Exception beim Entfernen:', error);
       setError('Fehler beim Entfernen aus Favoriten');
       return false;
     }

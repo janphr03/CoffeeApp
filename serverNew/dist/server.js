@@ -1,8 +1,19 @@
 "use strict";
+// @ts-ignore
+// git add .\serverNew\   --> (als bsp. dann wird geschaut welche Änderungen es in diesem Ordner gibt)
+// git commit -m "hier reinschreiben was geändert wurde"
+// git push -u origin main
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+<<<<<<< HEAD
+=======
+// =========== Zum starten des Servers ===========
+// NUR BEIM 1. MAL: npm install
+// NUR WENN ÄNDERUNGEN AM PROJEKT: npm run build
+// npm run start
+>>>>>>> origin
 const express_1 = __importDefault(require("express"));
 const express_session_1 = __importDefault(require("express-session"));
 const cors_1 = __importDefault(require("cors"));
@@ -41,9 +52,39 @@ app.use('/api/auth', auth_1.default);
 app.use('/api/spots', spots_1.default);
 // native Homepage Route
 app.get('/', (req, res) => {
-    res.send('☕ CoffeeSpots API ist erreichbar!');
+    res.send('CoffeeSpots API ist erreichbar!');
 });
+<<<<<<< HEAD
 //========== Startet den server der Einstiegspunkt für die App ===========
 app.listen(port, () => {
     console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
+=======
+app.listen(port, async () => {
+    console.log(`CoffeeSpots-App läuft auf http://localhost:${port}`);
+    const client = new mongodb_1.MongoClient(uri);
+    try {
+        // Verbindung aufbauen und Konstanten erstellen
+        await client.connect();
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+        const userId = "Alex";
+        const location = "neuer Test";
+        // 1️⃣ Spot für Jan einfügen
+        /*    const insertResult = await collection.insertOne({
+               userId,location, createdAt: new Date()
+            });
+            console.log("Neuer Spot eingefügt:", insertResult.insertedId);
+    */
+        // 2️⃣ Alle Spots von Jan abfragen
+        const spots = await collection.find({ userId }).toArray();
+        const locations = spots.map(spot => spot.location);
+        console.log(`Orte von ${userId}:`, locations);
+    }
+    catch (error) {
+        console.error("Fehler beim DB-Zugriff:", error);
+    }
+    finally {
+        await client.close();
+    }
+>>>>>>> origin
 });

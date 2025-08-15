@@ -1,6 +1,7 @@
-﻿import express from 'express';
+import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
+
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv/config';
 import authRoutes from  './routes/auth';
@@ -14,8 +15,9 @@ const port = 3000;
 
 const uri = process.env.MONGODB_URI;
 
+
 if (!uri) {
-    console.error('❌ MONGODB_URI ist nicht in den Umgebungsvariablen definiert!');
+    console.error('MONGODB_URI ist nicht in den Umgebungsvariablen definiert!');
     console.error('Bitte erstellen Sie eine .env Datei basierend auf .env.example');
     process.exit(1);
 }
@@ -47,13 +49,12 @@ app.use('/api/spots', spotsRoutes);
 
 // native Homepage Route
 app.get('/', (req, res) => {
-    res.send('☕ CoffeeSpots API ist erreichbar!');
+    res.send('CoffeeSpots API ist erreichbar!');
 });
-
-
 
 
 //========== Startet den server der Einstiegspunkt für die App ===========
 app.listen(port, () => {
-    console.log(`🚀 CoffeeSpots-App läuft auf http://localhost:${port}`);
+    console.log(`CoffeeSpots-App läuft auf http://localhost:${port}`);
+
 });

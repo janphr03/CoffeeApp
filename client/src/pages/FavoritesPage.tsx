@@ -94,7 +94,7 @@ const FavoritesPage: React.FC = () => {
       return;
     }
 
-    console.log('🔄 Verarbeite DB-Favoriten:', dbFavorites);
+    console.log('Verarbeite DB-Favoriten:', dbFavorites);
     
     // Konvertiere zu CoffeeSpot Format
     const convertedSpots = dbFavorites.map(favorite => 
@@ -118,36 +118,36 @@ const FavoritesPage: React.FC = () => {
     });
 
     setFavoriteSpots(sortedSpots);
-    console.log(`✅ ${sortedSpots.length} Favoriten verarbeitet und sortiert`);
+    console.log(`${sortedSpots.length} Favoriten verarbeitet und sortiert`);
   }, [dbFavorites, userLocation, convertFavoriteToSpot]);
 
   // **Location Context synchronisieren**
   useEffect(() => {
     if (isLocationEnabled && userLocation) {
-      console.log('📍 Location Context aktiviert, setze Map Center:', userLocation);
+      console.log('Location Context aktiviert, setze Map Center:', userLocation);
       setMapCenter(userLocation);
     } else if (!isLocationEnabled) {
-      console.log('📍 Location Context deaktiviert, zurück zu Default');
+      console.log('Location Context deaktiviert, zurück zu Default');
       setMapCenter([52.5200, 13.4050]); // Berlin
     }
   }, [isLocationEnabled, userLocation]);
 
-  // **DB-Favoriten verarbeiten wenn sie sich ändern**
+  // DB-Favoriten verarbeiten wenn sie sich ändern
   useEffect(() => {
     processDbFavorites();
   }, [processDbFavorites]);
 
   const handleSpotClick = (spot: CoffeeSpot) => {
     // Karte zu dem angeklickten Spot zentrieren
-    console.log('📍 Klick auf Favorit:', spot.name);
+    console.log('Klick auf Favorit:', spot.name);
     setMapCenter([spot.lat, spot.lng]);
   };
 
-  /**
-   * Entfernt einen Spot aus den Favoriten
-   */
+
+   // Entfernt einen Spot aus den Favoriten
+
   const handleRemoveFromFavorites = async (spotId: number) => {
-    console.log('🗑️ Entferne Spot aus Favoriten:', spotId);
+    console.log('Entferne Spot aus Favoriten:', spotId);
     
     // Finde den Original-Favoriten-Eintrag um die richtige DB _id zu bekommen
     const favoriteEntry = dbFavorites.find(favorite => {
@@ -167,7 +167,7 @@ const FavoritesPage: React.FC = () => {
     const osmId = idParts[2];
     const dbSpotId = `${osmType}:${osmId}`;
     
-    console.log(`🔄 Entferne Favorit mit Spot-ID: "${dbSpotId}" (Original DB-ID: "${favoriteEntry._id}")`);
+    console.log(`Entferne Favorit mit Spot-ID: "${dbSpotId}" (Original DB-ID: "${favoriteEntry._id}")`);
     
     const success = await removeFromFavorites(dbSpotId);
     if (!success) {
@@ -175,27 +175,23 @@ const FavoritesPage: React.FC = () => {
     }
   };
 
-  /**
-   * Öffnet Dialog zum Hinzufügen neuer Favoriten (Placeholder)
-   */
+
+   // Öffnet Dialog zum Hinzufügen neuer Favoriten (Placeholder)
+
   const handleAddNewFavorite = () => {
-    console.log('➕ Öffne Dialog zum Hinzufügen neuer Favoriten');
+    console.log('Öffne Dialog zum Hinzufügen neuer Favoriten');
     navigate('/map');
   };
 
-  /**
-   * Navigation zurück zur Startseite
-   */
+  // Navigation zurück zur Startseite
   const handleCloseMap = () => {
-    console.log('🏠 Navigiere zurück zur Startseite');
+    console.log('Navigiere zurück zur Startseite');
     navigate('/');
   };
 
-  /**
-   * Navigation zurück zur Map-Seite
-   */
+  // Navigation zurück zur Map-Seite
   const handleCloseFavorites = () => {
-    console.log('🗺️ Navigiere zurück zur Map-Seite');
+    console.log('Navigiere zurück zur Map-Seite');
     navigate('/map');
   };
 
@@ -229,7 +225,6 @@ const FavoritesPage: React.FC = () => {
           onAddNewFavorite={handleAddNewFavorite}
           isLoading={isLoadingFavorites}
         />
-
         {/* Map Container */}
         <div className="flex-1 relative">
           <InteractiveMap 
@@ -256,7 +251,7 @@ const FavoritesPage: React.FC = () => {
               className="bg-green-500 hover:bg-green-600 border-green-600 px-4 py-2 rounded-full shadow-lg transition-all duration-200 border text-white font-medium"
               title="Zurück zur Map-Seite"
             >
-              ⭐ Favoriten schließen
+               Favoriten schließen
             </button>
           </div>
         </div>

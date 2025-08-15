@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://localhost:3000';
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  console.log(`🔄 API Request: ${options.method || 'GET'} ${url}`);
+  console.log(`API Request: ${options.method || 'GET'} ${url}`);
   
   const defaultOptions: RequestInit = {
     credentials: 'include', // Session-Cookies immer mitsenden
@@ -19,12 +19,12 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const finalOptions = { ...defaultOptions, ...options };
 
   try {
-    console.log('📤 Sending request with options:', finalOptions);
+    console.log('Sending request with options:', finalOptions);
     
     const response = await fetch(url, finalOptions);
     
-    console.log(`📨 Response Status: ${response.status} ${response.statusText}`);
-    console.log('📨 Response Headers:', Object.fromEntries(response.headers.entries()));
+    console.log(`Response Status: ${response.status} ${response.statusText}`);
+    console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
     
     // Prüfe, ob die Response JSON ist
     const contentType = response.headers.get('content-type');
@@ -34,11 +34,11 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
       data = await response.json();
     } else {
       const textData = await response.text();
-      console.warn('⚠️ Non-JSON response received:', textData);
+      console.warn('Non-JSON response received:', textData);
       data = { message: textData || 'Unbekannte Antwort vom Server' };
     }
     
-    console.log('📋 Response Data:', data);
+    console.log('Response Data:', data);
     
     return {
       success: response.ok,
@@ -46,12 +46,12 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
       data: data,
     };
   } catch (error: any) {
-    console.error(`💥 API Request Error for ${endpoint}:`, error);
+    console.error(`API Request Error for ${endpoint}:`, error);
     
     // Detaillierte Fehleranalyse
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      console.error('🚫 Netzwerkfehler - Ist das Backend erreichbar?');
-      console.error('🔍 Überprüfe: http://localhost:3000');
+      console.error('Netzwerkfehler - Ist das Backend erreichbar?');
+      console.error('Überprüfe: http://localhost:3000');
     }
     
     return {
@@ -65,7 +65,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   }
 };
 
-// **SCHRITT 2: Login-Funktion**
+// SCHRITT 2: Login-Funktion
 export interface LoginCredentials {
   identifier: string; // Username oder Email
   password: string;
@@ -84,7 +84,7 @@ export interface LoginResponse {
 }
 
 export const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-  console.log('🔑 Login-Anfrage wird gesendet:', { identifier: credentials.identifier });
+  console.log('Login-Anfrage wird gesendet:', { identifier: credentials.identifier });
   
   // Vor dem Login-Versuch Backend-Verbindung testen
   const isBackendReachable = await testBackendConnection();
@@ -100,11 +100,11 @@ export const loginUser = async (credentials: LoginCredentials): Promise<LoginRes
     body: JSON.stringify(credentials),
   });
 
-  console.log('📨 Login-Antwort erhalten:', result);
+  console.log('Login-Antwort erhalten:', result);
   return result.data;
 };
 
-// **SCHRITT 3: Registrierung-Funktion**
+// SCHRITT 3: Registrierung-Funktion
 export interface RegisterCredentials {
   username: string;
   email: string;
@@ -124,7 +124,7 @@ export interface RegisterResponse {
 }
 
 export const registerUser = async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
-  console.log('📝 Registrierung-Anfrage wird gesendet:', { 
+  console.log('Registrierung-Anfrage wird gesendet:', {
     username: credentials.username, 
     email: credentials.email 
   });
@@ -134,11 +134,11 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<Re
     body: JSON.stringify(credentials),
   });
 
-  console.log('📨 Registrierung-Antwort erhalten:', result);
+  console.log('Registrierung-Antwort erhalten:', result);
   return result.data;
 };
 
-// **SCHRITT 4: Session-Status prüfen**
+// SCHRITT 4: Session-Status prüfen
 export interface AuthStatusResponse {
   success: boolean;
   user?: {
@@ -151,34 +151,34 @@ export interface AuthStatusResponse {
 }
 
 export const checkAuthStatus = async (): Promise<AuthStatusResponse> => {
-  console.log(' Auth-Status wird geprüft...');
+  console.log('Auth-Status wird geprüft...');
   
   const result = await apiRequest('/api/auth/status', {
     method: 'GET',
   });
 
-  console.log(' Auth-Status-Antwort erhalten:', result);
+  console.log('Auth-Status-Antwort erhalten:', result);
   return result.data;
 };
 
-// **SCHRITT 5: Logout-Funktion**
+// SCHRITT 5: Logout-Funktion
 export interface LogoutResponse {
   success: boolean;
   message: string;
 }
 
 export const logoutUser = async (): Promise<LogoutResponse> => {
-  console.log('🚪 Logout-Anfrage wird gesendet...');
+  console.log('Logout-Anfrage wird gesendet...');
   
   const result = await apiRequest('/api/auth/logout', {
     method: 'POST',
   });
 
-  console.log(' Logout-Antwort erhalten:', result);
+  console.log('Logout-Antwort erhalten:', result);
   return result.data;
 };
 
-// **SCHRITT 6: Coffee Spots/Favoriten laden**
+// SCHRITT 6: Coffee Spots/Favoriten laden
 export const getFavoriteSpots = async () => {
   const result = await apiRequest('/api/spots', {
     method: 'GET',
@@ -187,7 +187,7 @@ export const getFavoriteSpots = async () => {
   return result.data;
 };
 
-// **SCHRITT 7: Spot zu Favoriten hinzufügen**
+// SHRITT 7: Spot zu Favoriten hinzufügen
 export const addSpotToFavorites = async (spotData: {
   osmType: 'node' | 'way' | 'relation';
   osmId: number;
@@ -220,23 +220,23 @@ export const getCoffeeSpots = getFavoriteSpots;
 // **SCHRITT 7: Favoriten-Anzahl abrufen**
 export const getFavoritesCount = async (spotId: string): Promise<{ success: boolean; count: number; error?: string }> => {
   try {
-    console.log(`🔍 Frontend: Lade Favoriten-Anzahl für Spot: "${spotId}"`);
+    console.log(`Frontend: Lade Favoriten-Anzahl für Spot: "${spotId}"`);
     
     const result = await apiRequest(`/api/spots/favorites-count/${encodeURIComponent(spotId)}`, {
       method: 'GET',
     });
     
-    console.log(`📨 Frontend: API-Response für "${spotId}":`, result);
+    console.log(`Frontend: API-Response für "${spotId}":`, result);
     
     if (result.success && result.data?.success) {
       const count = result.data.favoritesCount || 0;
-      console.log(`✅ Frontend: Favoriten-Anzahl geladen: ${count} für Spot ${spotId}`);
+      console.log(`Frontend: Favoriten-Anzahl geladen: ${count} für Spot ${spotId}`);
       return {
         success: true,
         count: count
       };
     } else {
-      console.warn(`⚠️ Frontend: Favoriten-Anzahl konnte nicht geladen werden für "${spotId}":`, result.data?.message);
+      console.warn(`Frontend: Favoriten-Anzahl konnte nicht geladen werden für "${spotId}":`, result.data?.message);
       return {
         success: false,
         count: 0,
@@ -244,7 +244,7 @@ export const getFavoritesCount = async (spotId: string): Promise<{ success: bool
       };
     }
   } catch (error: any) {
-    console.error(`❌ Frontend: Fehler beim Laden der Favoriten-Anzahl für "${spotId}":`, error);
+    console.error(`Frontend: Fehler beim Laden der Favoriten-Anzahl für "${spotId}":`, error);
     return {
       success: false,
       count: 0,
@@ -256,7 +256,7 @@ export const getFavoritesCount = async (spotId: string): Promise<{ success: bool
 // **DEBUGGING: Test-Funktion für Backend-Verbindung**
 export const testBackendConnection = async (): Promise<boolean> => {
   try {
-    console.log('🔍 Teste Backend-Verbindung...');
+    console.log('Teste Backend-Verbindung...');
     
     const result = await apiRequest('/', {
       method: 'GET',

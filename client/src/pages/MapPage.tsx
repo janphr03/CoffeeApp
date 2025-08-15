@@ -50,16 +50,13 @@ const MapPage: React.FC = () => {
   const SEARCH_RADIUS_KM = 10;
   const MAX_CAFES = 10;
 
-  /**
-   * Konvertiert Grad in Radianten
-   */
+
+ // Konvertiert Grad in Radianten
   const toRadians = useCallback((degrees: number): number => {
     return degrees * (Math.PI / 180);
   }, []);
 
-  /**
-   * Berechnet die Entfernung zwischen zwei Punkten und formatiert sie
-   */
+  // Berechnet die Entfernung zwischen zwei Punkten und formatiert sie
   const calculateDistance = useCallback((lat1: number, lng1: number, lat2: number, lng2: number): string => {
     const R = 6371; // Erdradius in km
     const dLat = toRadians(lat2 - lat1);
@@ -76,13 +73,11 @@ const MapPage: React.FC = () => {
     return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`;
   }, [toRadians]);
 
-  /**
-   * Lädt Cafés in der Nähe des angegebenen Standorts
-   */
+  // Lädt Cafés in der Nähe des angegebenen Standorts
   const loadNearbyCafesLocal = useCallback(async (lat: number, lng: number) => {
     setIsLoadingCafes(true);
     try {
-      console.log(`🔍 Lade Cafés in ${SEARCH_RADIUS_KM}km Radius um [${lat}, ${lng}]...`);
+      console.log(`Lade Cafés in ${SEARCH_RADIUS_KM}km Radius um [${lat}, ${lng}]...`);
 
       const nearbyData = await loadNearbyCafes(
           lat,
@@ -111,10 +106,10 @@ const MapPage: React.FC = () => {
       }));
 
       setNearbyCafes(convertedCafes);
-      console.log(`✅ ${convertedCafes.length} Cafés erfolgreich geladen`);
+      console.log(`${convertedCafes.length} Cafés erfolgreich geladen`);
 
     } catch (error) {
-      console.error('❌ Fehler beim Laden der Cafés:', error);
+      console.error('Fehler beim Laden der Cafés:', error);
       setNearbyCafes([]);
       // Hier könnte eine Benutzer-Benachrichtigung hinzugefügt werden
     } finally {
@@ -128,7 +123,7 @@ const MapPage: React.FC = () => {
   // **SCHRITT: Location Context synchronisieren - OHNE PARENT CALLBACKS**
   useEffect(() => {
     if (isLocationEnabled && userLocation) {
-      console.log('📍 Location Context aktiviert, lade Cafés für:', userLocation);
+      console.log('Location Context aktiviert, lade Cafés für:', userLocation);
       setMapCenter(userLocation);
 
       // **WICHTIG: Café-Loading throtteln um 429-Fehler zu vermeiden**
@@ -138,7 +133,7 @@ const MapPage: React.FC = () => {
 
       return () => clearTimeout(timer);
     } else if (!isLocationEnabled) {
-      console.log('📍 Location Context deaktiviert, zurück zu Default');
+      console.log('Location Context deaktiviert, zurück zu Default');
       setMapCenter([52.5200, 13.4050]); // Berlin
       setNearbyCafes([]);
     }
@@ -148,12 +143,12 @@ const MapPage: React.FC = () => {
   // Der LocationContext verwaltet alles zentral
   const handleLocationChange = (newLocation: [number, number]) => {
     // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt mapCenter setzt
-    console.log('🗺️ Map-Position Callback (wird ignoriert):', newLocation);
+    console.log('Map-Position Callback (wird ignoriert):', newLocation);
   };
 
   const handleUserLocationUpdate = async (location: [number, number] | null) => {
     // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt verwaltet wird
-    console.log('📍 User-Location Callback (wird ignoriert):', location);
+    console.log('User-Location Callback (wird ignoriert):', location);
   };
 
   const handleSpotClick = (spot: CoffeeSpot) => {
@@ -177,7 +172,7 @@ const MapPage: React.FC = () => {
       alert('Sie müssen sich anmelden oder registrieren, um Ihre Favoriten anzuzeigen.');
     } else {
       // User ist eingeloggt - zur Favoriten-Seite weiterleiten
-      console.log('⭐ User eingeloggt, weiterleitung zu Favoriten für User:', user.username);
+      console.log('User eingeloggt, weiterleitung zu Favoriten für User:', user.username);
       navigate('/favorites');
     }
   };
@@ -244,7 +239,7 @@ const MapPage: React.FC = () => {
               }`}
               title={user ? 'Favoriten anzeigen' : 'Anmelden erforderlich'}
           >
-            ⭐ Favoriten anzeigen
+             Favoriten anzeigen
           </button>
         </div>
 
