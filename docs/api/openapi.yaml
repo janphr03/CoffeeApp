@@ -1,0 +1,656 @@
+openapi: 3.0.3
+info:
+  title: CoffeeSpots API
+  description: |
+    REST API für die CoffeeSpots-Anwendung - eine Plattform zum Finden und Verwalten von Café-Favoriten.
+    
+    ## Funktionen
+    - Benutzerregistrierung und Authentifizierung
+    - Verwaltung von Café-Favoriten
+    - Standortbasierte Suche
+    - Bewertungs- und Kommentarsystem
+    
+    ## Authentifizierung
+    Die API verwendet Session-basierte Authentifizierung. Nach erfolgreichem Login werden Session-Cookies gesetzt.
+    
+  version: 1.0.0
+  contact:
+    name: CoffeeSpots Team
+    email: support@coffeespots.app
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development Server
+  - url: https://coffeespots.app/api
+    description: Production Server
+
+# Globale Security-Definitionen
+security:
+  - sessionAuth: []
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: Session-Cookie für Authentifizierung
+  
+  schemas:
+    # Basis-Datentypen
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "64a8f2e1b2c3d4e5f6789abc"
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          example: "coffee_lover"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-07-07T14:30:00Z"
+      required:
+        - _id
+        - username
+        - email
+
+    Spot:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier (userId:osmType:osmId)
+          example: "64a8f2e1b2c3d4e5f6789abc:node:123456789"
+        osmType:
+          type: string
+          enum: [node, way, relation]
+          description: OpenStreetMap element type
+          example: "node"
+        osmId:
+          type: string
+          description: OpenStreetMap element ID
+          example: "123456789"
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude coordinate
+          example: 52.5200
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude coordinate
+          example: 13.4050
+        name:
+          type: string
+          description: Name of the coffee spot
+          example: "Café Central"
+        address:
+          type: string
+          description: Full address of the spot
+          example: "Alexanderplatz 1, 10178 Berlin"
+        amenity:
+          type: string
+          description: Type of amenity
+          example: "cafe"
+        tags:
+          type: object
+          description: Additional OpenStreetMap tags
+          additionalProperties: true
+          example:
+            opening_hours: "Mo-Fr 07:00-19:00; Sa-Su 08:00-18:00"
+            website: "https://cafe-central.de"
+            phone: "+49 30 12345678"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-07-07T14:30:00Z"
+      required:
+        - _id
+        - osmType
+        - osmId
+        - lat
+        - lon
+        - name
+        - amenity
+
+    # Request/Response-Schemas
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          description: Unique username
+          example: "coffee_lover"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        password:
+          type: string
+          minLength: 6
+          description: User password (will be hashed)
+          example: "securePassword123"
+      required:
+        - username
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username or email
+          example: "coffee_lover"
+        password:
+          type: string
+          description: User password
+          example: "securePassword123"
+      required:
+        - username
+        - password
+
+    AddSpotRequest:
+      type: object
+      properties:
+        osmType:
+          type: string
+          enum: [node, way, relation]
+          description: OpenStreetMap element type
+          example: "node"
+        osmId:
+          type: string
+          description: OpenStreetMap element ID
+          example: "123456789"
+        elementLat:
+          type: number
+          format: double
+          description: Latitude coordinate
+          example: 52.5200
+        elementLng:
+          type: number
+          format: double
+          description: Longitude coordinate
+          example: 13.4050
+        name:
+          type: string
+          description: Name of the coffee spot
+          example: "Café Central"
+        amenity:
+          type: string
+          description: Type of amenity
+          example: "cafe"
+        address:
+          type: string
+          description: Full address
+          example: "Alexanderplatz 1, 10178 Berlin"
+        tags:
+          type: object
+          description: Additional OpenStreetMap tags
+          additionalProperties: true
+          example:
+            opening_hours: "Mo-Fr 07:00-19:00"
+      required:
+        - osmType
+        - osmId
+        - elementLat
+        - elementLng
+        - name
+        - amenity
+
+    # Response-Schemas
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Error description"
+      required:
+        - success
+        - message
+
+    AuthResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+
+    SpotsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            spots:
+              type: array
+              items:
+                $ref: '#/components/schemas/Spot'
+            user:
+              type: string
+              description: User ID
+              example: "64a8f2e1b2c3d4e5f6789abc"
+
+    FavoritesCountResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            spotId:
+              type: string
+              example: "node:123456789"
+            favoritesCount:
+              type: integer
+              minimum: 0
+              example: 42
+
+# API-Endpunkte
+paths:
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      summary: User Registration
+      description: Registriert einen neuen Benutzer im System
+      tags:
+        - Authentication
+      security: []  # No authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              standard:
+                summary: Standard Registration
+                value:
+                  username: "coffee_lover"
+                  email: "user@example.com"
+                  password: "securePassword123"
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                success:
+                  summary: Successful Registration
+                  value:
+                    success: true
+                    message: "Benutzer erfolgreich registriert!"
+                    user:
+                      _id: "64a8f2e1b2c3d4e5f6789abc"
+                      username: "coffee_lover"
+                      email: "user@example.com"
+        '400':
+          description: Registration failed (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_fields:
+                  summary: Missing Required Fields
+                  value:
+                    success: false
+                    message: "Please enter all fields"
+                user_exists:
+                  summary: Username Already Exists
+                  value:
+                    success: false
+                    message: "Benutzer existiert bereits."
+                email_exists:
+                  summary: Email Already Exists
+                  value:
+                    success: false
+                    message: "Email existiert bereits."
+
+  /auth/login:
+    post:
+      summary: User Login
+      description: Authentifiziert einen Benutzer und startet eine Session
+      tags:
+        - Authentication
+      security: []  # No authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              standard:
+                summary: Standard Login
+                value:
+                  username: "coffee_lover"
+                  password: "securePassword123"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Session cookie
+              schema:
+                type: string
+                example: "connect.sid=s%3A123abc; Path=/; HttpOnly"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_credentials:
+                  summary: Wrong Username or Password
+                  value:
+                    success: false
+                    message: "Ungültige Anmeldedaten"
+
+  /auth/logout:
+    post:
+      summary: User Logout
+      description: Beendet die aktuelle Benutzersession
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                success:
+                  summary: Successful Logout
+                  value:
+                    success: true
+                    message: "Erfolgreich abgemeldet"
+
+  /auth/me:
+    get:
+      summary: Get Current User
+      description: Gibt Informationen über den aktuell angemeldeten Benutzer zurück
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Spots Endpoints
+  /spots:
+    get:
+      summary: Get User's Favorite Spots
+      description: Gibt alle Favoriten-Spots des authentifizierten Benutzers zurück
+      tags:
+        - Spots
+      responses:
+        '200':
+          description: Spots retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotsResponse'
+              examples:
+                with_spots:
+                  summary: User with Favorite Spots
+                  value:
+                    success: true
+                    spots:
+                      - _id: "64a8f2e1b2c3d4e5f6789abc:node:123456789"
+                        osmType: "node"
+                        osmId: "123456789"
+                        lat: 52.5200
+                        lon: 13.4050
+                        name: "Café Central"
+                        address: "Alexanderplatz 1, 10178 Berlin"
+                        amenity: "cafe"
+                        tags:
+                          opening_hours: "Mo-Fr 07:00-19:00"
+                        createdAt: "2023-07-07T14:30:00Z"
+                    user: "64a8f2e1b2c3d4e5f6789abc"
+                empty:
+                  summary: User with No Spots
+                  value:
+                    success: true
+                    spots: []
+                    user: "64a8f2e1b2c3d4e5f6789abc"
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Add New Favorite Spot
+      description: Fügt einen neuen Coffee Spot zu den Favoriten des Benutzers hinzu
+      tags:
+        - Spots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddSpotRequest'
+            examples:
+              cafe:
+                summary: Add Cafe to Favorites
+                value:
+                  osmType: "node"
+                  osmId: "123456789"
+                  elementLat: 52.5200
+                  elementLng: 13.4050
+                  name: "Café Central"
+                  amenity: "cafe"
+                  address: "Alexanderplatz 1, 10178 Berlin"
+                  tags:
+                    opening_hours: "Mo-Fr 07:00-19:00"
+                    website: "https://cafe-central.de"
+      responses:
+        '201':
+          description: Spot added successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      spot:
+                        $ref: '#/components/schemas/Spot'
+              examples:
+                success:
+                  summary: Successfully Added Spot
+                  value:
+                    success: true
+                    message: "Spot erfolgreich hinzugefügt"
+                    spot:
+                      _id: "64a8f2e1b2c3d4e5f6789abc:node:123456789"
+                      osmType: "node"
+                      osmId: "123456789"
+                      lat: 52.5200
+                      lon: 13.4050
+                      name: "Café Central"
+                      amenity: "cafe"
+                      address: "Alexanderplatz 1, 10178 Berlin"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_fields:
+                  summary: Missing Required Fields
+                  value:
+                    success: false
+                    message: "Pflichtfelder fehlen: osmType, osmId, elementLat, elementLng, name, amenity"
+                already_exists:
+                  summary: Spot Already in Favorites
+                  value:
+                    success: false
+                    message: "Spot ist bereits in den Favoriten"
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /spots/{spotId}:
+    delete:
+      summary: Remove Spot from Favorites
+      description: Entfernt einen Coffee Spot aus den Favoriten des Benutzers
+      tags:
+        - Spots
+      parameters:
+        - name: spotId
+          in: path
+          required: true
+          description: Spot ID im Format "osmType:osmId"
+          schema:
+            type: string
+            pattern: '^(node|way|relation):[0-9]+$'
+            example: "node:123456789"
+      responses:
+        '200':
+          description: Spot removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                success:
+                  summary: Successfully Removed Spot
+                  value:
+                    success: true
+                    message: "Spot erfolgreich aus Favoriten entfernt"
+        '404':
+          description: Spot not found in user's favorites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                not_found:
+                  summary: Spot Not in Favorites
+                  value:
+                    success: false
+                    message: "Spot nicht in Favoriten gefunden"
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /spots/favorites-count/{spotId}:
+    get:
+      summary: Get Favorites Count for Spot
+      description: |
+        Gibt die Anzahl der Benutzer zurück, die diesen Spot als Favorit gespeichert haben.
+        Dieser Endpoint erfordert KEINE Authentifizierung.
+      tags:
+        - Spots
+      security: []  # No authentication required
+      parameters:
+        - name: spotId
+          in: path
+          required: true
+          description: Spot ID im Format "osmType:osmId"
+          schema:
+            type: string
+            pattern: '^(node|way|relation):[0-9]+$'
+            example: "node:123456789"
+      responses:
+        '200':
+          description: Favorites count retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavoritesCountResponse'
+              examples:
+                popular_spot:
+                  summary: Popular Coffee Spot
+                  value:
+                    success: true
+                    spotId: "node:123456789"
+                    favoritesCount: 42
+                new_spot:
+                  summary: New Spot (No Favorites Yet)
+                  value:
+                    success: true
+                    spotId: "node:987654321"
+                    favoritesCount: 0
+        '400':
+          description: Invalid spot ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_id:
+                  summary: Missing or Invalid Spot ID
+                  value:
+                    success: false
+                    message: "Spot ID ist erforderlich"
+
+# Tags für Gruppierung der Endpunkte
+tags:
+  - name: Authentication
+    description: Benutzeranmeldung und Session-Management
+  - name: Spots
+    description: Verwaltung von Coffee Spot Favoriten
+
+# Externe Dokumentation
+externalDocs:
+  description: CoffeeSpots GitHub Repository
+  url: https://github.com/janphr03/CoffeeApp
