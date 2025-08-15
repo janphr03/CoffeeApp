@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import InteractiveMap from '../components/map/InteractiveMap';
 import CoffeeSpotSidebar from '../components/map/CoffeeSpotSidebar';
 import RightSidebar from '../components/map/RightSidebar';
 import { loadNearbyCafes, NearbyCafe } from '../services/overpassApi';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserLocation } from '../contexts/LocationContext';
+import { logoutUser } from '../services/api';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 interface CoffeeSpot {
   id: number;
@@ -27,6 +29,7 @@ interface CoffeeSpot {
 
 const MapPage: React.FC = () => {
   const [showMap, setShowMap] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Einfach 300ms warten, dann Map rendern
@@ -38,8 +41,16 @@ const MapPage: React.FC = () => {
   }, []);
 
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { userLocation, isLocationEnabled } = useUserLocation();
+  const { user, logout } = useAuth();
+  const { loginUrl } = useAuthRedirect();
+  const { 
+    userLocation, 
+    isLocationEnabled, 
+    locationStatus, 
+    isLoading: isLocationLoading, 
+    enableLocation, 
+    disableLocation 
+  } = useUserLocation();
   const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
   const [nearbyCafes, setNearbyCafes] = useState<CoffeeSpot[]>([]);
   const [isLoadingCafes, setIsLoadingCafes] = useState(false);
@@ -177,15 +188,116 @@ const MapPage: React.FC = () => {
     }
   };
 
+  // Mobile Auth Handler
+  const handleMobileLogout = async (): Promise<void> => {
+    try {
+      console.log('🚪 Mobile Logout...');
+      await logoutUser();
+      logout();
+      console.log('✅ Mobile Logout erfolgreich!');
+    } catch (error) {
+      console.error('❌ Mobile Logout-Fehler:', error);
+      logout();
+    }
+  };
+
+  // Mobile Location Handler  
+  const handleMobileLocationToggle = async () => {
+    if (!isLocationEnabled) {
+      console.log('🗺️ Mobile: Standorterkennung aktivieren...');
+      try {
+        await enableLocation();
+        console.log('✅ Mobile: Location erfolgreich aktiviert');
+      } catch (error) {
+        console.error('❌ Mobile: Fehler beim Aktivieren der Location:', error);
+      }
+    } else {
+      console.log('🚫 Mobile: Standorterkennung deaktivieren...');
+      disableLocation();
+      console.log('✅ Mobile: Location erfolgreich deaktiviert');
+    }
+  };
+
   return (
-      <div className="h-screen flex bg-gray-50 overflow-hidden">
-        {/* Linke Sidebar: Coffee Spots mit eigenem Scroll */}
-        <div className="flex-shrink-0 overflow-y-auto overflow-x-hidden">
+      <div className="h-screen flex flex-col md:flex-row bg-gray-50 overflow-hidden">
+        {/* Mobile Top Bar - nur bei sm und kleiner */}
+        <div className="md:hidden bg-white border-b border-gray-200 flex items-center justify-between p-4 z-50">
+          {/* Linke Seite: Burger Menu + Logo */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+              className="p-2 text-coffee-brown hover:text-coffee-darkBrown transition-colors"
+            >
+              <span className="text-xl">☰</span>
+            </button>
+            <Link to="/" className="text-lg font-bold text-coffee-cream flex items-center">
+              ☕ CoffeeSpots
+            </Link>
+          </div>
+          
+          {/* Rechte Seite: Auth + Location */}
+          <div className="flex items-center space-x-3">
+            {/* Auth Button */}
+            {user ? (
+              <button
+                onClick={handleMobileLogout}
+                className="w-10 h-10 bg-coffee-brown hover:bg-coffee-darkBrown rounded-full flex items-center justify-center transition-colors"
+                title={`Abmelden (${user.username})`}
+              >
+                <span className="text-sm font-bold text-white">
+                  {user.username[0].toUpperCase()}
+                </span>
+              </button>
+            ) : (
+              <Link
+                to={loginUrl}
+                className="w-10 h-10 bg-coffee-brown hover:bg-coffee-darkBrown rounded-full flex items-center justify-center transition-colors"
+                title="Anmelden"
+              >
+                <span className="text-sm text-white">👤</span>
+              </Link>
+            )}
+            
+            {/* Location Button */}
+            <button
+              onClick={handleMobileLocationToggle}
+              disabled={isLocationLoading}
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors relative ${
+                isLocationEnabled ? 'bg-coffee-brown hover:bg-coffee-darkBrown' : 'bg-gray-400 hover:bg-gray-500'
+              }`}
+              title={`Standorterkennung ${isLocationEnabled ? 'deaktivieren' : 'aktivieren'}`}
+            >
+              <span className="text-lg">📍</span>
+              {isLocationLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isMobileSidebarOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+
+        {/* Linke Sidebar: Coffee Spots */}
+        <div className={`flex-shrink-0 overflow-y-auto overflow-x-hidden transition-transform duration-300 ${
+          isMobileSidebarOpen 
+            ? 'md:relative md:translate-x-0 fixed inset-y-0 left-0 translate-x-0 z-50' 
+            : 'md:relative md:translate-x-0 fixed inset-y-0 left-0 -translate-x-full'
+        } md:block`}>
           <CoffeeSpotSidebar
               coffeeSpots={coffeeSpots}
               onSpotClick={(spot) => {
                 setSelectedSpotId(spot.id);
                 handleSpotClick(spot);
+                // Mobile: Sidebar nach Spot-Click schließen
+                setIsMobileSidebarOpen(false);
               }}
               isLoadingCafes={isLoadingCafes}
               searchRadius={SEARCH_RADIUS_KM}
@@ -224,30 +336,30 @@ const MapPage: React.FC = () => {
           {/* Map schließen Button */}
           <button
               onClick={handleCloseMap}
-              className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000] md:w-14 md:h-14 md:p-0 md:flex md:items-center md:justify-center lg:w-auto lg:h-auto lg:px-8 lg:py-3 rounded-full"
+              className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000] w-14 h-14 p-0 flex items-center justify-center lg:w-auto lg:h-auto lg:px-8 lg:py-3 rounded-full"
               title="Map schließen"
           >
-            <span className="md:block lg:hidden text-xl">✖️</span>
-            <span className="md:hidden lg:block">Map schließen</span>
+            <span className="block lg:hidden text-xl">✖️</span>
+            <span className="hidden lg:block">Map schließen</span>
           </button>
 
           {/* Favoriten Button - rechte untere Ecke */}
           <button
               onClick={handleFavoritesClick}
-              className={`absolute bottom-6 right-6 shadow-lg transition-all duration-200 z-[1000] border text-white font-medium md:w-14 md:h-14 md:p-0 md:flex md:items-center md:justify-center lg:w-auto lg:h-auto lg:px-4 lg:py-2 rounded-full ${
+              className={`absolute bottom-6 right-6 shadow-lg transition-all duration-200 z-[1000] border text-white font-medium w-14 h-14 p-0 flex items-center justify-center lg:w-auto lg:h-auto lg:px-4 lg:py-2 rounded-full ${
                   user
                       ? 'bg-green-500 hover:bg-green-600 border-green-600'
                       : 'bg-red-500 hover:bg-red-600 border-red-600'
               }`}
               title={user ? 'Favoriten anzeigen' : 'Anmelden erforderlich'}
           >
-             <span className="md:block lg:hidden text-xl">⭐</span>
-             <span className="md:hidden lg:block">Favoriten anzeigen</span>
+             <span className="block lg:hidden text-xl">⭐</span>
+             <span className="hidden lg:block">Favoriten anzeigen</span>
           </button>
         </div>
 
-        {/* Rechte Sidebar: Authentication & Standort ohne Scroll */}
-        <div className="flex-shrink-0 overflow-hidden">
+        {/* Rechte Sidebar: Authentication & Standort - nur ab md */}
+        <div className="flex-shrink-0 overflow-hidden hidden md:block">
           <RightSidebar
               onLocationChange={handleLocationChange}
               onUserLocationUpdate={handleUserLocationUpdate}
