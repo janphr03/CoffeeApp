@@ -51,13 +51,13 @@ const Navigation: React.FC = () => {
         isScrolled ? 'bg-gray-900 bg-opacity-90 shadow-lg' : ''
       }`}
     >
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-coffee-cream">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Link to="/" className="text-xl sm:text-2xl font-bold text-coffee-cream flex items-center whitespace-nowrap">
           ☕ CoffeeSpots
         </Link>
         
-        <div className="flex items-center space-x-6">
-          <ul className="hidden md:flex space-x-8 text-gray-200">
+        <div className="flex items-center space-x-3 sm:space-x-6">
+          <ul className="hidden lg:flex space-x-6 xl:space-x-8 text-gray-200">
             <li>
               <button 
                 onClick={() => scrollToSection('hero')} 
@@ -121,18 +121,19 @@ const Navigation: React.FC = () => {
           {/* Authentication Buttons */}
           {user ? (
             // **User ist eingeloggt: Zeige User-Info und Logout**
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-200">
-                <div className="w-8 h-8 bg-coffee-brown rounded-full flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+              <div className="flex items-center space-x-1 lg:space-x-2 text-gray-200">
+                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-coffee-brown rounded-full flex items-center justify-center">
+                  <span className="text-xs lg:text-sm font-bold text-white">
                     {user.username[0].toUpperCase()}
                   </span>
                 </div>
-                <span className="text-sm">Hallo, {user.username}!</span>
+                <span className="text-xs lg:text-sm hidden sm:block">Hallo, {user.username}!</span>
+                <span className="text-xs lg:text-sm sm:hidden">{user.username}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="text-gray-200 hover:text-coffee-brown transition-colors text-sm"
+                className="text-gray-200 hover:text-coffee-brown transition-colors text-xs lg:text-sm flex-shrink-0"
               >
                 Logout
               </button>
@@ -141,18 +142,18 @@ const Navigation: React.FC = () => {
             // **User ist nicht eingeloggt: Zeige Login-Button**
             <Link
               to={loginUrl}
-              className="hidden md:flex items-center space-x-2 text-gray-200 hover:text-coffee-brown transition-colors"
+              className="hidden md:flex items-center space-x-1 lg:space-x-2 text-gray-200 hover:text-coffee-brown transition-colors flex-shrink-0"
             >
-              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                <span className="text-sm">👤</span>
+              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                <span className="text-xs lg:text-sm">👤</span>
               </div>
-              <span className="text-sm">Login</span>
+              <span className="text-xs lg:text-sm">Login</span>
             </Link>
           )}
         </div>
         
         <button 
-          className="md:hidden text-2xl text-gray-200"
+          className="md:hidden lg:hidden text-xl text-gray-200 flex-shrink-0 ml-2"
           onClick={() => setIsOpen(!isOpen)}
         >
           ☰
