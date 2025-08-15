@@ -1,6 +1,11 @@
 {
   "devDependencies": {
+    "@types/supertest": "^6.0.3",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "playwright": "^1.54.2"
+    "express-session": "^1.18.2",
+    "playwright": "^1.54.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.4"
   }
 }

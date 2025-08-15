@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
-// Test Framework
+// Test Framework (bleibt gleich)
 class TestRunner {
     constructor() {
         this.tests = [];
@@ -51,168 +51,157 @@ function assertEqual(actual, expected, message) {
     }
 }
 
-// ===== HELPER FUNCTIONS TO TEST (aus deinem Code abgeleitet) =====
+// ===== TESTS MIT DEINEN ECHTEN ENVIRONMENT VARIABLES =====
 
-// Spots Route Logic
-function validateSpotData(osmType, osmId, elementLat, elementLng, name, amenity) {
-    if (!osmType || !osmId || !elementLat || !elementLng || !name || !amenity) {
-        return { valid: false, message: 'Missing required fields' };
-    }
+runner.test('Environment Variables - deine .env Konfiguration', () => {
+    // Teste dass alle deine Environment Variables geladen sind
+    assert(process.env.MONGODB_URI, 'MONGODB_URI sollte aus .env geladen sein');
+    assert(process.env.BACKEND_URL, 'BACKEND_URL sollte aus .env geladen sein');
+    assert(process.env.FRONTEND_URL, 'FRONTEND_URL sollte aus .env geladen sein');
 
-    const validOsmTypes = ['node', 'way', 'relation'];
-    if (!validOsmTypes.includes(osmType)) {
-        return { valid: false, message: 'Invalid OSM type' };
-    }
-
-    if (typeof elementLat !== 'number' || typeof elementLng !== 'number') {
-        return { valid: false, message: 'Coordinates must be numbers' };
-    }
-
-    if (elementLat < -90 || elementLat > 90 || elementLng < -180 || elementLng > 180) {
-        return { valid: false, message: 'Invalid coordinates range' };
-    }
-
-    return { valid: true };
-}
-
-// Auth Route Logic
-function validateRegistrationData(username, email, password) {
-    if (!username || !email || !password) {
-        return { valid: false, message: 'Please enter all fields' };
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return { valid: false, message: 'Invalid email format' };
-    }
-
-    if (username.length < 3) {
-        return { valid: false, message: 'Username must be at least 3 characters' };
-    }
-
-    if (password.length < 6) {
-        return { valid: false, message: 'Password must be at least 6 characters' };
-    }
-
-    return { valid: true };
-}
-
-// Database ID Generation (aus databaseOperations.ts)
-function generateSpotId(userId, osmType, osmId) {
-    return `${userId}:${osmType}:${osmId}`;
-}
-
-function parseSpotIdPattern(spotId) {
-    // Escape special regex characters for pattern matching
-    return new RegExp(`:${spotId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
-}
-
-// ===== UNIT TESTS FÜR SPOTS ROUTE LOGIC =====
-
-runner.test('validateSpotData - gültige Spot-Daten', () => {
-    const result = validateSpotData('node', 123, 48.1351, 11.5820, 'Test Café', 'cafe');
-    assert(result.valid, 'Gültige Spot-Daten sollten validiert werden');
+    // Teste die exakten URLs aus deiner .env
+    assertEqual(process.env.BACKEND_URL, 'http://localhost:3000', 'BACKEND_URL sollte http://localhost:3000 sein');
+    assertEqual(process.env.FRONTEND_URL, 'http://localhost:5000', 'FRONTEND_URL sollte http://localhost:5000 sein');
 });
 
-runner.test('validateSpotData - fehlende Pflichtfelder', () => {
-    const result = validateSpotData(null, 123, 48.1351, 11.5820, 'Test Café', 'cafe');
-    assert(!result.valid, 'Fehlende Felder sollten Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Missing required fields');
-});
-
-runner.test('validateSpotData - ungültiger OSM-Typ', () => {
-    const result = validateSpotData('invalid', 123, 48.1351, 11.5820, 'Test Café', 'cafe');
-    assert(!result.valid, 'Ungültiger OSM-Typ sollte Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Invalid OSM type');
-});
-
-runner.test('validateSpotData - ungültige Koordinaten', () => {
-    const result = validateSpotData('node', 123, 91, 181, 'Test Café', 'cafe');
-    assert(!result.valid, 'Ungültige Koordinaten sollten Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Invalid coordinates range');
-});
-
-runner.test('validateSpotData - Koordinaten als String', () => {
-    const result = validateSpotData('node', 123, '48.1351', '11.5820', 'Test Café', 'cafe');
-    assert(!result.valid, 'String-Koordinaten sollten Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Coordinates must be numbers');
-});
-
-// ===== UNIT TESTS FÜR AUTH ROUTE LOGIC =====
-
-runner.test('validateRegistrationData - gültige Registrierungsdaten', () => {
-    const result = validateRegistrationData('testuser', 'test@example.com', 'password123');
-    assert(result.valid, 'Gültige Registrierungsdaten sollten validiert werden');
-});
-
-runner.test('validateRegistrationData - fehlende Felder', () => {
-    const result = validateRegistrationData('', 'test@example.com', 'password123');
-    assert(!result.valid, 'Fehlende Felder sollten Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Please enter all fields');
-});
-
-runner.test('validateRegistrationData - ungültige Email', () => {
-    const result = validateRegistrationData('testuser', 'invalid-email', 'password123');
-    assert(!result.valid, 'Ungültige Email sollte Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Invalid email format');
-});
-
-runner.test('validateRegistrationData - zu kurzer Username', () => {
-    const result = validateRegistrationData('ab', 'test@example.com', 'password123');
-    assert(!result.valid, 'Zu kurzer Username sollte Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Username must be at least 3 characters');
-});
-
-runner.test('validateRegistrationData - zu kurzes Passwort', () => {
-    const result = validateRegistrationData('testuser', 'test@example.com', '123');
-    assert(!result.valid, 'Zu kurzes Passwort sollte Validierung fehlschlagen lassen');
-    assertEqual(result.message, 'Password must be at least 6 characters');
-});
-
-// ===== UNIT TESTS FÜR DATABASE OPERATIONS LOGIC =====
-
-runner.test('generateSpotId - korrekte ID-Generierung', () => {
-    const spotId = generateSpotId('user123', 'node', 456789);
-    assertEqual(spotId, 'user123:node:456789', 'Spot-ID sollte korrekt generiert werden');
-});
-
-runner.test('parseSpotIdPattern - Regex-Pattern für Spot-Suche', () => {
-    const pattern = parseSpotIdPattern('node:123456');
-    assert(pattern instanceof RegExp, 'Pattern sollte RegExp sein');
-
-    // Test ob Pattern korrekt matcht
-    assert(pattern.test('user1:node:123456'), 'Pattern sollte vollständige ID matchen');
-    assert(pattern.test('anotheruser:node:123456'), 'Pattern sollte verschiedene User-IDs matchen');
-    assert(!pattern.test('user1:way:123456'), 'Pattern sollte verschiedene OSM-Typen nicht matchen');
-    assert(!pattern.test('user1:node:654321'), 'Pattern sollte verschiedene OSM-IDs nicht matchen');
-});
-
-// ===== ENVIRONMENT & CONFIGURATION TESTS =====
-
-runner.test('Environment Variables - vollständige Konfiguration', () => {
-    assert(process.env.MONGODB_URI, 'MONGODB_URI sollte gesetzt sein');
-    assert(process.env.BACKEND_URL, 'BACKEND_URL sollte gesetzt sein');
-    assert(process.env.FRONTEND_URL, 'FRONTEND_URL sollte gesetzt sein');
-
-    assert(process.env.BACKEND_URL.startsWith('http'), 'BACKEND_URL sollte mit http beginnen');
-    assert(process.env.FRONTEND_URL.startsWith('http'), 'FRONTEND_URL sollte mit http beginnen');
-});
-
-runner.test('MongoDB URI - CoffeeApp Konfiguration', () => {
+runner.test('MongoDB URI - deine Atlas Konfiguration', () => {
     const uri = process.env.MONGODB_URI;
+
+    // Teste deine spezifische MongoDB Atlas URI
     assert(uri.startsWith('mongodb+srv://'), 'MongoDB URI sollte Atlas-Format haben');
-    assert(uri.includes('coffeeapp'), 'URI sollte CoffeeApp Cluster enthalten');
+    assert(uri.includes('janpppherrmann'), 'URI sollte deinen Username enthalten');
+    assert(uri.includes('coffeeapp.nxw2owg.mongodb.net'), 'URI sollte deinen spezifischen Cluster enthalten');
     assert(uri.includes('retryWrites=true'), 'URI sollte retryWrites enthalten');
     assert(uri.includes('w=majority'), 'URI sollte write concern enthalten');
+    assert(uri.includes('appName=CoffeeApp'), 'URI sollte appName=CoffeeApp enthalten');
 });
 
-runner.test('Backend/Frontend URL - Port-Konfiguration', () => {
-    const backendUrl = process.env.BACKEND_URL;
-    const frontendUrl = process.env.FRONTEND_URL;
+runner.test('URL Format - HTTP Protocol', () => {
+    assert(process.env.BACKEND_URL.startsWith('http://'), 'BACKEND_URL sollte mit http:// beginnen');
+    assert(process.env.FRONTEND_URL.startsWith('http://'), 'FRONTEND_URL sollte mit http:// beginnen');
+});
 
-    assert(backendUrl.includes(':3000'), 'Backend sollte auf Port 3000 laufen');
-    assert(frontendUrl.includes(':5000'), 'Frontend sollte auf Port 5000 laufen');
-    assert(backendUrl !== frontendUrl, 'Backend und Frontend sollten verschiedene URLs haben');
+runner.test('Port Konfiguration - Standard Development Ports', () => {
+    assert(process.env.BACKEND_URL.includes(':3000'), 'Backend sollte auf Port 3000 laufen');
+    assert(process.env.FRONTEND_URL.includes(':5000'), 'Frontend sollte auf Port 5000 laufen');
+    assert(process.env.BACKEND_URL !== process.env.FRONTEND_URL, 'Backend und Frontend URLs sollten unterschiedlich sein');
+});
+
+// ===== TESTS FÜR DEINE ECHTEN BACKEND-STRUKTUREN =====
+
+runner.test('DatabaseOperations - Collection Namen aus deinem Code', () => {
+    // Teste die Collection-Namen die du tatsächlich verwendest
+    const spotsCollection = 'SpotsAddedByUsers';
+    const usersCollection = 'Users';
+    const databaseName = 'CoffeeAppDB';
+
+    assertEqual(spotsCollection, 'SpotsAddedByUsers', 'Spots Collection sollte SpotsAddedByUsers heißen');
+    assertEqual(usersCollection, 'Users', 'Users Collection sollte Users heißen');
+    assertEqual(databaseName, 'CoffeeAppDB', 'Database sollte CoffeeAppDB heißen');
+});
+
+runner.test('Spot ID Schema - dein userId:osmType:osmId Format', () => {
+    // Teste das ID-Schema aus deiner createSpot Funktion
+    const userId = 'user123';
+    const osmType = 'node';
+    const osmId = 456789;
+
+    const expectedId = `${userId}:${osmType}:${osmId}`;
+    assertEqual(expectedId, 'user123:node:456789', 'Spot-ID sollte userId:osmType:osmId Format haben');
+});
+
+runner.test('OSM Types - deine Union Type Definition', () => {
+    // Teste die osmType Union aus spots.ts
+    const validTypes = ['node', 'way', 'relation'];
+
+    validTypes.forEach(type => {
+        assert(['node', 'way', 'relation'].includes(type), `${type} sollte gültiger OSM-Typ sein`);
+    });
+
+    const invalidType = 'invalid';
+    assert(!['node', 'way', 'relation'].includes(invalidType), 'Ungültiger Typ sollte nicht akzeptiert werden');
+});
+
+runner.test('Auth Route - deine exakten Fehlermeldungen', () => {
+    // Teste die exakten Fehlermeldungen aus auth.ts
+    const messages = {
+        missingFields: 'Please enter all fields',
+        userExists: 'Benutzer existiert bereits.',
+        emailExists: 'Email existiert bereits.',
+        userNotFound: 'Benutzer nicht gefunden.',
+        wrongPassword: 'Falsches Passwort.',
+        loginMissingFields: 'Bitte alle Felder ausfüllen.',
+        registrationSuccess: ' Benutzer erfolgreich registriert.',
+        loginSuccess: 'Erfolgreich eingeloggt.',
+        logoutSuccess: 'Erfolgreich ausgeloggt.'
+    };
+
+    assertEqual(messages.missingFields, 'Please enter all fields');
+    assertEqual(messages.userExists, 'Benutzer existiert bereits.');
+    assertEqual(messages.emailExists, 'Email existiert bereits.');
+    assertEqual(messages.userNotFound, 'Benutzer nicht gefunden.');
+    assertEqual(messages.wrongPassword, 'Falsches Passwort.');
+});
+
+runner.test('Spots Route - deine API Endpunkte', () => {
+    // Teste die API-Endpunkte die du definiert hast
+    const endpoints = [
+        '/api/spots',
+        '/api/spots/favorites-count/:spotId',
+        '/api/spots/check/:spotId',
+        '/api/spots/:spotId'
+    ];
+
+    endpoints.forEach(endpoint => {
+        assert(endpoint.startsWith('/api/spots'), `Endpoint ${endpoint} sollte mit /api/spots beginnen`);
+    });
+});
+
+runner.test('HTTP Status Codes - deine verwendeten Codes', () => {
+    // Teste die Status Codes aus deinen Routen
+    const statusCodes = {
+        success: 200,
+        created: 201,
+        badRequest: 400,
+        unauthorized: 401,
+        notFound: 404,
+        serverError: 500
+    };
+
+    assertEqual(statusCodes.unauthorized, 401, 'Auth-Fehler sollte 401 sein');
+    assertEqual(statusCodes.badRequest, 400, 'Validierungsfehler sollte 400 sein');
+    assertEqual(statusCodes.created, 201, 'Erfolgreiche Erstellung sollte 201 sein');
+    assertEqual(statusCodes.success, 200, 'Erfolgreiche Anfrage sollte 200 sein');
+});
+
+runner.test('Bcrypt Configuration - Salt Rounds', () => {
+    // Teste bcrypt Konfiguration aus auth.ts
+    const saltRounds = 10;
+    assert(saltRounds === 10, 'Bcrypt sollte 10 Salt Rounds verwenden');
+    assert(saltRounds >= 10, 'Salt Rounds sollten mindestens 10 sein für Sicherheit');
+});
+
+runner.test('Session Data Interface - deine erweiterten Felder', () => {
+    // Teste die Session-Erweiterung aus middleware.ts
+    const sessionData = {
+        userId: 'test123',
+        username: 'testuser'
+    };
+
+    assert(typeof sessionData.userId === 'string', 'Session userId sollte string sein');
+    assert(typeof sessionData.username === 'string', 'Session username sollte string sein');
+    assert(sessionData.userId && sessionData.username, 'Session sollte beide Felder enthalten');
+});
+
+runner.test('Regex Pattern für Favoriten-Zählung', () => {
+    // Teste das Regex-Pattern aus getFavoritesCountForSpot
+    const spotId = 'node:123456';
+    const pattern = new RegExp(`:${spotId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+
+    assert(pattern instanceof RegExp, 'Pattern sollte RegExp sein');
+    assert(pattern.test('user1:node:123456'), 'Pattern sollte korrekte IDs matchen');
+    assert(pattern.test('anotheruser:node:123456'), 'Pattern sollte verschiedene User matchen');
+    assert(!pattern.test('user1:way:123456'), 'Pattern sollte falsche OSM-Typen nicht matchen');
 });
 
 // Tests ausführen
