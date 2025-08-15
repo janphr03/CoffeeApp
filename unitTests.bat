@@ -1,29 +1,26 @@
 ﻿@echo off
-setlocal
+setlocal EnableExtensions
 
-REM Backend Unit Tests für serverNew
+REM === Vom Repo-Root (dieses Script liegt in CoffeeApp) starten ===
+pushd "%~dp0" || exit /b 1
 
-echo Installiere Test-Abhängigkeiten...
-call npm i -D dotenv
-
-REM Defaults für Backend URL setzen, falls nicht gesetzt
-if "%BACKEND_URL%"=="" set BACKEND_URL=http://localhost:3000
-
-echo Verwende BACKEND_URL=%BACKEND_URL%
-echo.
-
-echo Fuehre Backend Unit Tests aus...
-node serverNew\tests\backend-unit-tests.mjs
-
-if %ERRORLEVEL% neq 0 (
-    echo.
-    echo Tests fehlgeschlagen!
-    pause
-    exit /b 1
-) else (
-    echo.
-    echo Alle Tests erfolgreich!
-    pause
+REM Optional: falls serverNew/node_modules fehlt → kurz installieren
+if not exist "serverNew\node_modules" (
+  echo Installing serverNew dependencies...
+  call npm --prefix serverNew install || exit /b 1
 )
 
-endlocal
+REM Muster aus dem ersten Argument (z.B. "middleware")
+set "PATTERN=%~1"
+
+if "%PATTERN%"=="" (
+  echo Running ALL serverNew tests ...
+  call npm --prefix serverNew test -- --runInBand
+) else (
+  echo Running serverNew tests matching "%PATTERN%" ...
+  call npm --prefix serverNew test -- -t "%PATTERN%" --runInBand
+)
+
+set ERR=%ERRORLEVEL%
+popd
+exit /b %ERR%

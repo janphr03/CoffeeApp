@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
 // BASE_URL bevorzugt, sonst FRONTEND_URL aus .env, sonst Default
-const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:5000';
 const TIMEOUT = 15_000;
 
 const browsers = [

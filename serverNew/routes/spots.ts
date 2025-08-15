@@ -19,7 +19,7 @@ router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
         console.log(`🔍 Backend: Erhalte Favoriten-Anzahl-Request für Spot-ID: "${spotId}"`);
 
         if (!spotId) {
-            console.warn('⚠️ Backend: Keine Spot-ID bereitgestellt');
+            console.warn('Backend: Keine Spot-ID bereitgestellt');
             return res.status(400).json({
                 success: false,
                 message: 'Spot ID ist erforderlich'
@@ -28,7 +28,7 @@ router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
 
         // Zähle, wie oft der Spot in der SpotsAddedByUsers Collection vorkommt
         const favoritesCount = await spotsDB.getFavoritesCountForSpot(spotId);
-        console.log(`✅ Backend: Favoriten-Anzahl für "${spotId}": ${favoritesCount}`);
+        console.log(`Backend: Favoriten-Anzahl für "${spotId}": ${favoritesCount}`);
 
         return res.status(200).json({
             success: true,
@@ -36,7 +36,7 @@ router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
             favoritesCount: favoritesCount
         });
     } catch (error) {
-        console.error(`❌ Backend: Fehler beim Abrufen der Favoriten-Anzahl:`, error);
+        console.error(`Backend: Fehler beim Abrufen der Favoriten-Anzahl:`, error);
         return res.status(500).json({ 
             success: false, 
             message: 'Error fetching favorites count' 
@@ -70,7 +70,7 @@ router.get('/', async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.error('❌ Fehler beim Abrufen der Spots:', error);
+        console.error('Fehler beim Abrufen der Spots:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching spots'
@@ -118,7 +118,7 @@ router.post('/', async (req: Request, res: Response) => {
             }
         });
     } catch (error) {
-        console.error('❌ Fehler beim Speichern des Spots:', error);
+        console.error('Fehler beim Speichern des Spots:', error);
         return res.status(500).json({ success: false, message: 'Error adding spot' });
     }
 });
@@ -152,7 +152,7 @@ router.delete('/:spotId', async (req: Request, res: Response) => {
             message: 'Spot removed from favorites successfully'
         });
     } catch (error) {
-        console.error('❌ Fehler beim Löschen des Spots:', error);
+        console.error('Fehler beim Löschen des Spots:', error);
         return res.status(500).json({ 
             success: false, 
             message: 'Error removing spot from favorites' 
@@ -182,7 +182,7 @@ router.get('/check/:spotId', async (req: Request, res: Response) => {
             isFavorited: isFavorited
         });
     } catch (error) {
-        console.error('❌ Fehler beim Prüfen des Favoriten-Status:', error);
+        console.error('Fehler beim Prüfen des Favoriten-Status:', error);
         return res.status(500).json({ 
             success: false, 
             message: 'Error checking favorite status' 
