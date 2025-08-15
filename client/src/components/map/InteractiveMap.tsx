@@ -207,7 +207,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="text-center">
                 <div className="font-semibold text-sm">{spot.name}</div>
                 <div className="text-xs text-gray-600">
-                  ★ Favoriten-Anzahl {spot.distance && `• ${spot.distance}`}
+                  {spot.distance ? spot.distance : 'Café'}
                 </div>
               </div>
             </Tooltip>

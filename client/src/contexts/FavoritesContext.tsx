@@ -99,12 +99,16 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         console.log('Spot zu Favoriten hinzugefügt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
+
         
-        // Event für Favoriten-Anzahl-Update auslösen
+        // Event für Favoriten-Anzahl-Update auslösen BEVOR Favoriten neu geladen werden
         const spotId = `${spotData.osmType}:${spotData.osmId}`;
         favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
           detail: { spotId, action: 'added' }
         }));
+        
+        // Favoriten neu laden um aktuell zu bleiben
+        await loadFavorites();
         
         return true;
       } else {
@@ -134,11 +138,15 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         console.log('Spot aus Favoriten entfernt');
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
+
         
-        // Event für Favoriten-Anzahl-Update auslösen
+        // Event für Favoriten-Anzahl-Update auslösen BEVOR Favoriten neu geladen werden
         favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
           detail: { spotId, action: 'removed' }
         }));
+        
+        // Favoriten neu laden um aktuell zu bleiben
+        await loadFavorites();
         
         return true;
       } else {
