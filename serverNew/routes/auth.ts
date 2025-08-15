@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
   try {
     const {username, email, password} = req.body;
 
-    //==== Eingabe prüfen ====
+    //Eingabe prüfen
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -24,27 +24,27 @@ router.post('/register', async (req, res) => {
 
     const users = await db.getUserCollection();
 
-    //==== auf doppelten Username prüfen ====
+    // auf doppelten Username prüfen
     const existingUser = await users.findOne({username}); // gibt es den username in der Collection users?
 
     if (existingUser) {
       return res.status(400).json({success: false, message: 'Benutzer existiert bereits.'});
     }
 
-    //==== auf doppelte Mail prüfen ====
+    // auf doppelte Mail prüfen
     const existingEmail = await users.findOne({email}); // gibt es die email in der Collection users?
 
     if (existingEmail) {
         return res.status(400).json({success: false, message: 'Email existiert bereits.'});
     }
 
-    //==== Passwort hashen ====
+    // Passwort hashen
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //==== in DB speichern ====
+    // in DB speichern
     const result = await users.insertOne({username, email, password: hashedPassword});
 
-    //==== Session aktivieren ====
+    // Session aktivieren
     req.session.userId = result.insertedId.toString();
     req.session.username = username;
 
@@ -54,24 +54,22 @@ router.post('/register', async (req, res) => {
   catch (error) {
     console.error("Fehler bei der Registrierung: ", error);
     res.status(500).json({success: false, message: 'Fehler bei der Registrierung.'});
-
   }
-
 })
 
 
 
-// Login ============================================================================================================
+// Login
 router.post("/login", async (req, res) => {
   try{
     const {identifier, password} = req.body // identifier ist username oder email
 
-    // ==== Eingabe prüfen ====
+    // Eingabe prüfen
     if(!identifier || !password){
       return res.status(400).json({success: false, message: 'Bitte alle Felder ausfüllen.'});
     }
 
-    // ==== Username / mail matchen  ====
+    // Username / mail matchen
     const users = await db.getUserCollection(); // Zugriff auf die User-Collection
     const user = await users.findOne({$or: [{username: identifier}, {email: identifier}]});// Suche nach username oder email
 
@@ -79,7 +77,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({success: false, message: 'Benutzer nicht gefunden.'});
     }
 
-    // ==== Passwort prüfen ====
+    // Passwort prüfen
     const isPasswordValid = await bcrypt.compare(password, user.password); // Passwort wird mit dem in der DB gespeicherten Passwort verglichen
     if(!isPasswordValid){
       return res.status(400).json({success: false, message: 'Falsches Passwort.'});
@@ -100,7 +98,7 @@ router.post("/login", async (req, res) => {
 
 
 
-// Logout ============================================================================================================
+// Logout
 router.post('/logout', (req, res) => {
   try {
 
