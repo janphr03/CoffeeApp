@@ -1,6 +1,6 @@
 ﻿// routes/spots.ts
 import express, { Request, Response } from 'express';
-import { requireAuth} from "../middleware/middleware";
+import { requireAuth } from "../middleware/middleware";
 import { DatabaseOperations } from '../Db/databaseOperations';
 
 // Routen und DB-Operationen definieren
@@ -9,9 +9,43 @@ const spotsDB = new DatabaseOperations();
 
 // Middleware für JSON-Parsing
 router.use(express.json());
-router.use(requireAuth);
 
 type osmType = 'node' | 'way' | 'relation'; // Union-Type definiert
+
+// GET /api/spots/favorites-count/:spotId - Anzahl der Favoriten für einen Spot (KEINE AUTH REQUIRED)
+router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
+    try {
+        const { spotId } = req.params;
+        console.log(`🔍 Backend: Erhalte Favoriten-Anzahl-Request für Spot-ID: "${spotId}"`);
+
+        if (!spotId) {
+            console.warn('⚠️ Backend: Keine Spot-ID bereitgestellt');
+            return res.status(400).json({
+                success: false,
+                message: 'Spot ID ist erforderlich'
+            });
+        }
+
+        // Zähle, wie oft der Spot in der SpotsAddedByUsers Collection vorkommt
+        const favoritesCount = await spotsDB.getFavoritesCountForSpot(spotId);
+        console.log(`✅ Backend: Favoriten-Anzahl für "${spotId}": ${favoritesCount}`);
+
+        return res.status(200).json({
+            success: true,
+            spotId: spotId,
+            favoritesCount: favoritesCount
+        });
+    } catch (error) {
+        console.error(`❌ Backend: Fehler beim Abrufen der Favoriten-Anzahl:`, error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Error fetching favorites count' 
+        });
+    }
+});
+
+// Alle anderen Routen benötigen Authentifizierung
+router.use(requireAuth);
 
 // GET /api/spots - Alle Spots des authentifizierten Nutzers | req ist schon ein geparstes JS Objekt
 router.get('/', async (req: Request, res: Response) => {
@@ -152,38 +186,6 @@ router.get('/check/:spotId', async (req: Request, res: Response) => {
         return res.status(500).json({ 
             success: false, 
             message: 'Error checking favorite status' 
-        });
-    }
-});
-
-// GET /api/spots/favorites-count/:spotId - Anzahl der Favoriten für einen Spot
-router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
-    try {
-        const { spotId } = req.params;
-        console.log(`🔍 Backend: Erhalte Favoriten-Anzahl-Request für Spot-ID: "${spotId}"`);
-
-        if (!spotId) {
-            console.warn('⚠️ Backend: Keine Spot-ID bereitgestellt');
-            return res.status(400).json({
-                success: false,
-                message: 'Spot ID ist erforderlich'
-            });
-        }
-
-        // Zähle, wie oft der Spot in der SpotsAddedByUsers Collection vorkommt
-        const favoritesCount = await spotsDB.getFavoritesCountForSpot(spotId);
-        console.log(`✅ Backend: Favoriten-Anzahl für "${spotId}": ${favoritesCount}`);
-
-        return res.status(200).json({
-            success: true,
-            spotId: spotId,
-            favoritesCount: favoritesCount
-        });
-    } catch (error) {
-        console.error(`❌ Backend: Fehler beim Abrufen der Favoriten-Anzahl:`, error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Error fetching favorites count' 
         });
     }
 });

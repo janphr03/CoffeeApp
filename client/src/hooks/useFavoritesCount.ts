@@ -1,5 +1,5 @@
 // Custom Hook für das Laden der Favoriten-Anzahl
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getFavoritesCount } from '../services/api';
 import { favoritesCountUpdatedEvent } from '../contexts/FavoritesContext';
 
@@ -15,7 +15,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchFavoritesCount = async () => {
+  const fetchFavoritesCount = useCallback(async () => {
     if (!spotId) {
       setFavoritesCount(0);
       setLoading(false);
@@ -45,22 +45,33 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [spotId]);
 
   useEffect(() => {
     fetchFavoritesCount();
-  }, [spotId]);
+  }, [fetchFavoritesCount]);
 
   // Event Listener für Favoriten-Updates
   useEffect(() => {
     const handleFavoritesUpdate = (event: Event) => {
       const customEvent = event as CustomEvent;
-      const { spotId: updatedSpotId } = customEvent.detail;
+      const { spotId: updatedSpotId, action } = customEvent.detail;
       
       // Wenn dieser Spot aktualisiert wurde, neu laden
       if (updatedSpotId === spotId) {
-        console.log(`🔄 Favoriten-Anzahl für Spot ${spotId} wird neu geladen...`);
-        fetchFavoritesCount();
+        console.log(`🔄 Favoriten-Anzahl für Spot ${spotId} wird neu geladen (Action: ${action})...`);
+        
+        // Optimistische Aktualisierung für bessere UX
+        if (action === 'added') {
+          setFavoritesCount(prev => prev + 1);
+        } else if (action === 'removed') {
+          setFavoritesCount(prev => Math.max(0, prev - 1));
+        }
+        
+        // Delay um sicherzustellen, dass die DB-Änderung verarbeitet wurde
+        setTimeout(() => {
+          fetchFavoritesCount();
+        }, 200);
       }
     };
 
@@ -69,11 +80,11 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
     return () => {
       favoritesCountUpdatedEvent.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
     };
-  }, [spotId]);
+  }, [spotId, fetchFavoritesCount]);
 
-  const refetch = () => {
+  const refetch = useCallback(() => {
     fetchFavoritesCount();
-  };
+  }, [fetchFavoritesCount]);
 
   return {
     favoritesCount,
