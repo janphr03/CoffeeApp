@@ -1,43 +1,27 @@
 ﻿@echo off
-REM 1) In den Client-Ordner
-cd /d "%~dp0client" || (
-  echo Konnte nicht in den Client-Ordner wechseln.
-  pause & exit /b 1
-)
+setlocal EnableExtensions
 
-REM 2) Client mit legacy peer deps installieren
-npm install --legacy-peer-deps || (
-  echo Client-Installation mit --legacy-peer-deps fehlgeschlagen.
-  pause & exit /b 1
-)
+REM --- Client ---
+pushd "%~dp0client"
+call npm install --legacy-peer-deps
+if errorlevel 1 goto :err
 
-REM 3) (Wie gewuenscht) Danach noch ein normales npm install
-npm install || (
-  echo Client-Installation (zweiter Durchlauf) fehlgeschlagen.
-  pause & exit /b 1
-)
+popd
 
-REM 4) Zurueck ins Projekt-Root
-cd /d "%~dp0" || (
-  echo Konnte nicht ins Projekt-Root wechseln.
-  pause & exit /b 1
-)
-
-REM 5) In den Server-Ordner
-cd /d "%~dp0serverNew" || (
-  echo Konnte nicht in den Server-Ordner wechseln.
-  pause & exit /b 1
-)
-
-REM 6) Server installieren
-npm install || (
-  echo Server-Installation fehlgeschlagen.
-  pause & exit /b 1
-)
-
-REM 7) Zurueck ins Projekt-Root
-cd /d "%~dp0"
+REM --- Server ---
+pushd "%~dp0serverNew"
+call npm install --include=dev
+if errorlevel 1 goto :err
+call npm i -D @types/cors @types/express-session supertest @types/supertest tsx
+if errorlevel 1 goto :err
+popd
 
 echo.
-echo Fertig. Client und Server installiert.
+echo ✅ Fertig. Client und Server installiert.
 pause
+exit /b 0
+
+:err
+echo ❌ Fehler (ErrorLevel %ERRORLEVEL%). Abbruch.
+pause
+exit /b 1
