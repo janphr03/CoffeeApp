@@ -224,22 +224,25 @@ const MapPage: React.FC = () => {
           {/* Map schließen Button */}
           <button
               onClick={handleCloseMap}
-              className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000]"
+              className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000] md:w-14 md:h-14 md:p-0 md:flex md:items-center md:justify-center lg:w-auto lg:h-auto lg:px-8 lg:py-3 rounded-full"
+              title="Map schließen"
           >
-            Map schließen
+            <span className="md:block lg:hidden text-xl">✖️</span>
+            <span className="md:hidden lg:block">Map schließen</span>
           </button>
 
           {/* Favoriten Button - rechte untere Ecke */}
           <button
               onClick={handleFavoritesClick}
-              className={`absolute bottom-6 right-6 px-4 py-2 rounded-full shadow-lg transition-all duration-200 z-[1000] border text-white font-medium ${
+              className={`absolute bottom-6 right-6 shadow-lg transition-all duration-200 z-[1000] border text-white font-medium md:w-14 md:h-14 md:p-0 md:flex md:items-center md:justify-center lg:w-auto lg:h-auto lg:px-4 lg:py-2 rounded-full ${
                   user
                       ? 'bg-green-500 hover:bg-green-600 border-green-600'
                       : 'bg-red-500 hover:bg-red-600 border-red-600'
               }`}
               title={user ? 'Favoriten anzeigen' : 'Anmelden erforderlich'}
           >
-             Favoriten anzeigen
+             <span className="md:block lg:hidden text-xl">⭐</span>
+             <span className="md:hidden lg:block">Favoriten anzeigen</span>
           </button>
         </div>
 
