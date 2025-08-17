@@ -1,4 +1,4 @@
-﻿REM (Optional) sicherstellen, dass Runner/Deps vorhanden sind
+﻿REM
 @echo off
 cd /d "%~dp0serverNew" || (
     echo Konnte nicht nach serverNew wechseln.
@@ -7,5 +7,5 @@ cd /d "%~dp0serverNew" || (
 )
 npx tsx tests/integrationTests.ts
 echo.
-echo ✅ Tests fertig.
+echo  Tests fertig.
 exit /b %ERRORLEVEL%
