@@ -29,12 +29,10 @@ const Navigation: React.FC = () => {
 
   const handleLogout = async (): Promise<void> => {
     try {
-      console.log('🚪 Logout-Prozess gestartet...');
-      
-      // **SCHRITT 1: Backend über Logout benachrichtigen**
+      // Backend über Logout benachrichtigen
       await logoutUser();
-      
-      // **SCHRITT 2: User aus Context entfernen**
+
+      // User aus Context entfernen
       logout();
       
       console.log('Logout erfolgreich!');
@@ -120,7 +118,7 @@ const Navigation: React.FC = () => {
           
           {/* Authentication Buttons */}
           {user ? (
-            // **User ist eingeloggt: Zeige User-Info und Logout**
+            // User ist eingeloggt: Zeige User-Info und Logout
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               <div className="flex items-center space-x-1 lg:space-x-2 text-gray-200">
                 <div className="w-6 h-6 lg:w-8 lg:h-8 bg-coffee-brown rounded-full flex items-center justify-center">
@@ -139,7 +137,7 @@ const Navigation: React.FC = () => {
               </button>
             </div>
           ) : (
-            // **User ist nicht eingeloggt: Zeige Login-Button**
+            // User ist nicht eingeloggt: Zeige Login-Button
             <Link
               to={loginUrl}
               className="hidden md:flex items-center space-x-1 lg:space-x-2 text-gray-200 hover:text-coffee-brown transition-colors flex-shrink-0"
@@ -224,7 +222,7 @@ const Navigation: React.FC = () => {
                 Contact
               </button>
             </li>
-            {/* Mobile Authentication */}
+            {/* Mobile Authentifikation */}
             {user ? (
               <>
                 <li className="pt-2 border-t border-gray-600">

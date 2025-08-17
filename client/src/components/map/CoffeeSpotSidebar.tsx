@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import { OpeningHoursService, OpeningHoursStatus } from '../../services/openingHoursService';
-import { useFavoritesCount } from '../../hooks/useFavoritesCount';
 import { FavoritesCountDisplay } from '../common/FavoritesCountDisplay';
 import { generateSpotId, generateAddSpotData } from '../../utils/spotIdUtils';
 
@@ -88,12 +87,6 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
         </h3>
         <p className="text-gray-500 text-sm">
           Aktivieren Sie Ihren Standort, um Cafés in Ihrer Nähe zu entdecken
-        </p>
-      </div>
-      <div className="bg-gray-100 rounded-lg p-6 w-full">
-        <div className="text-4xl text-gray-400 mb-2">➡️</div>
-        <p className="text-gray-500 text-xs">
-          Nutzen Sie den Standort-Schalter rechts
         </p>
       </div>
     </div>
@@ -182,11 +175,6 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
                     {spot.distance}
                   </span>
                 )}
-                {spot.priceLevel && (
-                  <span className="text-xs text-gray-500">
-                    {'€'.repeat(spot.priceLevel)}
-                  </span>
-                )}
               </div>
               <span className={`text-xs px-2 py-1 rounded ${
                 openingStatus.status === 'open'
@@ -220,7 +208,7 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
 
   return (
     <div className="w-80 bg-white border-r border-gray-200 h-full flex flex-col">
-      {/* Header mit Logo (da obere Navigation entfernt wurde) */}
+      {/* Header mit Logo */}
       <div className="p-4 border-b border-gray-200 text-center">
         <Link to="/" className="inline-block mb-3">
           <div className="text-2xl font-bold text-coffee-cream">
@@ -230,11 +218,6 @@ const CoffeeSpotSidebar: React.FC<CoffeeSpotSidebarProps> = ({
         <h2 className="text-lg font-semibold text-gray-800">
           Cafés in der Nähe
         </h2>
-        {hasUserLocation && (
-          <p className="text-sm text-gray-600 mt-1">
-            {coffeeSpots.length} Cafés gefunden
-          </p>
-        )}
       </div>
 
       {/* Content */}

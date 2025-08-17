@@ -339,7 +339,7 @@ const MapPage: React.FC = () => {
               className="absolute bottom-6 left-6 bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 z-[1000] w-14 h-14 p-0 flex items-center justify-center lg:w-auto lg:h-auto lg:px-8 lg:py-3 rounded-full"
               title="Map schließen"
           >
-            <span className="block lg:hidden text-xl">✖️</span>
+            <span className="block lg:hidden text-xl">🏠</span>
             <span className="hidden lg:block">Map schließen</span>
           </button>
 

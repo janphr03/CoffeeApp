@@ -12,8 +12,8 @@ export const FavoritesCountDisplay: React.FC<FavoritesCountDisplayProps> = ({
   className = "" 
 }) => {
   const { favoritesCount, loading, error } = useFavoritesCount(spotId);
-
   if (loading) {
+    // Während der Ladezeit wird ... angezeigt
     return (
       <div className={`flex items-center ${className}`}>
         <span className="text-yellow-500 text-sm">★</span>
@@ -36,6 +36,7 @@ export const FavoritesCountDisplay: React.FC<FavoritesCountDisplayProps> = ({
     );
   }
 
+  // ansonsten wird die Anzahl der Favoriten angezeigt
   return (
     <div className={`flex items-center ${className}`}>
       <span className="text-yellow-500 text-sm">★</span>

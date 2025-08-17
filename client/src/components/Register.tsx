@@ -1,3 +1,4 @@
+// Registrierungsformular für neue Benutzerkonten
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -7,6 +8,7 @@ interface RegisterProps {
 }
 
 const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
+  // Formular-Zustand mit Username, E-Mail und Passwort-Bestätigung
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -28,6 +30,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
     setLoading(true);
     setError('');
 
+    // Frontend-Validierung: Passwörter müssen übereinstimmen
     if (formData.password !== formData.confirmPassword) {
       setError('Passwörter stimmen nicht überein');
       setLoading(false);
@@ -41,6 +44,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
         message?: string;
       }
 
+      // Registrierungs-Request an Backend (ohne confirmPassword)
       const response = await axios.post<RegisterResponse>('http://localhost:3000/api/auth/register', {
         username: formData.username,
         email: formData.email,
@@ -72,6 +76,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Benutzername Eingabefeld */}
         <input
           type="text"
           name="username"
@@ -81,6 +86,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           required
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* E-Mail Eingabefeld */}
         <input
           type="email"
           name="email"
@@ -90,6 +96,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           required
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* Passwort Eingabefeld mit Mindestlänge */}
         <input
           type="password"
           name="password"
@@ -100,6 +107,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           minLength={6}
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* Passwort-Bestätigung für Frontend-Validierung */}
         <input
           type="password"
           name="confirmPassword"
@@ -109,6 +117,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
           required
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* Registrierungs-Button mit Loading-State */}
         <button
           type="submit"
           disabled={loading}
@@ -118,6 +127,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
         </button>
       </form>
 
+      {/* Wechsel zur Anmeldung */}
       <p className="mt-4 text-center text-gray-300">
         Bereits ein Konto?{' '}
         <button

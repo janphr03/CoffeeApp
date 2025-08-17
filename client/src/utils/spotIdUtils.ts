@@ -6,10 +6,10 @@ export interface SpotIdentifier {
   id?: number;
 }
 
-/**
- * Generiert eine konsistente Spot-ID im Format "osmType:osmId"
- * Dies ist das Format, das die Datenbank verwendet
- */
+
+ // Generiert eine konsistente Spot-ID im Format "osmType:osmId"
+ // Dies ist das Format, das die Datenbank verwendet
+ 
 export const generateSpotId = (spot: SpotIdentifier): string => {
   // Debug-Logging
   console.log(`generateSpotId Input:`, spot);

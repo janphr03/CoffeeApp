@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-// import ScrollBackground from '../components/ScrollBackground'; // Temporär auskommentiert für statisches Hintergrundbild
 import Navigation from '../components/Navigation';
 import AnimatedSection from '../components/AnimatedSection';
 
@@ -68,9 +67,6 @@ const HomePage: React.FC = () => {
           pointerEvents: 'none'
         }}
       />
-      
-      {/* ScrollBackground - Temporär auskommentiert für statisches Hintergrundbild */}
-      {/* <ScrollBackground /> */}
       
       {/* Navigation */}
       <Navigation />

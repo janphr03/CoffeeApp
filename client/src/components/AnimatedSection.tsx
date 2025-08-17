@@ -6,6 +6,7 @@ interface AnimatedSectionProps {
   className?: string;
 }
 
+// sorgt dafür, dass Sections auf der Website animiert erscheinen, wenn der User zu ihnen scrollt
 const AnimatedSection: React.FC<AnimatedSectionProps> = ({ id, children, className = "" }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -18,7 +19,7 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({ id, children, classNa
           setIsVisible(true);
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 } // Trigger wenn 20% der Section sichtbar sind
     );
 
     if (currentSection) {
