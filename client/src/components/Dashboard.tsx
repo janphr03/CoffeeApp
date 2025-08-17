@@ -89,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-coffee-light font-playfair">
+            <h1 className="text-4xl font-bold text-coffee-light">
               ☕ Coffee Dashboard
             </h1>
             <p className="text-gray-300 mt-2">
@@ -112,7 +112,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
         {/* Add new spot */}
         <div className="bg-black bg-opacity-50 p-6 rounded-xl mb-8">
-          <h2 className="text-2xl font-bold text-coffee-light mb-4 font-playfair">
+          <h2 className="text-2xl font-bold text-coffee-light mb-4">
             Neuen Coffee Spot hinzufügen
           </h2>
           <form onSubmit={addSpot} className="flex gap-4">
@@ -135,7 +135,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
         {/* Spots list */}
         <div className="bg-black bg-opacity-50 p-6 rounded-xl">
-          <h2 className="text-2xl font-bold text-coffee-light mb-4 font-playfair">
+          <h2 className="text-2xl font-bold text-coffee-light mb-4">
             Deine Coffee Spots
           </h2>
           

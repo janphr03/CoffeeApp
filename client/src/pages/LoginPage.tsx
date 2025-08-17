@@ -83,7 +83,7 @@ const LoginPage: React.FC = () => {
       <div className="bg-black bg-opacity-70 p-8 rounded-xl shadow-2xl w-full max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-coffee-light font-playfair mb-2">
+          <h1 className="text-3xl font-bold text-coffee-light mb-2">
             Willkommen zurück
           </h1>
           <p className="text-gray-300">

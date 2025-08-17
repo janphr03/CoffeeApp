@@ -161,7 +161,7 @@ const RegisterPage: React.FC = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-coffee-light font-playfair mb-2">
+          <h1 className="text-3xl font-bold text-coffee-light mb-2">
             Jetzt registrieren
           </h1>
           <p className="text-gray-300">
