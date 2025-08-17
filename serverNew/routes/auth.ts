@@ -78,12 +78,12 @@ router.post("/login", async (req, res) => {
     }
 
     // Passwort prüfen
-    const isPasswordValid = await bcrypt.compare(password, user.password); // Passwort wird mit dem in der DB gespeicherten Passwort verglichen
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if(!isPasswordValid){
       return res.status(400).json({success: false, message: 'Falsches Passwort.'});
     }
 
-    // ==== Session aktivieren (darin wird automatisch der Cookie erzeugt) ====
+    //Session aktivieren (darin wird automatisch der Cookie erzeugt)
     req.session.userId = user._id.toString(); // user._id ist ein Object
     req.session.username = user.username;
 

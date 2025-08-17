@@ -3,8 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 // Erweiterung des express-session Moduls um zusätzliche Felder in der SessionData-Definition
 declare module 'express-session' {
   interface SessionData {
-    userId?: string;    // ID des eingeloggten Benutzers (optional)
-    username?: string;  // Benutzername des eingeloggten Benutzers (optional)
+    userId?: string;    // ID des eingeloggten Benutzers
+    username?: string;  // Benutzername des eingeloggten Benutzers
   }
 }
 
