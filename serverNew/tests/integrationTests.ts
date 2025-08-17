@@ -6,9 +6,6 @@ import cors from 'cors';
 import authRoutes from '../routes/auth';
 import spotsRoutes from '../routes/spots';
 
-// DATEN KOMMEN AUS DER ECHTEN DB, KEINE TEST DB ANGELGEGT FÜR DIESES PROJEKT
-
-
 type TestFn = () => Promise<void> | void;
 
 class IntegrationTestRunner {
@@ -65,7 +62,7 @@ class IntegrationTestRunner {
     }
 
     async run(): Promise<void> {
-        console.log('Starte Integration Tests mit eigenem Test-Server...\n');
+        console.log('Starte Integration Tests \n');
 
         for (const t of this.tests) {
             try {
