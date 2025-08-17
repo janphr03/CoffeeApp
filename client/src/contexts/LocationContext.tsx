@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
-// **SCHRITT 1: Interfaces für Location-Daten definieren**
+// Interfaces für Location-Daten definieren
 interface LocationData {
   latitude: number;
   longitude: number;
@@ -15,13 +15,11 @@ interface LocationContextType {
   isLoading: boolean;
   enableLocation: () => Promise<void>;
   disableLocation: () => void;
-  refreshLocation: () => Promise<void>;
 }
 
-// **SCHRITT 2: Context erstellen**
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
-// **SCHRITT 3: Provider-Komponente erstellen**
+// Provider-Komponente erstellen
 interface LocationProviderProps {
   children: ReactNode;
 }
@@ -32,11 +30,11 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   const [locationStatus, setLocationStatus] = useState<string>('Standorterkennung ist deaktiviert');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // **SCHRITT 4: Session Storage Keys**
+  // Session Storage Keys
   const LOCATION_ENABLED_KEY = 'coffee_app_location_enabled';
   const LOCATION_DATA_KEY = 'coffee_app_location_data';
 
-  // **SCHRITT 6: Location-Status aus Session Storage laden**
+  // Location-Status aus Session Storage laden
   const loadLocationFromSession = useCallback(() => {
     try {
       const isEnabled = sessionStorage.getItem(LOCATION_ENABLED_KEY) === 'true';
@@ -65,12 +63,12 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     }
   }, []); // Leere Dependencies, da alle benötigten Funktionen stabil sind
 
-  // **SCHRITT 5: Beim App-Start gespeicherten Location-Status laden**
+  // Beim App-Start gespeicherten Location-Status laden
   useEffect(() => {
     loadLocationFromSession();
   }, [loadLocationFromSession]);
 
-  // **SCHRITT 7: Location-Daten in Session Storage speichern**
+  // Location-Daten in Session Storage speichern
   const saveLocationToSession = (latitude: number, longitude: number, accuracy?: number) => {
     try {
       const locationData: LocationData = {
@@ -88,14 +86,14 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     }
   };
 
-  // **SCHRITT 8: Session Storage löschen**
+  // Session Storage löschen
   const clearLocationSession = () => {
     sessionStorage.removeItem(LOCATION_ENABLED_KEY);
     sessionStorage.removeItem(LOCATION_DATA_KEY);
-    console.log('🗑️ Location-Session gelöscht');
+    console.log('Location-Session gelöscht');
   };
 
-  // **SCHRITT 9: Browser Geolocation anfordern**
+  // Browser Geolocation anfordern
   const requestGeolocation = (): Promise<GeolocationPosition> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -115,7 +113,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     });
   };
 
-  // **SCHRITT 10: Location aktivieren**
+  // Location aktivieren
   const enableLocation = async (): Promise<void> => {
     setIsLoading(true);
     setLocationStatus('Standort wird ermittelt...');
@@ -158,7 +156,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     }
   };
 
-  // **SCHRITT 11: Location deaktivieren**
+  // Location deaktivieren
   const disableLocation = (): void => {
     console.log('Standorterkennung wird deaktiviert');
     
@@ -170,22 +168,14 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
     clearLocationSession();
   };
 
-  // **SCHRITT 12: Location aktualisieren (falls User den Button nochmal drückt)**
-  const refreshLocation = async (): Promise<void> => {
-    if (isLocationEnabled) {
-      await enableLocation();
-    }
-  };
-
-  // **SCHRITT 13: Context-Wert zusammenstellen**
+  // Context-Wert zusammenstellen
   const value: LocationContextType = {
     isLocationEnabled,
     userLocation,
     locationStatus,
     isLoading,
     enableLocation,
-    disableLocation,
-    refreshLocation
+    disableLocation
   };
 
   return (
@@ -195,7 +185,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({ children }) 
   );
 };
 
-// **SCHRITT 14: Custom Hook für einfache Nutzung**
+// Wieder Custom Hook für einfache Nutzung
 export const useUserLocation = (): LocationContextType => {
   const context = useContext(LocationContext);
   if (context === undefined) {

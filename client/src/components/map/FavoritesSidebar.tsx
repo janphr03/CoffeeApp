@@ -34,7 +34,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
   const { user } = useAuth();
 
   const handleRemoveClick = (spotId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Verhindert das Auslösen von onSpotClick
+    event.stopPropagation(); // Verhindert das Auslösen von onSpotClick 
     onRemoveFromFavorites(spotId);
   };
 
@@ -44,7 +44,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
 
   return (
     <div className="w-80 bg-white shadow-lg overflow-hidden flex flex-col h-full">
-      {/* Logo Section */}
+      {/* Logo Sektion */}
       <div className="p-4 border-b border-gray-200 text-center">
         <Link to="/" className="inline-block mb-3">
           <div className="text-2xl font-bold text-coffee-cream">
@@ -66,7 +66,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
         </div>
       </div>
 
-      {/* Content Area - Scrollable */}
+      {/* Content Bereich */}
       <div className="flex-1 overflow-y-auto">
         {/* User Status */}
         {!user && (
@@ -80,7 +80,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Ladeindikator */}
         {isLoading && (
           <div className="p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -88,7 +88,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
           </div>
         )}
 
-        {/* No Favorites State */}
+        {/* Wenn keine Favoriten */}
         {!isLoading && user && favorites.length === 0 && (
           <div className="p-6 text-center">
             <div className="text-6xl mb-4">☕</div>
@@ -99,7 +99,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
           </div>
         )}
 
-        {/* Favorites List */}
+        {/* Favoritenliste */}
         {!isLoading && user && favorites.length > 0 && (
           <div className="p-4 space-y-3">
             {favorites.map((spot) => {
@@ -111,7 +111,7 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
                   className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 cursor-pointer transition-colors relative"
                   onClick={() => onSpotClick(spot)}
                 >
-                  {/* Remove Button */}
+                  {/* Entfernen Button */}
                   <button
                     onClick={(e) => handleRemoveClick(spot.id, e)}
                     className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors font-bold"
@@ -120,7 +120,8 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
                   >
                     −
                   </button>
-
+                  
+                  {/* Kacheln für die Spots */}
                   <div className="flex justify-between items-start mb-2 pr-10">
                     <h3 className="font-semibold text-gray-800 text-sm">
                       {spot.name}
@@ -139,11 +140,6 @@ const FavoritesSidebar: React.FC<FavoritesSidebarProps> = ({
                       {spot.distance && (
                         <span className="text-xs text-gray-500">
                           {spot.distance}
-                        </span>
-                      )}
-                      {spot.priceLevel && (
-                        <span className="text-xs text-gray-500">
-                          {'€'.repeat(spot.priceLevel)}
                         </span>
                       )}
                     </div>

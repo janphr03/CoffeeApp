@@ -1,3 +1,4 @@
+// Login-Komponente für Benutzeranmeldung mit E-Mail und Passwort
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -7,6 +8,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
+  // Formular-Zustand für E-Mail und Passwort
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -33,6 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
     setError('');
 
     try {
+      // Login-Request an Backend mit Session-Cookies
       const response = await axios.post<LoginResponse>('http://localhost:3000/api/auth/login', formData, {
         withCredentials: true
       });
@@ -60,6 +63,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* E-Mail Eingabefeld */}
         <input
           type="email"
           name="email"
@@ -69,6 +73,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
           required
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* Passwort Eingabefeld */}
         <input
           type="password"
           name="password"
@@ -78,6 +83,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
           required
           className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
         />
+        {/* Login-Button mit Loading-State */}
         <button
           type="submit"
           disabled={loading}
@@ -87,6 +93,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => {
         </button>
       </form>
 
+      {/* Wechsel zur Registrierung */}
       <p className="mt-4 text-center text-gray-300">
         Noch kein Konto?{' '}
         <button

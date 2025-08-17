@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// **SCHRITT 1: Interface für User-Daten definieren**
+// Interface für User-Daten definieren
 interface User {
   id: string;
   username: string;
@@ -9,7 +9,7 @@ interface User {
   updatedAt?: string;
 }
 
-// **SCHRITT 2: Interface für den Context definieren**
+// Interface für den Context definieren
 interface AuthContextType {
   user: User | null;               // Aktueller Benutzer (null = nicht eingeloggt)
   isLoggedIn: boolean;            // Boolean für einfache Prüfung
@@ -18,10 +18,9 @@ interface AuthContextType {
   loading: boolean;               // Loading-Status für API-Calls
 }
 
-// **SCHRITT 3: Context erstellen**
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// **SCHRITT 4: Provider-Komponente erstellen**
+// Provider-Komponente erstellen
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -30,12 +29,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // **SCHRITT 5: Beim App-Start prüfen, ob Benutzer eingeloggt ist**
+  // Beim App-Start prüfen, ob Benutzer eingeloggt ist
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-  // **SCHRITT 6: Backend-Anfrage um Session-Status zu prüfen**
+  // Backend-Anfrage um Session-Status zu prüfen
   const checkAuthStatus = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/auth/status', {
@@ -61,17 +60,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // **SCHRITT 7: Login-Funktion**
+  // Login Funktion
   const login = (userData: User, redirectTo?: string) => {
     setUser(userData);
     
-    // Optional: Weiterleitung nach erfolgreichem Login
+    // Weiterleitung nach erfolgreichem Login
     if (redirectTo) {
       window.location.href = redirectTo;
     }
   };
 
-  // **SCHRITT 8: Logout-Funktion**
+  // Logout Funktion
   const logout = async () => {
     try {
       await fetch('http://localhost:3000/api/auth/logout', {
@@ -88,7 +87,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // **SCHRITT 9: Context-Wert zusammenstellen**
+  // Context-Wert zusammenstellen
   const value: AuthContextType = {
     user,
     isLoggedIn: !!user, // !! wandelt user in boolean um
@@ -97,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
   };
 
-  // **SCHRITT 10: Provider rendern**
+  // Provider rendern
   return (
     <AuthContext.Provider value={value}>
       {children}
@@ -105,7 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// **SCHRITT 11: Custom Hook für einfache Nutzung**
+// Custom Hook für einfachen Abruf des Login-Status
+// durch const { isLoggedIn } = useAuth(); kann überall in der App geprüft werden, ob der User eingeloggt ist
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -58,12 +58,12 @@ interface InteractiveMapProps {
   onMapReady?: () => void;
 }
 
-// MapController Komponente für programmatische Kartenkontrolle
+// MapController Komponente für Kartenkontrolle
 const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
   const map = useMap();
   
   useEffect(() => {
-    console.log('🗺️ Map wird auf neue Position zentriert:', center);
+    console.log('Map wird auf neue Position zentriert:', center);
     map.setView(center, zoom);
   }, [map, center, zoom]);
   
@@ -166,7 +166,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        {/* MapController für programmatische Kartenkontrolle */}
+        {/* MapController für Kartenkontrolle */}
         <MapController center={center} zoom={zoom} />
         
         {coffeeSpots.map((spot) => {

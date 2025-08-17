@@ -23,31 +23,31 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLoc
 
   const handleLogout = async (): Promise<void> => {
     try {
-      console.log('🚪 Logout von rechter Sidebar...');
+      console.log('Logout von rechter Sidebar...');
       await logoutUser();
       logout();
-      console.log('✅ Logout erfolgreich!');
+      console.log('Logout erfolgreich!');
     } catch (error) {
-      console.error('❌ Logout-Fehler:', error);
+      console.error('Logout-Fehler:', error);
       logout();
     }
   };
 
   const handleLocationToggle = async () => {
     if (!isLocationEnabled) {
-      // **SCHRITT 1: Standorterkennung aktivieren**
-      console.log('🗺️ Standorterkennung wird aktiviert...');
+      // Standorterkennung aktivieren
+      console.log('Standorterkennung wird aktiviert...');
       try {
         await enableLocation();
-        console.log('✅ Location erfolgreich aktiviert');
+        console.log('Location erfolgreich aktiviert');
       } catch (error) {
-        console.error('❌ Fehler beim Aktivieren der Location:', error);
+        console.error('Fehler beim Aktivieren der Location:', error);
       }
     } else {
-      // **SCHRITT 2: Standorterkennung deaktivieren**
-      console.log('🚫 Standorterkennung wird deaktiviert...');
+      // Standorterkennung deaktivieren
+      console.log('Standorterkennung wird deaktiviert...');
       disableLocation();
-      console.log('✅ Location erfolgreich deaktiviert');
+      console.log('Location erfolgreich deaktiviert');
     }
   };
 
@@ -81,7 +81,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLoc
               Abmelden
             </button>
             
-            {/* Tablet/Medium: Nur Profil Icon */}
+            {/* Tablet/Medium (md): Nur Profil Icon */}
             <div className="xl:hidden lg:flex md:flex justify-center">
               <button
                 onClick={handleLogout}
@@ -135,9 +135,8 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLoc
 
       {/* Mittlerer Bereich: Flexibler Platz - nur Desktop */}
       <div className="flex-1 p-4 xl:block hidden">
-        {/* Zusätzliche Features können hier hinzugefügt werden */}
         <div className="text-sm text-gray-500 text-center">
-          {/* Placeholder für zukünftige Features */}
+
         </div>
       </div>
 

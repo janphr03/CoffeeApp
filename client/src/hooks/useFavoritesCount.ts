@@ -15,6 +15,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Lädt die aktuelle Favoriten-Anzahl für einen Coffee Spot vom Backend
   const fetchFavoritesCount = useCallback(async () => {
     if (!spotId) {
       setFavoritesCount(0);
@@ -61,7 +62,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
       if (updatedSpotId === spotId) {
         console.log(`🔄 Favoriten-Anzahl für Spot ${spotId} wird neu geladen (Action: ${action})...`);
 
-        // Optimistische Aktualisierung für bessere UX
+        // Optimistische Aktualisierung
         if (action === 'added') {
           setFavoritesCount(prev => prev + 1);
         } else if (action === 'removed') {
@@ -82,6 +83,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
     };
   }, [spotId, fetchFavoritesCount]);
 
+  // Manueller Trigger zum Neuladen der Favoriten-Anzahl
   const refetch = useCallback(() => {
     fetchFavoritesCount();
   }, [fetchFavoritesCount]);

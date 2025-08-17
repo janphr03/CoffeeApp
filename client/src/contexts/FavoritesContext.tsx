@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import { getFavoriteSpots, addSpotToFavorites, removeSpotFromFavorites } from '../services/api';
 
-// Event für Favoriten-Anzahl-Updates
+// Event für Favoritenanzahl-Updates
 export const favoritesCountUpdatedEvent = new EventTarget();
 
 // Spot-Interface (kompatibel mit CoffeeSpot)
@@ -100,14 +100,14 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         // Favoriten neu laden um aktuell zu bleiben
         await loadFavorites();
 
-        
-        // Event für Favoriten-Anzahl-Update auslösen BEVOR Favoriten neu geladen werden
+
+        // Event für Favoritenanzahl-Update auslösen
         const spotId = `${spotData.osmType}:${spotData.osmId}`;
         favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
           detail: { spotId, action: 'added' }
         }));
         
-        // Favoriten neu laden um aktuell zu bleiben
+        // Favoriten nochmals neu laden um aktuell zu bleiben (sonst fehlt manchmal der als letztes hinzugefügte)
         await loadFavorites();
         
         return true;
@@ -140,12 +140,12 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         await loadFavorites();
 
         
-        // Event für Favoriten-Anzahl-Update auslösen BEVOR Favoriten neu geladen werden
+        // Event für Favoritenanzahl-Update auslösen 
         favoritesCountUpdatedEvent.dispatchEvent(new CustomEvent('favoritesUpdated', {
           detail: { spotId, action: 'removed' }
         }));
         
-        // Favoriten neu laden um aktuell zu bleiben
+        // Favoriten nochmals neu laden um aktuell zu bleiben, analog zu oben
         await loadFavorites();
         
         return true;
@@ -165,7 +165,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   const isFavorited = (spotId: string): boolean => {
     if (!user) return false;
     
-    // Die Database-IDs haben jetzt das Format "userId:osmType:osmId"
+    // Die Database-IDs haben das Format "userId:osmType:osmId" um eindeutig zu sein
     // Wir suchen nach Favoriten, die mit "userId:spotId" enden
     const userSpotId = `${user.id}:${spotId}`;
     return favoriteSpots.some(spot => spot._id === userSpotId);
