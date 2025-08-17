@@ -19,11 +19,11 @@ if errorlevel 1 goto :err
 popd
 
 echo.
-echo ✅ Fertig. Client und Server installiert.
+echo Fertig. Client und Server installiert.
 pause
 exit /b 0
 
 :err
-echo ❌ Fehler (ErrorLevel %ERRORLEVEL%). Abbruch.
+echo Fehler (ErrorLevel %ERRORLEVEL%). Abbruch.
 pause
 exit /b 1
