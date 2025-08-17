@@ -16,7 +16,7 @@ type osmType = 'node' | 'way' | 'relation'; // Union-Type definiert
 router.get('/favorites-count/:spotId', async (req: Request, res: Response) => {
     try {
         const { spotId } = req.params;
-        console.log(`🔍 Backend: Erhalte Favoriten-Anzahl-Request für Spot-ID: "${spotId}"`);
+        console.log(`Backend: Erhalte Favoriten-Anzahl-Request für Spot-ID: "${spotId}"`);
 
         if (!spotId) {
             console.warn('Backend: Keine Spot-ID bereitgestellt');
@@ -87,8 +87,6 @@ router.post('/', async (req: Request, res: Response) => {
         const userId = req.session?.userId; // userId wird aus Session gezogen
         const { osmType, osmId, elementLat, elementLng, name, amenity, address, tags = {}} = req.body;
 
-
-        // gibt es einen User?
         if (!userId) {
             return res.status(401).json({
                 success: false,
