@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
       {/* Hero Section */}
       <AnimatedSection id="hero" className="h-screen flex items-center justify-center text-center px-6">
         <div className="container max-w-xl">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-coffee-light mb-4 font-playfair">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-coffee-light mb-4">
             Erlebe Kaffee neu
           </h1>
           <p className="text-lg md:text-2xl text-gray-300 mb-8">
@@ -96,7 +96,7 @@ const HomePage: React.FC = () => {
       {/* About Section */}
       <AnimatedSection id="about" className="py-20">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-coffee-light mb-6 font-playfair">
+          <h2 className="text-3xl font-bold text-coffee-light mb-6">
             Über uns
           </h2>
           <p className="max-w-2xl mx-auto text-gray-300 text-lg">
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
       {/* Features Section */}
       <AnimatedSection id="features" className="py-20">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-coffee-light mb-12 font-playfair">
+          <h2 className="text-3xl font-bold text-coffee-light mb-12">
             Unsere Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
       {/* Testimonials Section */}
       <AnimatedSection id="testi" className="py-20">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-coffee-light mb-12 font-playfair">
+          <h2 className="text-3xl font-bold text-coffee-light mb-12">
             Was unsere Nutzer sagen
           </h2>
           <div className="space-y-8 max-w-2xl mx-auto">
@@ -159,7 +159,7 @@ const HomePage: React.FC = () => {
       {/* Contact Section */}
       <AnimatedSection id="contact" className="py-20">
         <div className="container mx-auto px-6 max-w-md">
-          <h2 className="text-3xl font-bold text-coffee-light mb-6 text-center font-playfair">
+          <h2 className="text-3xl font-bold text-coffee-light mb-6 text-center">
             Kontakt
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">

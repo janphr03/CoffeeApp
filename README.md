@@ -2,12 +2,6 @@
 
 Eine moderne Web-Anwendung zum Entdecken und Verwalten von Coffee Spots mit interaktiver Karte und Favoriten-System.
 
-![CoffeeSpots Banner](https://img.shields.io/badge/CoffeeSpots-☕-brown?style=for-the-badge)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
-
 ## 🎯 Features
 
 - 🗺️ **Interaktive Karte** - Entdecke Coffee Spots in deiner Umgebung
@@ -42,19 +36,13 @@ CoffeeSpots/
 
 ### Installation & Setup
 
-1. **Repository klonen**
-   ```bash
-   git clone https://github.com/janphr03/CoffeeApp.git
-   cd CoffeeApp
-   ```
-
-2. **Abhängigkeiten installieren**
+1. **Abhängigkeiten installieren**
    ```bash
    install.bat
    ```
    > ⏱️ Installiert alle npm-Pakete für Frontend und Backend
 
-3. **Anwendung starten**
+2. **Anwendung starten**
    ```bash
    start.bat
    ```
@@ -116,12 +104,6 @@ browserTests.bat
 start.bat
 ```
 
-### Entwicklung
-```bash
-# Für normale Entwicklung einfach:
-start.bat
-```
-
 ## 🌐 Verwendung
 
 ### URLs
@@ -130,9 +112,9 @@ start.bat
 - **API-Dokumentation**: `docs/api/openapi.yaml`
 
 ### Hauptfunktionen
-1. **Registrierung/Login** auf der Startseite
+1. **Registrierung/Login** - auf jeder Unterseite
 2. **Karte erkunden** - Coffee Spots in der Umgebung finden
-3. **Favoriten hinzufügen** - Auf Herz-Symbol klicken
+3. **Favoriten hinzufügen** - Auf Plus-Symbol klicken
 4. **Standort aktivieren** - Für personalisierte Ergebnisse
 5. **Favoriten-Seite** - Alle gespeicherten Coffee Spots anzeigen
 
@@ -152,16 +134,16 @@ CoffeeSpots/
 │
 ├── serverNew/             # Express Backend
 │   ├── routes/            # API-Routen
-│   ├── Db/               # Datenbank-Operationen
+│   ├── Db/                # Datenbank-Operationen
 │   ├── middleware/        # Express Middleware
-│   └── tests/            # Backend Tests
+│   └── tests/             # Backend Tests
 │
 ├── docs/                  # Dokumentation
-│   └── api/              # OpenAPI-Spezifikation
+│   └── api/               # OpenAPI-Spezifikation
 │
-└── Scripts               # Automation
-    ├── install.bat       # Setup
-    ├── start.bat         # App starten
+└── Scripts                # Automation
+    ├── install.bat        # Setup
+    ├── start.bat          # App starten
     ├── integrationTests.bat
     ├── unitTests.bat
     └── browserTests.bat
@@ -197,18 +179,6 @@ REACT_APP_API_URL=http://localhost:5000/api
 | `unitTests.bat` | Komponenten & Logic Tests | - |
 | `browserTests.bat` | End-to-End UI Tests | `STRG+C` nach Test |
 
-## 🤝 Mitwirken
-
-1. **Fork** das Repository
-2. **Feature Branch** erstellen (`git checkout -b feature/AmazingFeature`)
-3. **Änderungen committen** (`git commit -m 'Add AmazingFeature'`)
-4. **Branch pushen** (`git push origin feature/AmazingFeature`)
-5. **Pull Request** öffnen
-
-## 📄 Lizenz
-
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) für Details.
-
 ## 🆘 Troubleshooting
 
 ### Häufige Probleme
@@ -233,10 +203,12 @@ npm cache clean --force
 install.bat
 ```
 
+**Cafés in der Nähe werden nicht erkannt**
+- Die Overpass API ist nicht besonders konsistent
+- Zu manchen Uhrzeiten betrug die Antwortzeit teils 3 Minuten zum Anzeigen der 10 Cafés
+- Wenn es ewig lang lädt, abwarten und viel Geduld mitbringen oder es zu einem späteren Zeitpunkt nochmal neu versuchen
+- Wir haben Logs eingefügt, die die Antwortzeiten der API und die Parsing-Zeiten unseres Codes genau dokumentieren
+
 ## 🌟 Team
 
-Entwickelt mit ❤️ vom CoffeeSpots Team
-
----
-
-**Happy Coding & Coffee Drinking!** ☕✨
+Entwickelt mit ❤️ von Jan Herrmann und Alexander Maximow

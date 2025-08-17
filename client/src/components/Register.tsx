@@ -61,7 +61,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onSwitchToLogin }) => {
 
   return (
     <div className="max-w-md mx-auto bg-black bg-opacity-70 p-8 rounded-xl">
-      <h2 className="text-3xl font-bold text-coffee-light mb-6 text-center font-playfair">
+      <h2 className="text-3xl font-bold text-coffee-light mb-6 text-center">
         Registrieren
       </h2>
       
