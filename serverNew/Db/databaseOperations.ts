@@ -82,7 +82,7 @@ export class DatabaseOperations {
             const collection = db.collection<any>(collectionName);
             // Die komplette _id ist jetzt userId:spotId
             const fullId = `${userId}:${spotId}`;
-            console.log(`🗑️ Lösche Spot mit ID: "${fullId}"`);
+            console.log(`Lösche Spot mit ID: "${fullId}"`);
             
             return await collection.deleteOne({ 
                 _id: fullId 
