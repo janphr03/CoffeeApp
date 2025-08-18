@@ -1,9 +1,9 @@
-// **API Service für Backend-Kommunikation**
+// API Service für Backend-Kommunikation
 // Diese Datei enthält alle Funktionen für HTTP-Requests an das Backend
 
 const API_BASE_URL = 'http://localhost:3000';
 
-// **SCHRITT 1: Generische Fetch-Funktion mit Error-Handling**
+// Generische Fetch-Funktion mit Error-Handling
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -65,7 +65,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   }
 };
 
-// SCHRITT 2: Login-Funktion
+// Login-Funktion
 export interface LoginCredentials {
   identifier: string; // Username oder Email
   password: string;
@@ -104,7 +104,7 @@ export const loginUser = async (credentials: LoginCredentials): Promise<LoginRes
   return result.data;
 };
 
-// SCHRITT 3: Registrierung-Funktion
+// Registrierung-Funktion
 export interface RegisterCredentials {
   username: string;
   email: string;
@@ -138,7 +138,7 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<Re
   return result.data;
 };
 
-// SCHRITT 4: Session-Status prüfen
+// Session-Status prüfen
 export interface AuthStatusResponse {
   success: boolean;
   user?: {
@@ -161,7 +161,7 @@ export const checkAuthStatus = async (): Promise<AuthStatusResponse> => {
   return result.data;
 };
 
-// SCHRITT 5: Logout-Funktion
+// Logout-Funktion
 export interface LogoutResponse {
   success: boolean;
   message: string;
@@ -178,7 +178,7 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
   return result.data;
 };
 
-// SCHRITT 6: Coffee Spots/Favoriten laden
+// Coffee Spots/Favoriten laden
 export const getFavoriteSpots = async () => {
   const result = await apiRequest('/api/spots', {
     method: 'GET',
@@ -187,7 +187,7 @@ export const getFavoriteSpots = async () => {
   return result.data;
 };
 
-// SHRITT 7: Spot zu Favoriten hinzufügen
+// Spot zu Favoriten hinzufügen
 export const addSpotToFavorites = async (spotData: {
   osmType: 'node' | 'way' | 'relation';
   osmId: number;
@@ -206,7 +206,7 @@ export const addSpotToFavorites = async (spotData: {
   return result;
 };
 
-// **SCHRITT 8: Spot aus Favoriten entfernen**
+// Spot aus Favoriten entfernen
 export const removeSpotFromFavorites = async (spotId: string) => {
   const result = await apiRequest(`/api/spots/${encodeURIComponent(spotId)}`, {
     method: 'DELETE',
@@ -217,7 +217,7 @@ export const removeSpotFromFavorites = async (spotId: string) => {
 
 // Backward compatibility
 export const getCoffeeSpots = getFavoriteSpots;
-// **SCHRITT 7: Favoriten-Anzahl abrufen**
+// Favoriten-Anzahl abrufen
 export const getFavoritesCount = async (spotId: string): Promise<{ success: boolean; count: number; error?: string }> => {
   try {
     console.log(`Frontend: Lade Favoriten-Anzahl für Spot: "${spotId}"`);
@@ -253,7 +253,7 @@ export const getFavoritesCount = async (spotId: string): Promise<{ success: bool
   }
 };
 
-// **DEBUGGING: Test-Funktion für Backend-Verbindung**
+// Debugging: Test-Funktion für Backend-Verbindung
 export const testBackendConnection = async (): Promise<boolean> => {
   try {
     console.log('Teste Backend-Verbindung...');

@@ -100,18 +100,10 @@ const Navigation: React.FC = () => {
             </li>
             <li>
               <button 
-                onClick={() => scrollToSection('testi')} 
-                className="hover:text-coffee-brown transition-colors"
-              >
-                Testimonials
-              </button>
-            </li>
-            <li>
-              <button 
                 onClick={() => scrollToSection('contact')} 
                 className="hover:text-coffee-brown transition-colors"
               >
-                Contact
+                Kontakt
               </button>
             </li>
           </ul>
@@ -208,18 +200,10 @@ const Navigation: React.FC = () => {
             </li>
             <li>
               <button 
-                onClick={() => scrollToSection('testi')} 
-                className="block hover:text-coffee-brown w-full text-left"
-              >
-                Testimonials
-              </button>
-            </li>
-            <li>
-              <button 
                 onClick={() => scrollToSection('contact')} 
                 className="block hover:text-coffee-brown w-full text-left"
               >
-                Contact
+                Kontakt
               </button>
             </li>
             {/* Mobile Authentifikation */}

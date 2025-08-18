@@ -72,7 +72,7 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
-    // **SCHRITT 1: Frontend-Validierung**
+    // Frontend-Validierung
     if (!validateForm()) {
       console.log('Formular-Validierung fehlgeschlagen');
       return;
@@ -85,7 +85,7 @@ const RegisterPage: React.FC = () => {
     try {
       console.log('Registrierung wird gestartet für:', formData.username);
       
-      // **SCHRITT 2: Registrierungs-Daten an Backend senden**
+      // Registrierungs-Daten an Backend senden
       const registerData: RegisterCredentials = {
         username: formData.username,
         email: formData.email,
@@ -96,27 +96,27 @@ const RegisterPage: React.FC = () => {
       
       console.log('Backend-Antwort bei Registrierung:', response);
 
-      // **SCHRITT 3: Response auswerten**
+      // Response auswerten
       if (response.success) {
         console.log('Registrierung erfolgreich!');
         console.log('User-Daten empfangen:', response.user);
-        
-        // **SCHRITT 4: Erfolgsmeldung anzeigen**
+
+        // Erfolgsmeldung anzeigen
         setSuccess('Registrierung erfolgreich! Sie werden zur Anmeldung weitergeleitet...');
 
-        // **SCHRITT 5: User zur Login-Page weiterleiten**      
+        // User zur Login-Page weiterleiten
         console.log('Weiterleitung zur Login-Seite');
         setTimeout(() => {
           navigate('/login', { replace: true });
         }, 1500);
         
       } else {
-        // **SCHRITT 6: Spezifische Backend-Fehler anzeigen**
+        // Spezifische Backend-Fehler anzeigen
         console.log('Registrierung fehlgeschlagen:', response.message);
         setError(response.message || 'Registrierung fehlgeschlagen');
       }
     } catch (error: any) {
-      console.error(' Unerwarteter Fehler bei Registrierung:', error);
+      console.error('Unerwarteter Fehler bei Registrierung:', error);
       
       // Spezifische Fehlerbehandlung
       if (error.message.includes('E-Mail bereits registriert')) {
@@ -145,14 +145,14 @@ const RegisterPage: React.FC = () => {
       />
       
       <div className="bg-black bg-opacity-70 p-8 rounded-xl shadow-2xl w-full max-w-md relative z-10">
-        {/* Error Message */}
+        {/* Fehlermeldung */}
         {error && (
           <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-600 rounded-lg">
             <p className="text-red-300 text-sm text-center">{error}</p>
           </div>
         )}
 
-        {/* Success Message */}
+        {/* Erfolgsmeldung */}
         {success && (
           <div className="mb-6 p-4 bg-green-600 bg-opacity-20 border border-green-600 rounded-lg">
             <p className="text-green-300 text-sm text-center">{success}</p>
@@ -169,7 +169,7 @@ const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Register Form */}
+        {/* Registrierungsformular */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">

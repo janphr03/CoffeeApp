@@ -40,22 +40,22 @@ const LoginPage: React.FC = () => {
     try {
       console.log('Login-Versuch mit:', { identifier: formData.identifier });
       
-      // **SCHRITT 1: Daten an Backend senden**
+      // Daten an Backend senden
       const response = await loginUser(formData as LoginCredentials);
       
       console.log('Backend-Antwort:', response);
 
-      // **SCHRITT 2: Response auswerten**
+      // Response auswerten
       if (response.success && response.user) {
         console.log('Login erfolgreich!');
-        
-        // **SCHRITT 3: User-Daten in Context speichern**
+
+        // User-Daten in Context speichern
         login(response.user);
-        
-        // **SCHRITT 4: Zur ursprünglichen Seite oder Startseite weiterleiten**
-        navigate(from, { replace: true }); // replace: true verhindert History-Einträge
+
+        // Zur ursprünglichen Seite oder Startseite weiterleiten
+        navigate(from, { replace: true }); // verhindert History-Einträge
       } else {
-        // **SCHRITT 5: Fehler anzeigen**
+        // Fehler anzeigen
         console.log('Login fehlgeschlagen:', response.message);
         setError(response.message || 'Login fehlgeschlagen');
       }
@@ -91,14 +91,14 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Error Message */}
+        {/* Fehlermeldung */}
         {error && (
           <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-600 rounded-lg">
             <p className="text-red-300 text-sm text-center">{error}</p>
           </div>
         )}
 
-        {/* Login Form */}
+        {/* Login Formular */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="identifier" className="block text-sm font-medium text-gray-300 mb-2">

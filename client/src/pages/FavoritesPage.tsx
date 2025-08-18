@@ -28,18 +28,18 @@ const FavoritesPage: React.FC = () => {
   const { userLocation, isLocationEnabled, enableLocation, disableLocation, isLoading } = useUserLocation();
   const { favoriteSpots: dbFavorites, isLoading: isLoadingFavorites, removeFromFavorites } = useFavorites();
   const { loginUrl } = useAuthRedirect();
-  const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin
+  const [mapCenter, setMapCenter] = useState<[number, number]>([52.5200, 13.4050]); // Berlin als Standard
   const [favoriteSpots, setFavoriteSpots] = useState<CoffeeSpot[]>([]);
   
-  // Mobile state management
+  // Mobile state Management
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // Toggle mobile sidebar
+  // Mobile sidebar togglen
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
-  // Close mobile sidebar when clicking on a spot
+  // Schließt die mobile Sidebar beim Klicken auf einen Spot
   const handleSpotClickWithClose = (spot: CoffeeSpot) => {
     handleSpotClick(spot);
     setIsMobileSidebarOpen(false);
@@ -248,7 +248,7 @@ const FavoritesPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col md:flex-row bg-gray-50 overflow-hidden">
-      {/* Mobile Top Bar - visible below md (768px) */}
+      {/* Mobile Top Bar sichtbar unter md (768px) */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {/* Burger Menu Button */}
@@ -267,8 +267,8 @@ const FavoritesPage: React.FC = () => {
             ☕ CoffeeSpots
           </div>
         </div>
-        
-        {/* Right side controls */}
+
+        {/* Location und Anmelde-Buttons */}
         <div className="flex items-center space-x-3">
           {/* Location Button */}
           <button
@@ -318,7 +318,7 @@ const FavoritesPage: React.FC = () => {
         />
       )}
 
-      {/* Left Sidebar - Favorites */}
+      {/* Linke Sidebar (Favoriten) */}
       <div className={`flex-shrink-0 overflow-y-auto overflow-x-hidden transition-transform duration-300 ${
         isMobileSidebarOpen 
           ? 'md:relative md:translate-x-0 fixed inset-y-0 left-0 translate-x-0 z-50' 
@@ -341,7 +341,7 @@ const FavoritesPage: React.FC = () => {
           userLocation={userLocation}
         />
 
-        {/* Map Controls - Bottom Left: Close Map */}
+        {/* Map Buttons - Unten rechts: Map schließen */}
         <div className="absolute bottom-6 left-6 z-[1000]">
           <button
             onClick={handleCloseMap}
@@ -353,7 +353,7 @@ const FavoritesPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Map Controls - Bottom Right: Close Favorites */}
+        {/* Map Buttons - Unten rechts: Favoriten schließen */}
         <div className="absolute bottom-6 right-6 z-[1000]">
           <button
             onClick={handleCloseFavorites}
@@ -366,7 +366,7 @@ const FavoritesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Sidebar - Hidden on mobile, visible from md up */}
+      {/* Rechte Sidebar - Versteckt bei mobile, sichtbar ab md */}
       <div className="hidden md:block">
         <RightSidebar />
       </div>
