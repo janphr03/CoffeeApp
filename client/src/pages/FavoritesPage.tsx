@@ -48,12 +48,12 @@ const FavoritesPage: React.FC = () => {
   // Mobile Auth Handler
   const handleMobileLogout = async (): Promise<void> => {
     try {
-      console.log('🚪 Mobile Logout...');
+      console.log('Mobile Logout...');
       await logoutUser();
       logout();
-      console.log('✅ Mobile Logout erfolgreich!');
+      console.log('Mobile Logout erfolgreich!');
     } catch (error) {
-      console.error('❌ Mobile Logout-Fehler:', error);
+      console.error('Mobile Logout-Fehler:', error);
       logout();
     }
   };
@@ -61,30 +61,28 @@ const FavoritesPage: React.FC = () => {
   // Mobile Location Handler  
   const handleMobileLocationToggle = async () => {
     if (!isLocationEnabled) {
-      console.log('🗺️ Mobile: Standorterkennung aktivieren...');
+      console.log('Mobile: Standorterkennung aktivieren...');
       try {
         await enableLocation();
-        console.log('✅ Mobile: Location erfolgreich aktiviert');
+        console.log('Mobile: Location erfolgreich aktiviert');
       } catch (error) {
-        console.error('❌ Mobile: Fehler beim Aktivieren der Location:', error);
+        console.error('Mobile: Fehler beim Aktivieren der Location:', error);
       }
     } else {
-      console.log('🚫 Mobile: Standorterkennung deaktivieren...');
+      console.log('Mobile: Standorterkennung deaktivieren...');
       disableLocation();
-      console.log('✅ Mobile: Location erfolgreich deaktiviert');
+      console.log('Mobile: Location erfolgreich deaktiviert');
     }
   };
 
-  /**
-   * Konvertiert Grad in Radianten
-   */
+  // Konvertiert Grad in Radianten
   const toRadians = useCallback((degrees: number): number => {
     return degrees * (Math.PI / 180);
   }, []);
 
-  /**
-   * Berechnet die Entfernung zwischen zwei Punkten und formatiert sie
-   */
+
+  // Berechnet die Entfernung zwischen zwei Punkten und formatiert sie
+
   const calculateDistance = useCallback((lat1: number, lng1: number, lat2: number, lng2: number): string => {
     const R = 6371; // Erdradius in km
     const dLat = toRadians(lat2 - lat1);
@@ -101,9 +99,9 @@ const FavoritesPage: React.FC = () => {
     return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`;
   }, [toRadians]);
 
-  /**
-   * Konvertiert FavoriteSpot zu CoffeeSpot Format
-   */
+
+  // Konvertiert FavoriteSpot zu CoffeeSpot Format
+
   const convertFavoriteToSpot = useCallback((favorite: FavoriteSpot, userLat?: number, userLng?: number): CoffeeSpot => {
     // Extrahiere ID aus der _id (Format: "userId:osmType:osmId")
     const idParts = favorite._id.split(':');
@@ -122,7 +120,7 @@ const FavoritesPage: React.FC = () => {
       id: spotId,
       name: favorite.name,
       address: favorite.address,
-      rating: 0, // Wird durch FavoritesCountDisplay ersetzt
+      rating: 0,
       lat: favorite.lat,
       lng: favorite.lon,
       isOpen: true, // Standard-Wert
@@ -132,9 +130,7 @@ const FavoritesPage: React.FC = () => {
     };
   }, [calculateDistance]);
 
-  /**
-   * Konvertiert DB-Favoriten zu UI-Format und sortiert nach Entfernung
-   */
+  // Konvertiert DB-Favoriten zu UI-Format und sortiert nach Entfernung
   const processDbFavorites = useCallback(() => {
     if (!dbFavorites.length) {
       setFavoriteSpots([]);
@@ -168,7 +164,7 @@ const FavoritesPage: React.FC = () => {
     console.log(`${sortedSpots.length} Favoriten verarbeitet und sortiert`);
   }, [dbFavorites, userLocation, convertFavoriteToSpot]);
 
-  // **Location Context synchronisieren**
+  // Location Context synchronisieren
   useEffect(() => {
     if (isLocationEnabled && userLocation) {
       console.log('Location Context aktiviert, setze Map Center:', userLocation);

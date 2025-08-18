@@ -60,7 +60,7 @@ export const useFavoritesCount = (spotId: string): UseFavoritesCountResult => {
       
       // Wenn dieser Spot aktualisiert wurde, neu laden
       if (updatedSpotId === spotId) {
-        console.log(`🔄 Favoriten-Anzahl für Spot ${spotId} wird neu geladen (Action: ${action})...`);
+        console.log(`Favoriten-Anzahl für Spot ${spotId} wird neu geladen (Action: ${action})...`);
 
         // Optimistische Aktualisierung
         if (action === 'added') {

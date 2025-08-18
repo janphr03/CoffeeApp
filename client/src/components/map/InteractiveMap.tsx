@@ -72,7 +72,7 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 
 const InteractiveMap: React.FC<InteractiveMapProps> = ({ 
   coffeeSpots, 
-  center = [52.5200, 13.4050], // Berlin als Standard
+  center = [52.5200, 13.4050], // Berlin als Startpunkt wenn kein Standort freigegeben
   zoom = 13,
   userLocation = null,
   selectedSpotId = null,
