@@ -6,14 +6,13 @@ export interface OpeningHoursStatus {
 }
 
 export class OpeningHoursService {
-  // **MEMOIZATION: Cache für geparste Öffnungszeiten**
+  // Memoisierung (Cache für geparste Öffnungszeiten)
   private static openingHoursCache = new Map<string, { [day: number]: { start: number, end: number }[] }>();
   private static cacheExpiration = new Map<string, number>();
   private static readonly CACHE_DURATION_MS = 10 * 60 * 1000; // 10 Minuten Cache
 
-  /**
-   * Hauptfunktion: Bestimmt den aktuellen Öffnungsstatus
-   */
+  
+   //Hauptfunktion: Bestimmt den aktuellen Öffnungsstatus
   public static evaluateOpeningHours(openingHours?: string): OpeningHoursStatus {
     if (!openingHours) {
       return {
@@ -39,7 +38,7 @@ export class OpeningHoursService {
         };
       }
 
-      // **MEMOIZATION: Parse die Öffnungszeiten mit Cache**
+      // Memoisierung: Parse die Öffnungszeiten mit Cache
       const dayHours = this.parseOpeningHoursWithCache(openingHours);
       //console.log('Geparste Tage:', dayHours); // Debug-Ausgabe
       const todaysHours = dayHours[currentDay];
@@ -65,7 +64,7 @@ export class OpeningHoursService {
     } catch (error) {
       console.warn('Fehler beim Parsen der Öffnungszeiten:', openingHours, error);
       return {
-        isOpen: true, // Im Zweifel optimistisch
+        isOpen: true, 
         status: 'unknown',
         statusText: 'Öffnungszeiten nicht verfügbar'
       };
@@ -81,8 +80,7 @@ export class OpeningHoursService {
            normalized.includes('24h') ||
            normalized === 'mo-su00:00-24:00';
   }
-  // MEMOIZATION: Parse Öffnungszeiten mit Cache**
-
+  // Memoisierung
   private static parseOpeningHoursWithCache(openingHours: string): { [day: number]: { start: number, end: number }[] } {
     const now = Date.now();
     
@@ -103,18 +101,18 @@ export class OpeningHoursService {
       }
     }
     
-    // PERFORMANCE LOGGING: Parsing-Zeit messen
+    // Performance-Logging: Parsing-Zeit messen
     const parseStartTime = performance.now();
     
     // Nicht im Cache oder abgelaufen: Neu parsen
     const result = this.parseOpeningHours(openingHours);
     
-    // PERFORMANCE LOGGING: Parsing-Zeit
+    // Performance-Logging: Parsing-Zeit
     const parseEndTime = performance.now();
     const parseTime = parseEndTime - parseStartTime;
     console.log(`Öffnungszeiten Parsing Zeit: ${parseTime.toFixed(2)}ms für "${openingHours.substring(0, 30)}..."`);
     
-    // PERFORMANCE LOGGING: Warnung bei langsamen Parsing
+    // Performance-Logging: Warnung bei langsamen Parsing
     if (parseTime > 10) {
       console.warn(`LANGSAMES ÖFFNUNGSZEITEN-PARSING: ${parseTime.toFixed(2)}ms (über 10ms!)`);
     }
@@ -220,7 +218,7 @@ export class OpeningHoursService {
   }
 
   /**
-   * Parst komplexe Tages-Gruppen mit mehreren Zeiträumen
+   * Parst Tages-Gruppen mit mehreren Zeiträumen
    * z.B. "Mo-Sa 08:00-12:00, Tu-Fr 14:00-18:00, Su 08:00-11:00,13:30-17:00"
    */
   private static parseComplexDayGroup(part: string, result: { [day: number]: { start: number, end: number }[] }): void {
@@ -297,8 +295,8 @@ export class OpeningHoursService {
       const [, startTime, endTime] = timeMatch;
       const start = this.timeToMinutes(startTime);
       const end = this.timeToMinutes(endTime);
-      
-      // Handle overnight hours (end < start)
+
+      // "Über Nacht" (end < start)
       const range = { start, end: end < start ? end + 2400 : end };
       
       for (const day of days) {
@@ -366,12 +364,12 @@ export class OpeningHoursService {
   private static isTimeInRange(currentTime: number, ranges: { start: number, end: number }[]): boolean {
     for (const range of ranges) {
       if (range.end > 2400) {
-        // Overnight hours
+        // Über Nacht
         if (currentTime >= range.start || currentTime <= (range.end - 2400)) {
           return true;
         }
       } else {
-        // Normal hours
+        // Normal
         if (currentTime >= range.start && currentTime <= range.end) {
           return true;
         }
@@ -380,14 +378,14 @@ export class OpeningHoursService {
     return false;
   }
 
-  // MEMOIZATION: Cache zurücksetzen (für Debugging)
+  // Memoisierung: Cache zurücksetzen (für Debugging)
   public static clearOpeningHoursCache(): void {
     this.openingHoursCache.clear();
     this.cacheExpiration.clear();
     console.log('Öffnungszeiten-Cache wurde geleert');
   }
 
-   // MEMOIZATION: Cache-Statistiken anzeigen
+   // Memoisierung: Cache-Statistiken anzeigen
   public static getCacheStats(): { size: number, entries: string[] } {
     const entries: string[] = [];
     this.openingHoursCache.forEach((_, key) => {

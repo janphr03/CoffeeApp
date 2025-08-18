@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import AnimatedSection from '../components/AnimatedSection';
-
-interface FormData {
-  name: string;
-  email: string;
-  message: string;
-}
 
 interface Feature {
   icon: string;
@@ -16,48 +10,27 @@ interface Feature {
 }
 
 const HomePage: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    message: ''
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Hier würde normalerweise die Form-Verarbeitung stattfinden
-    alert('Nachricht gesendet! (Demo)');
-    setFormData({ name: '', email: '', message: '' });
-  };
-
   const features: Feature[] = [
     {
       icon: '📍',
-      title: 'Echtzeit‑Karte',
-      description: 'Interaktive Karte mit allen Coffee‑Spots.'
+      title: 'Echtzeit-Karte',
+      description: 'Interaktive Karte mit allen Coffee-Spots.'
     },
     {
       icon: '⭐',
-      title: 'Bewertungen',
-      description: 'Teile deine Erfahrungen und entdecke neue Lieblingsorte.'
-    },
-    {
-      icon: '💾',
       title: 'Favoriten',
       description: 'Speichere deine Lieblinge.'
+    },
+    {
+      icon: '📱',
+      title: 'Responsivität',
+      description: 'Optimale Darstellung auf allen Geräten.'
     }
   ];
 
   return (
     <div className="font-inter min-h-screen text-gray-200 antialiased overflow-x-hidden relative">
-      {/* Statisches Hintergrundbild */}
+      {/* Hintergrundbild */}
       <div 
         className="fixed top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -78,7 +51,7 @@ const HomePage: React.FC = () => {
             Erlebe Kaffee neu
           </h1>
           <p className="text-lg md:text-2xl text-gray-300 mb-8">
-            Tauche ein in eine Welt voller Coffee Spots – interaktiv & fließend.
+            Tauche ein in eine Welt voller Coffee Spots - interaktiv & personalisiert.
           </p>
           <Link
             to="/map"
@@ -97,7 +70,7 @@ const HomePage: React.FC = () => {
           </h2>
           <p className="max-w-2xl mx-auto text-gray-300 text-lg">
             Wir verbinden Kaffeeliebhaber mit den besten Spots deiner Stadt. 
-            Entdecke, bewerte und speichere deine Favoriten – alles nahtlos und fließend.
+            Entdecke neue Cafés und speichere deine Favoriten - alles nahtlos und personalisiert.
           </p>
         </div>
       </AnimatedSection>
@@ -129,74 +102,30 @@ const HomePage: React.FC = () => {
         </div>
       </AnimatedSection>
 
-      {/* Testimonials Section */}
-      <AnimatedSection id="testi" className="py-20">
+      {/* Kontakt Section */}
+      <AnimatedSection id="contact" className="py-20">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-coffee-light mb-12">
-            Was unsere Nutzer sagen
+          <h2 className="text-3xl font-bold text-coffee-light mb-6">
+            Kontakt
           </h2>
-          <div className="space-y-8 max-w-2xl mx-auto">
-            <blockquote className="p-6 bg-black bg-opacity-50 rounded-xl italic text-gray-300">
-              „Unglaublich einfach zu bedienen und super stylisch – CoffeeSpots hat meine Kaffeewelt verändert!"
-              <footer className="mt-4 text-right font-semibold text-coffee-brown not-italic">
-                – Alex
-              </footer>
-            </blockquote>
-            <blockquote className="p-6 bg-black bg-opacity-50 rounded-xl italic text-gray-300">
-              „Endlich finde ich neue Spots, die ich ohne diese App nie entdeckt hätte!"
-              <footer className="mt-4 text-right font-semibold text-coffee-brown not-italic">
-                – Maria
-              </footer>
-            </blockquote>
+          <div className="max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 mb-4">
+              Haben Sie noch Fragen oder brauchen Sie Hilfe? 
+            </p>
+            <p className="text-lg text-gray-300">
+              Dann senden Sie uns gerne eine Mail!
+            </p>
+            <a 
+              href="mailto:contact@coffeespots.com"
+              className="inline-block mt-4 text-xl font-semibold text-coffee-light hover:text-coffee-brown transition-colors duration-300"
+            >
+              contact@coffeespots.com
+            </a>
           </div>
         </div>
       </AnimatedSection>
 
-      {/* Contact Section */}
-      <AnimatedSection id="contact" className="py-20">
-        <div className="container mx-auto px-6 max-w-md">
-          <h2 className="text-3xl font-bold text-coffee-light mb-6 text-center">
-            Kontakt
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Dein Name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Deine Email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
-            />
-            <textarea
-              rows={4}
-              name="message"
-              placeholder="Deine Nachricht"
-              value={formData.message}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 rounded bg-black bg-opacity-50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-coffee-brown transition-all"
-            />
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-coffee-brown to-coffee-darkBrown hover:from-coffee-darkBrown hover:to-coffee-brown text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105"
-            >
-              Absenden
-            </button>
-          </form>
-        </div>
-      </AnimatedSection>
-
-      {/* Footer */}
+      {/* Standard-Footer zum Abrunden, ein richtiges Impressum etc. hielten wir für unnötig */}
       <footer className="py-6 text-center text-gray-500">
         &copy; 2025 CoffeeSpots • 
         <button className="hover:text-coffee-brown transition-colors"> Impressum</button> • 

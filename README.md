@@ -80,6 +80,12 @@ browserTests.bat
 - ✅ Cross-Browser Kompatibilität
 - ❗ **Nach dem Test**: Client mit `STRG+C` schließen
 
+### 4. Test-Accounts
+- Wir stellen schon 3 Test-Accounts bereit, um das Erkunden der Features zu erleichtern
+- Die Usernames sind: test1, test2 und test3
+- Die Passwörter sind überall: test123
+- Die ersten beiden Accounts haben schon ein paar Favoriten, der dritte noch nicht
+
 > 💡 **Tipp**: Alle Tests sind optional, aber empfohlen für die Entwicklung!
 
 ## 📖 Kompletter Workflow
@@ -212,3 +218,5 @@ install.bat
 ## 🌟 Team
 
 Entwickelt mit ❤️ von Jan Herrmann und Alexander Maximow
+
+Readme wurde größtenteils mit ChatGPT erstellt

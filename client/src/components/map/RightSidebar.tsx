@@ -5,12 +5,7 @@ import { useUserLocation } from '../../contexts/LocationContext';
 import { logoutUser } from '../../services/api';
 import { useAuthRedirect } from '../../hooks/useAuthRedirect';
 
-interface RightSidebarProps {
-  onLocationChange?: (location: [number, number]) => void;
-  onUserLocationUpdate?: (location: [number, number] | null) => void;
-}
-
-const RightSidebar: React.FC<RightSidebarProps> = ({ onLocationChange, onUserLocationUpdate }) => {
+const RightSidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const { loginUrl, registerUrl } = useAuthRedirect();
   const { 

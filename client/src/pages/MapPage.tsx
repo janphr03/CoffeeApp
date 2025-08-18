@@ -32,7 +32,7 @@ const MapPage: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Einfach 300ms warten, dann Map rendern
+    // 300ms warten, dann Map rendern, ohne Delay kommt es zu Anzeigeproblemen
     const timer = setTimeout(() => {
       setShowMap(true);
     }, 300);
@@ -122,7 +122,6 @@ const MapPage: React.FC = () => {
     } catch (error) {
       console.error('Fehler beim Laden der Cafés:', error);
       setNearbyCafes([]);
-      // Hier könnte eine Benutzer-Benachrichtigung hinzugefügt werden
     } finally {
       setIsLoadingCafes(false);
     }
@@ -131,13 +130,13 @@ const MapPage: React.FC = () => {
   // Coffee Spots: Nur echte Café-Daten von der Overpass API
   const coffeeSpots: CoffeeSpot[] = nearbyCafes;
 
-  // **SCHRITT: Location Context synchronisieren - OHNE PARENT CALLBACKS**
+  // Location Context synchronisieren - OHNE PARENT CALLBACKS
   useEffect(() => {
     if (isLocationEnabled && userLocation) {
       console.log('Location Context aktiviert, lade Cafés für:', userLocation);
       setMapCenter(userLocation);
 
-      // **WICHTIG: Café-Loading throtteln um 429-Fehler zu vermeiden**
+      // Café-Loading throtteln um 429-Fehler zu vermeiden
       const timer = setTimeout(() => {
         loadNearbyCafesLocal(userLocation[0], userLocation[1]);
       }, 1000); // 1 Sekunde Verzögerung
@@ -149,18 +148,6 @@ const MapPage: React.FC = () => {
       setNearbyCafes([]);
     }
   }, [isLocationEnabled, userLocation, loadNearbyCafesLocal]); // Alle Dependencies hinzugefügt
-
-  // **ENTFERNT: handleLocationChange und handleUserLocationUpdate werden nicht mehr verwendet**
-  // Der LocationContext verwaltet alles zentral
-  const handleLocationChange = (newLocation: [number, number]) => {
-    // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt mapCenter setzt
-    console.log('Map-Position Callback (wird ignoriert):', newLocation);
-  };
-
-  const handleUserLocationUpdate = async (location: [number, number] | null) => {
-    // Diese Funktion wird nicht mehr verwendet, da LocationContext direkt verwaltet wird
-    console.log('User-Location Callback (wird ignoriert):', location);
-  };
 
   const handleSpotClick = (spot: CoffeeSpot) => {
     // Karte zu dem angeklickten Spot zentrieren
@@ -191,12 +178,12 @@ const MapPage: React.FC = () => {
   // Mobile Auth Handler
   const handleMobileLogout = async (): Promise<void> => {
     try {
-      console.log('🚪 Mobile Logout...');
+      console.log('Mobile Logout...');
       await logoutUser();
       logout();
-      console.log('✅ Mobile Logout erfolgreich!');
+      console.log('Mobile Logout erfolgreich!');
     } catch (error) {
-      console.error('❌ Mobile Logout-Fehler:', error);
+      console.error('Mobile Logout-Fehler:', error);
       logout();
     }
   };
@@ -204,17 +191,17 @@ const MapPage: React.FC = () => {
   // Mobile Location Handler  
   const handleMobileLocationToggle = async () => {
     if (!isLocationEnabled) {
-      console.log('🗺️ Mobile: Standorterkennung aktivieren...');
+      console.log('Mobile: Standorterkennung aktivieren...');
       try {
         await enableLocation();
-        console.log('✅ Mobile: Location erfolgreich aktiviert');
+        console.log('Mobile: Location erfolgreich aktiviert');
       } catch (error) {
-        console.error('❌ Mobile: Fehler beim Aktivieren der Location:', error);
+        console.error('Mobile: Fehler beim Aktivieren der Location:', error);
       }
     } else {
-      console.log('🚫 Mobile: Standorterkennung deaktivieren...');
+      console.log('Mobile: Standorterkennung deaktivieren...');
       disableLocation();
-      console.log('✅ Mobile: Location erfolgreich deaktiviert');
+      console.log('Mobile: Location erfolgreich deaktiviert');
     }
   };
 
@@ -306,7 +293,7 @@ const MapPage: React.FC = () => {
           />
         </div>
 
-        {/* Mittlere Sektion: Map mit Zoom-Verhalten */}
+        {/* Mittlere Sektion: Map */}
         <div className="flex-1 relative overflow-hidden">
           {/* Loading Overlay - nur während showMap false */}
           {!showMap && (
@@ -360,10 +347,7 @@ const MapPage: React.FC = () => {
 
         {/* Rechte Sidebar: Authentication & Standort - nur ab md */}
         <div className="flex-shrink-0 overflow-hidden hidden md:block">
-          <RightSidebar
-              onLocationChange={handleLocationChange}
-              onUserLocationUpdate={handleUserLocationUpdate}
-          />
+          <RightSidebar />
         </div>
       </div>
   );

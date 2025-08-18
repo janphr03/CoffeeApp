@@ -33,8 +33,8 @@ export class OverpassApiService {
   // Konfigurierbare Parameter
   private static readonly DEFAULT_RADIUS_KM = 10;
   private static readonly DEFAULT_MAX_RESULTS = 10;
-  
-  // **RATE LIMITING: Verhindert zu viele API-Calls**
+
+  // Rate-Limiting (Verhindert zu viele API-Calls)
   private static lastRequestTime: number = 0;
   private static readonly MIN_REQUEST_INTERVAL = 2000; // 2 Sekunden zwischen Requests
   private static isRequestInProgress: boolean = false;
@@ -180,9 +180,9 @@ export class OverpassApiService {
   ): Promise<NearbyCafe[]> {
     try {
       const simpleQuery = this.buildSimpleQuery(lat, lng, radiusKm, maxResults);
-      console.log('📡 Einfache Backup Query:', simpleQuery.trim());
+      console.log('Einfache Backup Query:', simpleQuery.trim());
       
-      // PERFORMANCE LOGGING: Backup-API-Request-Zeit messen
+      // Performance Logging: Backup-API-Request-Zeit messen
       const backupApiStartTime = performance.now();
       
       const response = await fetch(this.BASE_URL, {
@@ -193,7 +193,7 @@ export class OverpassApiService {
         body: simpleQuery.trim()
       });
       
-      // PERFORMANCE LOGGING: Backup API Response Zeit
+      // Performance Logging: Backup API Response Zeit
       const backupApiEndTime = performance.now();
       const backupApiResponseTime = backupApiEndTime - backupApiStartTime;
       console.log(`Backup API Response Zeit: ${backupApiResponseTime.toFixed(2)}ms`);
@@ -203,14 +203,14 @@ export class OverpassApiService {
         return [];
       }
       
-      // **PERFORMANCE LOGGING: Backup JSON Parse Zeit**
+      // Performance Logging: Backup JSON Parse Zeit
       const backupParseStartTime = performance.now();
       const data: OverpassResponse = await response.json();
       const backupParseEndTime = performance.now();
       const backupParseTime = backupParseEndTime - backupParseStartTime;
       console.log(`Backup JSON Parse Zeit: ${backupParseTime.toFixed(2)}ms`);
       
-      // **PERFORMANCE LOGGING: Warnung bei langsamen Backup-Anfragen**
+      // Performance Logging: Warnung bei langsamen Backup-Anfragen
       if (backupApiResponseTime > 5000) {
         console.warn(`LANGSAME BACKUP-ANFRAGE: ${backupApiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
       }
@@ -239,7 +239,7 @@ export class OverpassApiService {
       const fallbackQuery = this.buildFallbackQuery(lat, lng, radiusKm, maxResults);
       console.log('Fallback Overpass Query:', fallbackQuery.trim());
       
-      // **PERFORMANCE LOGGING: Fallback-API-Request-Zeit messen**
+      // Performance Logging: Fallback-API-Request-Zeit messen
       const fallbackApiStartTime = performance.now();
       
       const response = await fetch(this.BASE_URL, {
@@ -250,7 +250,7 @@ export class OverpassApiService {
         body: fallbackQuery.trim()
       });
       
-      // PERFORMANCE LOGGING: Fallback API Response Zeit
+      // Performance Logging: Fallback API Response Zeit
       const fallbackApiEndTime = performance.now();
       const fallbackApiResponseTime = fallbackApiEndTime - fallbackApiStartTime;
       console.log(`Fallback API Response Zeit: ${fallbackApiResponseTime.toFixed(2)}ms`);
@@ -260,14 +260,14 @@ export class OverpassApiService {
         return existingCafes;
       }
       
-      // PERFORMANCE LOGGING: Fallback JSON Parse Zeit
+      // Performance Logging: Fallback JSON Parse Zeit
       const fallbackParseStartTime = performance.now();
       const data: OverpassResponse = await response.json();
       const fallbackParseEndTime = performance.now();
       const fallbackParseTime = fallbackParseEndTime - fallbackParseStartTime;
       console.log(`Fallback JSON Parse Zeit: ${fallbackParseTime.toFixed(2)}ms`);
       
-      // **PERFORMANCE LOGGING: Warnung bei langsamen Fallback-Anfragen**
+      // Performance Logging: Warnung bei langsamen Fallback-Anfragen
       if (fallbackApiResponseTime > 5000) {
         console.warn(`LANGSAME FALLBACK-ANFRAGE: ${fallbackApiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
       }
@@ -286,29 +286,22 @@ export class OverpassApiService {
     }
   }
 
-  /**
-   * Lädt Cafés in der Nähe des angegebenen Standorts
-   * @param lat Breitengrad des Zentrums
-   * @param lng Längengrad des Zentrums
-   * @param radiusKm Radius in Kilometern (Standard: 10km)
-   * @param maxResults Maximale Anzahl der Ergebnisse (Standard: 10)
-   * @returns Promise mit Array von NearbyCafe Objekten
-   */
+  // Lädt Cafés in der Nähe des angegebenen Standorts
   static async loadNearbyCafes(
     lat: number, 
     lng: number, 
     radiusKm: number = this.DEFAULT_RADIUS_KM,
     maxResults: number = this.DEFAULT_MAX_RESULTS
   ): Promise<NearbyCafe[]> {
-    // PERFORMANCE LOGGING: Gesamtzeit-Messung starten
+    // Performance Logging: Gesamtzeit-Messung starten
     const totalStartTime = performance.now();
     
-    // RATE LIMITING: Verhindert zu schnelle aufeinanderfolgende Requests
+    // Rate Limiting: Verhindert zu schnelle aufeinanderfolgende Requests
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
     
     if (this.isRequestInProgress) {
-      console.log('⏸️ Request bereits in Bearbeitung, warte...');
+      console.log('Request bereits in Bearbeitung, warte...');
       return [];
     }
     
@@ -331,7 +324,7 @@ export class OverpassApiService {
         const query = this.buildOptimizedQuery(lat, lng, radiusKm, maxResults);
         console.log('Optimierte Overpass Query:', query.trim());
         
-        // PERFORMANCE LOGGING: API-Request-Zeit messen
+        // Performance Logging: API-Request-Zeit messen
         const apiStartTime = performance.now();
         
         const response = await fetch(this.BASE_URL, {
@@ -342,20 +335,20 @@ export class OverpassApiService {
           body: query.trim()
         });
         
-        // PERFORMANCE LOGGING: API Response Zeit
+        // Performance Logging: API Response Zeit
         const apiEndTime = performance.now();
         const apiResponseTime = apiEndTime - apiStartTime;
         console.log(`API Response Zeit: ${apiResponseTime.toFixed(2)}ms`);
         
         if (response.ok) {
-          // PERFORMANCE LOGGING: JSON Parse Zeit messen
+          // Performance Logging: JSON Parse Zeit messen
           const parseStartTime = performance.now();
           const data: OverpassResponse = await response.json();
           const parseEndTime = performance.now();
           const parseTime = parseEndTime - parseStartTime;
           console.log(`JSON Parse Zeit: ${parseTime.toFixed(2)}ms`);
           
-          // PERFORMANCE LOGGING: Warnung bei langsamen Anfragen
+          // Performance Logging: Warnung bei langsamen Anfragen
           if (apiResponseTime > 5000) {
             console.warn(`LANGSAME API-ANFRAGE: ${apiResponseTime.toFixed(2)}ms (über 5 Sekunden!)`);
           }
@@ -386,12 +379,12 @@ export class OverpassApiService {
       // Nach Entfernung sortieren und begrenzen
       const sortedCafes = this.sortByDistance(cafes, lat, lng).slice(0, maxResults);
       
-      // PERFORMANCE LOGGING: Gesamtzeit berechnen und ausgeben
+      // Performance Logging: Gesamtzeit berechnen und ausgeben
       const totalEndTime = performance.now();
       const totalTime = totalEndTime - totalStartTime;
       console.log(`Gesamtzeit der Cafe-Suche: ${totalTime.toFixed(2)}ms`);
       
-      // PERFORMANCE LOGGING: Warnung bei sehr langsamen Gesamtoperationen
+      // Performance Logging: Warnung bei sehr langsamen Gesamtoperationen
       if (totalTime > 10000) {
         console.warn(`SEHR LANGSAME GESAMTOPERATION: ${totalTime.toFixed(2)}ms (über 10 Sekunden!)`);
       }
@@ -400,7 +393,7 @@ export class OverpassApiService {
       return sortedCafes;
       
     } catch (error) {
-      // PERFORMANCE LOGGING: Gesamtzeit auch bei Fehler
+      // Performance Logging: Gesamtzeit auch bei Fehler
       const totalEndTime = performance.now();
       const totalTime = totalEndTime - totalStartTime;
       console.log(`Gesamtzeit (mit Fehler): ${totalTime.toFixed(2)}ms`);
