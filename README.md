@@ -218,4 +218,4 @@ install.bat
 
 Entwickelt mit ❤️ von Jan Herrmann und Alexander Maximow
 
-Readme wurde größtenteils mit ChatGPT erstellt
+Readme wurde mit Hilfe von KI erstellt
