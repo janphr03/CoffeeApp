@@ -2,16 +2,16 @@
 
 Eine moderne Web-Anwendung zum Entdecken und Verwalten von Coffee Spots mit interaktiver Karte und Favoriten-System.
 
-## 🎯 Features
+## Features
 
-- 🗺️ **Interaktive Karte** - Entdecke Coffee Spots in deiner Umgebung
-- ⭐ **Favoriten-System** - Speichere deine Lieblings-Cafés
-- 🔐 **Benutzerauthentifizierung** - Sicheres Login/Register System
-- 📱 **Responsive Design** - Optimiert für Desktop, Tablet und Mobile
-- 🌍 **Standort-Integration** - GPS-basierte Suche
-- 📊 **Beliebtheits-Counter** - Sieh wie beliebt Coffee Spots sind
+- **Interaktive Karte** - Entdecke Coffee Spots in deiner Umgebung
+- **Favoriten-System** - Speichere deine Lieblings-Cafés
+- **Benutzerauthentifizierung** - Sicheres Login/Register System
+- **Responsive Design** - Optimiert für Desktop, Tablet und Mobile
+- **Standort-Integration** - GPS-basierte Suche
+- **Beliebtheits-Counter** - Sieh wie beliebt Coffee Spots sind
 
-## 🏗️ Architektur
+## Architektur
 
 ```
 CoffeeSpots/
@@ -27,7 +27,7 @@ CoffeeSpots/
 - **Authentication**: Session-basiert mit bcrypt
 - **API**: RESTful mit OpenAPI 3.0 Spezifikation
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Voraussetzungen
 - [Node.js](https://nodejs.org/) (v16+)
@@ -46,11 +46,10 @@ CoffeeSpots/
    ```bash
    start.bat
    ```
-   > 🚀 Startet Backend (http://localhost:3000) und Frontend (http://localhost:5000)
+   > Startet Backend (http://localhost:3000) und Frontend (http://localhost:5000)
 
-Das war's! Die Anwendung läuft jetzt und ist bereit zur Nutzung. 🎉
-
-## 🧪 Testing (Optional)
+Das war's! Die Anwendung läuft jetzt und ist bereit zur Nutzung. 
+## Testing (Optional)
 
 CoffeeSpots bietet umfassende Tests für Qualitätssicherung:
 
@@ -58,27 +57,27 @@ CoffeeSpots bietet umfassende Tests für Qualitätssicherung:
 ```bash
 integrationTests.bat
 ```
-- ✅ API-Endpunkt Tests
-- ✅ Datenbank-Integration
-- ✅ Authentication-Flow
-- ❗ **Nach dem Test**: Client mit `STRG+C` schließen
+- API-Endpunkt Tests
+- Datenbank-Integration
+- Authentication-Flow
+- **Nach dem Test**: Client mit `STRG+C` schließen
 
 ### 2. Unit Tests
 ```bash
 unitTests.bat
 ```
-- ✅ Komponenten-Tests
-- ✅ Utility-Functions
-- ✅ Business Logic
+- Komponenten-Tests
+- Utility-Functions
+- Business Logic
 
 ### 3. Browser Tests
 ```bash
 browserTests.bat
 ```
-- ✅ End-to-End Tests
-- ✅ UI-Interaktionen
-- ✅ Cross-Browser Kompatibilität
-- ❗ **Nach dem Test**: Client mit `STRG+C` schließen
+- End-to-End Tests
+- UI-Interaktionen
+- Cross-Browser Kompatibilität
+- **Nach dem Test**: Client mit `STRG+C` schließen
 
 ### 4. Test-Accounts
 - Wir stellen schon 3 Test-Accounts bereit, um das Erkunden der Features zu erleichtern
@@ -86,9 +85,9 @@ browserTests.bat
 - Die Passwörter sind überall: test123
 - Die ersten beiden Accounts haben schon ein paar Favoriten, der dritte noch nicht
 
-> 💡 **Tipp**: Alle Tests sind optional, aber empfohlen für die Entwicklung!
+> **Tipp**: Alle Tests sind optional, aber empfohlen für die Entwicklung!
 
-## 📖 Kompletter Workflow
+## Kompletter Workflow
 
 ### Erste Einrichtung
 ```bash
@@ -110,7 +109,7 @@ browserTests.bat
 start.bat
 ```
 
-## 🌐 Verwendung
+## Verwendung
 
 ### URLs
 - **Frontend**: http://localhost:3000
@@ -124,7 +123,7 @@ start.bat
 4. **Standort aktivieren** - Für personalisierte Ergebnisse
 5. **Favoriten-Seite** - Alle gespeicherten Coffee Spots anzeigen
 
-## 🔧 Entwicklung
+## Entwicklung
 
 ### Projektstruktur
 ```
@@ -175,7 +174,7 @@ PORT=5000
 REACT_APP_API_URL=http://localhost:5000/api
 ```
 
-## 📊 Scripts Übersicht
+## Scripts Übersicht
 
 | Script | Zweck | Nachbehandlung |
 |--------|-------|----------------|
@@ -185,7 +184,7 @@ REACT_APP_API_URL=http://localhost:5000/api
 | `unitTests.bat` | Komponenten & Logic Tests | - |
 | `browserTests.bat` | End-to-End UI Tests | `STRG+C` nach Test |
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Häufige Probleme
 
@@ -215,7 +214,7 @@ install.bat
 - Wenn es ewig lang lädt, abwarten und viel Geduld mitbringen oder es zu einem späteren Zeitpunkt nochmal neu versuchen
 - Wir haben Logs eingefügt, die die Antwortzeiten der API und die Parsing-Zeiten unseres Codes genau dokumentieren
 
-## 🌟 Team
+## Team
 
 Entwickelt mit ❤️ von Jan Herrmann und Alexander Maximow
 
